@@ -86,6 +86,6 @@ namespace Node {
 		std::unordered_map<std::string, std::pair<bool, std::pair<NiTransform, vector_flags>>> map;
 
 		template<typename Func = std::function<void(NiAVObject*)>>
-		[[nodiscard]] std::int32_t Visit(const std::string& sNode, const bool noupdate, Func fn) noexcept;
+		[[nodiscard]] std::int32_t Visit(const std::string& sNode, const bool update, Func fn) noexcept;
 	};
 }

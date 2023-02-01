@@ -19,7 +19,7 @@ namespace BA2 {
 		Success
 	};
 
-	enum class Type {
+	enum class Type : std::uint32_t {
 
 		GNRL = 0x4c524e47,
 		DX10 = 0x30315844,

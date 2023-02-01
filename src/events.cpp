@@ -444,7 +444,6 @@ namespace Events {
 				mov(ptr[rsp + 0x08], rbx);
 				mov(ptr[rsp + 0x10], rbp);
 				mov(ptr[rsp + 0x18], rsi);
-				
 				push(rdi);
 
 				jmp(ptr[rip + retnLabel]);

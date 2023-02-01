@@ -3,12 +3,14 @@
 
 namespace Fixes {
 
-	[[nodiscard]] bool Preset::Load() noexcept
+	bool Preset::Load() noexcept
 	{
 		std::ifstream ifs{ FilePreset, std::ios_base::binary };
 
 		if (!ifs)
 			return false;
+
+		_DMESSAGE("Reading preset file from %s...", FilePreset);
 
 		std::string str{};
 
@@ -37,7 +39,7 @@ namespace Fixes {
 		return true;
 	}
 
-	[[nodiscard]] bool Preset::FindKeyword(const std::string& sKeyword, Json::Value& value) noexcept
+	bool Preset::FindKeyword(const std::string& sKeyword, Json::Value& value) noexcept
 	{
 		if (root.empty())
 			return false;
@@ -57,7 +59,7 @@ namespace Fixes {
 		return false;
 	}
 
-	[[nodiscard]] Node::Flags Preset::GetFlags(const std::string& str) noexcept
+	Node::Flags Preset::GetFlags(const std::string& str) noexcept
 	{
 		static std::vector<std::string> v_flags{ "posx", "posy", "posz", "scale", "rotx", "roty", "rotz" };
 

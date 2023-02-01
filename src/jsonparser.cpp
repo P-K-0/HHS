@@ -14,12 +14,29 @@ namespace JsonParser {
 	{
 		boost::filesystem::path path{ directory };
 
-		for (auto& it : boost::filesystem::directory_iterator{ path }) {
+		if (!boost::filesystem::exists(path))
+			return;
 
-			if (_strcmpi(it.path().extension().string().c_str(), ".json") != 0)
-				continue;
+		try {
 
-			files.insert(it.path().string());
+			for (auto& it : boost::filesystem::directory_iterator{ path }) {
+
+				if (!boost::filesystem::is_regular_file(it))
+					continue;
+
+				if (_strcmpi(it.path().extension().string().c_str(), ".json") != 0)
+					continue;
+
+				files.insert(it.path().string());
+			}
+		}
+		catch (boost::filesystem::filesystem_error& err) {
+
+			_DMESSAGE("%s", err.what());
+		}
+		catch (...) {
+
+			_DMESSAGE("%s unknown error!", __FUNCTION__);
 		}
 	}
 
@@ -30,7 +47,13 @@ namespace JsonParser {
 
 		boost::filesystem::path path{ directory };
 
+		if (!boost::filesystem::exists(path))
+			return;
+
 		for (auto& dir : boost::filesystem::directory_iterator{ path }) {
+
+			if (!boost::filesystem::is_regular_file(dir))
+				continue;
 
 			if (_strcmpi(dir.path().extension().string().c_str(), ".ba2") != 0)
 				continue;
@@ -85,8 +108,8 @@ namespace JsonParser {
 
 	class BGSMod__Attachment__Mod;
 
-	template<typename Func = std::function<void(const char*)>>
-	void GetPathFromID(const std::uint32_t id, const int gender, Func func) noexcept
+	template<typename Func = std::function<void(const std::string&)>>
+	void GetPathFromID(const std::uint32_t id, const std::uint32_t gender, Func func) noexcept
 	{
 		TESForm* form{ nullptr };
 
@@ -112,7 +135,8 @@ namespace JsonParser {
 
 		switch (gender) {
 
-		case 0: case 1:
+		case 0: 
+		case 1:
 
 			func(arma->swap50[gender].GetModelName());
 
@@ -137,7 +161,7 @@ namespace JsonParser {
 
 		std::string buffer;
 
-		if (reader.Read(buffer) == 0)
+		if (!reader.Read(buffer))
 			return false;
 
 		Json::Value root;
@@ -150,12 +174,12 @@ namespace JsonParser {
 
 		for (auto& member : root.getMemberNames()) {
 
-			auto& value = root[member];
+			auto& _root = root[member];
 
-			if (!value.isArray())
+			if (!_root.isArray())
 				continue;
 
-			for (auto& v : value) {
+			for (auto& v : _root) {
 
 				auto& key = v["key"];
 				auto& value = v["value"];
@@ -167,7 +191,7 @@ namespace JsonParser {
 
 					auto id = GetFormIDByModName(member.c_str(), formId.asString());
 
-					GetPathFromID(id, gender.asInt(), [&](const char* filepath) {
+					GetPathFromID(id, gender.asInt(), [&](const std::string& filepath) {
 
 						cache.Insert(filepath, value.asFloat());													
 					});					
@@ -190,6 +214,7 @@ namespace JsonParser {
 		std_boost::set files;
 
 		EnumFiles(DirF4SE, files);
+
 		EnumFilesBA2(DirData, files);
 
 		if (files.empty())

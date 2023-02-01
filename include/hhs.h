@@ -116,10 +116,10 @@ namespace hhs {
 
 			if (it != map.end()) {
 	
+				it->second.SetActorUtil(util);
+				
 				if (it->second.HasOverride() && !bOverride)
 					return Error::Override;
-
-				it->second.SetActorUtil(util);
 
 				return fn(it->second);
 			}

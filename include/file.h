@@ -18,11 +18,12 @@ namespace File {
 		Reader& operator=(const Reader&) = delete;
 		Reader& operator=(Reader&&) = delete;
 
-		[[nodiscard]] std::uint32_t Read(std::string& dst, const std::uint32_t len = -1) noexcept;
+		[[nodiscard]] bool Read(std::string& dst) noexcept;
 
 	private:
 
 		std::string filename;
+		std::uint32_t len{};
 
 		[[nodiscard]] std::uint32_t InputStreamRead(std::string& dst, const std::uint32_t len) noexcept;
 		[[nodiscard]] std::uint32_t BSResourceNiBinaryStreamRead(std::string& dst, const std::uint32_t len) noexcept;

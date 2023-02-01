@@ -12,7 +12,7 @@ namespace hhs {
 
 	Error System::SetHeight(const float& Height) noexcept
 	{
-		auto h{ Height };
+		float h = Height;
 
 		auto ret = SetTransform(ComOverride, Node::Flags::PosZ, h);
 
@@ -43,7 +43,7 @@ namespace hhs {
 			return ResetHeight();
 		}
 
-		std::int32_t ret = SetTransform(ComOverride, Node::Flags::PosZ, h);
+		auto ret = SetTransform(ComOverride, Node::Flags::PosZ, h);
 
 		Camera::Player::GetInstance().SetCameraHeight(util.GetActorPtr(), h);
 

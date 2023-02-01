@@ -12,24 +12,32 @@
 
 namespace InGame {
 
-	EventResult	HeightEdit::ReceiveEvent(ViewCasterUpdateEvent* evn, void* dispatcher)
+	[[nodiscard]] std::uint32_t GetFormIDByHandle(UInt32 handle)
 	{
-		refID = PlayerID;
-
-		if (!evn || !enabled)
-			return kEvent_Continue;
-
-		if (evn->handle == 0 || evn->handle == (*g_invalidRefHandle))
-			return kEvent_Continue;
-
 		TESObjectREFR* refr{ nullptr };
 
-		if (!LookupREFRByHandle(&evn->handle, &refr))
+		if (!LookupREFRByHandle(&handle, &refr) || !refr)
+			return 0;
+
+		return refr->formID;
+	}
+
+	EventResult	HeightEdit::ReceiveEvent(ViewCasterUpdateEvent* evn, void* dispatcher)
+	{
+		handle = 0;
+
+		if (!evn || evn->handle == 0 || evn->handle == (*g_invalidRefHandle))
 			return kEvent_Continue;
 
-		Papyrus::Notification("ID:", refr->formID);
+		handle = evn->handle;
 
-		refID = refr->formID;
+		if (!enabled)
+			return kEvent_Continue;
+
+		auto id = GetFormIDByHandle(handle);
+
+		if (id != 0)
+			Papyrus::Notification("ID:", id);
 
 		return kEvent_Continue;
 	};
@@ -49,6 +57,7 @@ namespace InGame {
 	bool HeightEdit::Process(const Key& key) noexcept
 	{
 		auto& cache = Cache::Map::GetInstance();
+
 		auto& settings = Settings::Ini::GetInstance();
 
 		std::string filename;
@@ -56,7 +65,14 @@ namespace InGame {
 
 		bool ret{ true };
 
-		hhs::Error err = hhs::Map::GetInstance().visit(false, settings.Get_iReference() == Settings::Reference::Player ? PlayerID : refID, [&](hhs::System& sys) {
+		std::uint32_t refID{ PlayerID };
+
+		if (handle != 0 && settings.Get_iReference() == Settings::Reference::CrossHair) {
+
+			refID = GetFormIDByHandle(handle);
+		}
+
+		hhs::Error err = hhs::Map::GetInstance().visit(false, refID, [&](hhs::System& sys) {
 
 			if (!sys.GetActorUtil().GetEquipData(settings.Get_iSlot(), id, filename))
 				return hhs::Error::Unknown;

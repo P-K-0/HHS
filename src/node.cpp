@@ -254,7 +254,7 @@ namespace Node {
 	}
 
 	template<typename Func>
-	std::int32_t Transform::Visit(const std::string& sNode, const bool noupdate, Func fn) noexcept
+	std::int32_t Transform::Visit(const std::string& sNode, const bool update, Func fn) noexcept
 	{
 		NiNode* root{ nullptr };
 
@@ -274,7 +274,7 @@ namespace Node {
 
 		fn(object);
 
-		if (!noupdate) {
+		if (update) {
 
 			NiAVObject::NiUpdateData ctx;
 			ctx.flags = 0;

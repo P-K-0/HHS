@@ -114,27 +114,37 @@ namespace Scaleform {
 		Settings::Ini::GetInstance().Set_bEnableExtraData(GetValue<bool>(args, 1));
 	}
 
-	void EnableCamera(GFxFunctionHandler::Args* args) noexcept
+	void EnableCamera() noexcept
 	{
-		auto enabled = GetValue<bool>(args, 1);
-
-		auto& camera = Camera::Player::GetInstance();
-		auto& settings = Settings::Ini::GetInstance();
-
-		camera.Init();
-
-		settings.Set_bEnableDynamicCamera(args);
-		settings.Set_bEnable1stCamera(args);
-		settings.Set_bEnable3rdCamera(args);
-
 		hhs::Map::GetInstance().visit(true, PlayerID, [&](hhs::System& sys) {
 
 			auto h = sys.GetHeight();
 
-			camera.SetCameraHeight(sys.GetActorPtr(), h);
+			Camera::Player::GetInstance().SetCameraHeight(sys.GetActorPtr(), h);
 
 			return hhs::Error::Success;
 		});
+	}
+
+	void EnableDynamicCamera(GFxFunctionHandler::Args* args) noexcept
+	{
+		Settings::Ini::GetInstance().Set_bEnableDynamicCamera(GetValue<bool>(args, 1));
+
+		EnableCamera();
+	}
+
+	void EnableFirstPersonCamera(GFxFunctionHandler::Args* args) noexcept
+	{
+		Settings::Ini::GetInstance().Set_bEnable1stCamera(GetValue<bool>(args, 1));
+
+		EnableCamera();
+	}
+
+	void EnableThirdPersonCamera(GFxFunctionHandler::Args* args) noexcept
+	{
+		Settings::Ini::GetInstance().Set_bEnable3rdCamera(GetValue<bool>(args, 1));
+
+		EnableCamera();
 	}
 
 	void EnableCache(GFxFunctionHandler::Args* args) noexcept
@@ -238,9 +248,9 @@ namespace Scaleform {
 		{ "bEnableTextFile", EnableTextFile },
 		{ "bEnableJsonFile", EnableJsonFile },
 		{ "bEnableExtraData", EnableExtraData },
-		{ "bEnableDynamicCamera", EnableCamera },
-		{ "bEnable1stCamera", EnableCamera },
-		{ "bEnable3rdCamera", EnableCamera },
+		{ "bEnableDynamicCamera", EnableDynamicCamera },
+		{ "bEnable1stCamera", EnableFirstPersonCamera },
+		{ "bEnable3rdCamera", EnableThirdPersonCamera },
 		{ "bCache", EnableCache },
 		{ "bAltRead", EnableAltRead },
 		{ "bEnableAAF", EnableAAF },

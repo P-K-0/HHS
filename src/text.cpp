@@ -57,7 +57,7 @@ namespace Text {
 
 			File::Reader reader{ file }; 
 
-			if (reader.Read(str) == 0)
+			if (!reader.Read(str))
 				continue;
 
 			height = Parser(str);

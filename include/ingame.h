@@ -49,15 +49,16 @@ namespace InGame {
 
 		static HeightEdit instance;
 
-		std::uint32_t refID{ PlayerID };
-
 		[[nodiscard]] bool Process(const Key& key) noexcept;
 
 		void IncHeight() noexcept;
 		void DecHeight() noexcept;
+
 		void ShowError(const hhs::Error& error) noexcept;
 
 		bool enabled{};
+
+		decltype(ViewCasterUpdateEvent::handle) handle{};
 	};
 }
 

@@ -5,17 +5,21 @@
 
 namespace File {
 
-	std::uint32_t Reader::Read(std::string& dst, const std::uint32_t len) noexcept
+	bool Reader::Read(std::string& dst) noexcept
 	{
 		if (filename.empty())
 			return 0;
 
-		if (Settings::Ini::GetInstance().Get_bAltRead()) {
+		auto& settings = Settings::Ini::GetInstance();
 
-			return InputStreamRead(dst, len);
+		len = settings.Get_iReadBufferLen();
+
+		if (settings.Get_bAltRead()) {
+
+			return InputStreamRead(dst, len) > 0;
 		}
 
-		return BSResourceNiBinaryStreamRead(dst, len);
+		return BSResourceNiBinaryStreamRead(dst, len) > 0;
 	}
 
 	std::uint32_t Reader::InputStreamRead(std::string& dst, const std::uint32_t len) noexcept

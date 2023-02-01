@@ -37,8 +37,8 @@ namespace Settings {
 		CrossHair
 	};
 
-	constexpr char* Default_Settings = R"(Data\MCM\Config\FO4HHS\Settings.ini)";
-	constexpr char* Custom_Settings = R"(Data\MCM\Settings\FO4HHS.ini)";
+	constexpr char* Default_Settings = "Data\\MCM\\Config\\FO4HHS\\Settings.ini";
+	constexpr char* Custom_Settings = "Data\\MCM\\Settings\\FO4HHS.ini";
 
 	constexpr bool Default_EnablePlayer = true;
 	constexpr bool Default_EnableNPC = true;
@@ -66,6 +66,7 @@ namespace Settings {
 	constexpr std::uint32_t Default_Slot = 3;
 	constexpr bool Default_DirF4SE = false;
 	constexpr Reference Default_Reference = Reference::CrossHair;
+	constexpr std::uint32_t Default_ReadBufferLen = 131072;
 
 	template<typename T>
 	inline [[nodiscard]] Gender gender_cast(const T value) noexcept {
@@ -116,6 +117,7 @@ namespace Settings {
 		DECL_FN_GET_SET(bool, bCache);
 
 		DECL_FN_GET_SET(bool, bAltRead);
+		DECL_FN_GET_SET(std::uint32_t, iReadBufferLen);
 
 		DECL_FN_GET_SET(bool, bEnableAAF);
 		DECL_FN_GET_SET(bool, bEnableTagAAF);
@@ -197,6 +199,7 @@ namespace Settings {
 		bool bCache{ Default_Cache };
 
 		bool bAltRead{ Default_AltRead };
+		std::uint32_t iReadBufferLen{ Default_ReadBufferLen };
 
 		bool bEnableAAF{ Default_EnableAAF };
 		bool bEnableTagAAF{ Default_EnableTagAAF };

@@ -4,7 +4,6 @@
 namespace Settings {
 
 	enum class Section : std::uint32_t {
-
 		Main,
 		Slot,
 		AnimEvent,
@@ -418,6 +417,8 @@ namespace Settings {
 		GETVALUE(bCache, Section::Main);
 
 		GETVALUE(bAltRead, Section::Main);
+
+		GETVALUE(iReadBufferLen, Section::Main);
 
 		GETVALUE(bEnableAAF, Section::Main);
 

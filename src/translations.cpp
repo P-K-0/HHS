@@ -21,4 +21,6 @@ namespace Translations {
 
 		return true;
 	}
+
+	Lang Lang::instance;
 }
