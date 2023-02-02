@@ -37,9 +37,6 @@ namespace Actors {
 
 		[[nodiscard]] operator bool() const noexcept { return isEnabled && actor; }
 
-		template<typename T>
-		[[nodiscard]] T* As() noexcept { return DYNAMIC_CAST(actor, Actor, T); }
-
 	private:
 
 		Actor* actor{ nullptr };

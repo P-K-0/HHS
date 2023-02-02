@@ -5,7 +5,8 @@ constexpr char* ExtraDataSAF = "SAF_Version";
 constexpr char* ExtraDataHHS = "HHS";
 
 constexpr char* DirData = "Data\\";
-constexpr char* DirMeshes = "Data\\Meshes\\";
+constexpr char* DirMeshes = "Meshes\\";
+constexpr char* DirDataMeshes = "Data\\Meshes\\";
 constexpr char* DirF4SE = "Data\\F4SE\\Plugins\\HHS\\";
 
 constexpr std::uint32_t PlayerID = 0x14;

@@ -47,6 +47,15 @@ namespace Aaf {
 
 	private:
 
+		Scene() noexcept {}
+		~Scene() noexcept {}
+
+		Scene(const Scene&) = delete;
+		Scene(Scene&&) = delete;
+
+		Scene& operator=(const Scene&) = delete;
+		Scene& operator=(Scene&&) = delete;
+
 		void Push(const VMValue* value, const bool recursive = false) noexcept;
 		void ParseVMValue(const VMValue* args) noexcept;
 		void StartStop(const std::uint64_t Handle, const bool& bStop, const bool& bTag) noexcept;
@@ -69,6 +78,15 @@ namespace Aaf {
 		void Hook() noexcept;
 
 	private:
+
+		Event() noexcept {}
+		~Event() noexcept {}
+
+		Event(const Event&) = delete;
+		Event(Event&&) = delete;
+
+		Event& operator=(const Event&) = delete;
+		Event& operator=(Event&&) = delete;
 
 		[[nodiscard]] bool CheckPluginsInstalled() noexcept;
 

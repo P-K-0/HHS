@@ -1,6 +1,8 @@
 
 #include "skeleton.h"
 
+#include "file.h"
+
 namespace Skeleton {
 
 	NiStreamPtr::NiStreamPtr() noexcept
@@ -31,7 +33,7 @@ namespace Skeleton {
 		if (!niStream)
 			return false;
 
-		std::string file{ DirMeshes + Filename };
+		auto file{ File::GetRelativeDir(Filename) };
 
 		BSResourceNiBinaryStream binaryStream(file.c_str());
 

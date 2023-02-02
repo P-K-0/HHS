@@ -68,4 +68,17 @@ namespace File {
 
 		return dst.size();
 	}
+
+	std::string GetRelativeDir(const std::string& str) noexcept
+	{
+		std::string path = boost::filesystem::path(str).lexically_normal().string();
+
+		if (_strcmpi(path.substr(0, strlen(DirMeshes)).c_str(), DirMeshes) == 0)
+			return DirData + str;
+
+		if (_strcmpi(path.substr(0, strlen(DirData)).c_str(), DirData) == 0)
+			return str;
+
+		return DirDataMeshes + str;
+	}
 }

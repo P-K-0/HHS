@@ -4,8 +4,6 @@
 #include "Settings.h"
 #include "file.h"
 
-#include "boost/filesystem.hpp"
-
 namespace Text {
 
 	float Parser(const std::string& str) noexcept
@@ -39,7 +37,7 @@ namespace Text {
 			return std::string{ DirF4SE + path.filename().string()};
 		}
 
-		return std::string{ DirMeshes + path.string() };
+		return File::GetRelativeDir(path.string());
 	}
 
 	float GetHeightFromText(const std::string& filename) noexcept

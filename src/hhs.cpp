@@ -12,7 +12,7 @@ namespace hhs {
 
 	Error System::SetHeight(const float& Height) noexcept
 	{
-		float h = Height;
+		auto h{ Height };
 
 		auto ret = SetTransform(ComOverride, Node::Flags::PosZ, h);
 

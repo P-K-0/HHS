@@ -2,6 +2,8 @@
 
 #include "version.h"
 
+#include "boost/filesystem.hpp"
+
 namespace File {
 
 	class Reader {
@@ -28,4 +30,6 @@ namespace File {
 		[[nodiscard]] std::uint32_t InputStreamRead(std::string& dst, const std::uint32_t len) noexcept;
 		[[nodiscard]] std::uint32_t BSResourceNiBinaryStreamRead(std::string& dst, const std::uint32_t len) noexcept;
 	};
+
+	extern [[nodiscard]] std::string GetRelativeDir(const std::string& str) noexcept;
 }
