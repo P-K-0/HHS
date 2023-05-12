@@ -44,23 +44,22 @@ namespace std_boost {
 		}
 	};
 
-	template<typename T>
-	using unordered_map_base = std::unordered_map<std::string, T, std::hash<std::string>, equali_to>;
-
 	using set = std::set<std::string, less>;
+}
 
-	template<typename T>
-	class unordered_map :
-		public unordered_map_base<T> {
+constexpr std::size_t operator"" _hash(const char* str, const std::size_t size)
+{
+	std::size_t val = std::_FNV_offset_basis;
 
-	public:
+	for (std::size_t idx{}; idx < size; ++idx) {
+		val ^= static_cast<std::size_t>(str[idx]);
+		val *= std::_FNV_prime;
+	}
 
-		[[nodiscard]] T& operator[](boost::filesystem::path&& keyval) noexcept {
-			return unordered_map_base<T>::operator[](keyval.lexically_normal().string());
-		}
+	return val;
+}
 
-		[[nodiscard]] T& operator[](const boost::filesystem::path& keyval) noexcept {
-			return unordered_map_base<T>::operator[](keyval.lexically_normal().string());
-		}
-	};
+constexpr std::string_view operator"" _sv(const char* str, const std::size_t size)
+{
+	return std::basic_string_view(str, size);
 }

@@ -14,10 +14,9 @@ namespace Fixes {
 		Node::Flags flags{};
 		float value{};
 		bool mulheight{};
-
 	};
 
-	constexpr char* FilePreset = "Data\\F4SE\\Plugins\\hhs_fixes.json";
+	constexpr char* FilePreset = "F4SE\\Plugins\\hhs_fixes.json";
 
 	class Preset {
 

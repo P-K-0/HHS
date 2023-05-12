@@ -214,25 +214,57 @@ namespace Events {
 		return kEvent_Continue;
 	}
 
-	void Dispatcher::AnimObjFirstPerson(hhs::System& sys, const bool& stop) noexcept
+	void Dispatcher::AnimObjFirstPerson(TESObjectREFR* refr, const bool& stop) noexcept
 	{
-		if (!sys.GetActorUtil().IsPlayer())
+		if (!Settings::Ini::GetInstance().Get_bEnableFirstPersonAnim())
 			return;
 
 		if (Camera::Player::GetInstance().GetCameraState() != PlayerCamera::kCameraState_FirstPerson)
 			return;
 
-		if (!Settings::Ini::GetInstance().Get_bEnableFirstPersonAnim())
-			return;
+		hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
 
-		if (stop) {
+			auto actor = sys.GetActorPtr();
 
-			sys.Stop();
+			if (actor->IsDead() || actor->IsSitting() || !sys.HasHeight())
+				return hhs::Error::Success;
+
+			if (!sys.GetActorUtil().IsPlayer())
+				return hhs::Error::Success;
+
+			if (stop) {
+
+				sys.Stop();
 		
-			return;
-		}
+				return hhs::Error::Success;
+			}
 
-		sys.Start();
+			sys.Start();
+
+			return hhs::Error::Success;
+		});
+	}
+
+	void Dispatcher::SwimEvent(TESObjectREFR* refr, bool soundPlay) noexcept
+	{
+		if (!Settings::Ini::GetInstance().Get_bEnableSwimming())
+			return;
+
+		hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
+
+			auto actor = sys.GetActorPtr();
+
+			if (actor->IsDead() || actor->IsSitting() || !sys.HasHeight())
+				return hhs::Error::Success;
+
+			if (actor->IsSwimming() && !sys.IsSwimming() && soundPlay)
+				return sys.Swim(true);
+
+			if (sys.IsSwimming() && !soundPlay)
+				return sys.Swim(false);
+
+			return hhs::Error::Success;
+		});
 	}
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
@@ -243,56 +275,36 @@ namespace Events {
 	{
 		if (graph && graph->refr && graph->eventName) {
 
-			const auto id = graph->refr->formID;
+			auto key = std::hash<std::string>{}(graph->eventName.c_str());
 
-			hhs::Map::GetInstance().visit(true, id, [&](hhs::System& sys) {
+			switch (key) {
 
-				auto actor = sys.GetActorPtr();
+			case "AnimObjLoad"_hash: 
 
-				if (actor->IsDead() || actor->IsSitting() || !sys.HasHeight())
-					return hhs::Error::Success;
+				AnimObjFirstPerson(graph->refr, true);
 
-				const std::string eventName = graph->eventName.c_str();
+				break;
 
-				std::size_t key = std::hash<std::string>{}(eventName);
+			case "idleChairSittingNoPerspectiveSwitch"_hash:
+			case "IdleStop"_hash:
 
-				switch (static_cast<AnimEvents>(key)) {
+				AnimObjFirstPerson(graph->refr, false);
 
-				case AnimEvents::AnimObjLoad:
+				break;
 
-					AnimObjFirstPerson(sys, true);
+			case "SoundPlay"_hash: 
 
-					break;
+				SwimEvent(graph->refr, true);
 
-				case AnimEvents::idleChairSittingNoPerspectiveSwitch:
+				break;
 
-					AnimObjFirstPerson(sys, false);
+			//case "ReevaluateGraphState"_hash:
+			case "initiateStart"_hash:
 
-					break;
+				SwimEvent(graph->refr, false);
 
-				case AnimEvents::SoundPlay:
-
-					if (!Settings::Ini::GetInstance().Get_bEnableSwimming())
-						return hhs::Error::Success;
-
-					if (actor->IsSwimming() && !sys.IsSwimming())
-						return sys.Swim(true);
-
-					if (!actor->IsSwimming() && sys.IsSwimming())
-						return sys.Swim(false);
-
-					break;
-
-				default:
-
-					if (!actor->IsSwimming() && sys.IsSwimming())
-						return sys.Swim(false);
-
-					break;
-				}
-
-				return hhs::Error::Success;
-			});
+				break;
+			}
 		}
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
@@ -332,7 +344,7 @@ namespace Events {
 
 	void Dispatcher::Register() noexcept
 	{
-		static bool registered{ false };
+		static bool registered{};
 
 		if (registered) 
 			return;
@@ -360,7 +372,7 @@ namespace Events {
 
 	void Dispatcher::RegisterInput() noexcept
 	{
-		static bool registered{ false };
+		static bool registered{};
 
 		if (registered) 
 			return;
@@ -370,8 +382,8 @@ namespace Events {
 		if (!playerCtrl)
 			return;
 
-		tArray<PlayerInputHandler*>* inputEvents = &(playerCtrl->inputEvents1);
-		PlayerInputHandler* inputHandler = &instance;
+		tArray<PlayerInputHandler*>* inputEvents = std::addressof(playerCtrl->inputEvents1);
+		PlayerInputHandler* inputHandler = std::addressof(instance);
 
 		if (!inputEvents)
 			return;
@@ -442,18 +454,15 @@ namespace Events {
 				Xbyak::Label retnLabel;
 
 				mov(ptr[rsp + 0x08], rbx);
-				mov(ptr[rsp + 0x10], rbp);
-				mov(ptr[rsp + 0x18], rsi);
-				push(rdi);
 
 				jmp(ptr[rip + retnLabel]);
 
 				L(retnLabel);
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-				dq(reloc_unknownE21090.GetUIntPtr() + 0x10);
+				dq(reloc_unknownE21090.GetUIntPtr() + 0x05);
 #else
-				dq(reloc_unknownE752E0.GetUIntPtr() + 0x10);
+				dq(reloc_unknownE752E0.GetUIntPtr() + 0x05);
 #endif
 			}
 		};

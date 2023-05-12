@@ -22,18 +22,6 @@ namespace Events {
 	static _unknownE752E0 o_unknownE752E0;
 #endif
 
-	enum class AnimEvents : std::size_t {
-
-		Null = 0,
-		AnimObjLoad = 0x9FBED844753AA659,
-		AnimObjUnequip = 0x2A7279A7B1D0132A,
-		idleChairSittingNoPerspectiveSwitch = 0x981DD818CEDE57D7,
-		SoundPlay = 0x8F5D5112961ECB9E,
-		sneakState = 0x917422C34FCC9EC8,
-		ReevaluateGraphState = 0xFAE82DB0460A23B2,
-		initiateStart = 0xABA08FC372322A52
-	};
-
 	class Dispatcher :
 		public BSTEventSink<TESFurnitureEvent>,
 		public BSTEventSink<TESDeathEvent>,
@@ -83,9 +71,10 @@ namespace Events {
 		void RegisterAnimationGraphEvent() noexcept;
 
 		template<typename Tevent>
-		void AddEvent() noexcept { GetEventDispatcher<Tevent>()->AddEventSink(&instance); }
+		void AddEvent() noexcept { GetEventDispatcher<Tevent>()->AddEventSink(std::addressof(instance)); }
 
-		static void AnimObjFirstPerson(hhs::System& sys, const bool& stop) noexcept;
+		static void AnimObjFirstPerson(TESObjectREFR* refr, const bool& stop) noexcept;
+		static void SwimEvent(TESObjectREFR* refr, bool soundPlay) noexcept;
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
 		static void unknownE21090(void*, BSAnimationGraphEvent*);

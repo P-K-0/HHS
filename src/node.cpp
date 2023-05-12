@@ -264,9 +264,9 @@ namespace Node {
 		BSFixedString node_str{ sNode.c_str() };
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-		NiAVObject* object = root->GetObjectByName(&node_str);
+		auto object = root->GetObjectByName(&node_str);
 #else
-		NiAVObject* object = CALL_MEMBER_FN(root, GetAVObjectByName)(&node_str, 0, 0);
+		auto object = CALL_MEMBER_FN(root, GetAVObjectByName)(&node_str, 0, 0);
 #endif
 
 		if (!object)
@@ -276,8 +276,8 @@ namespace Node {
 
 		if (update) {
 
-			NiAVObject::NiUpdateData ctx;
-			ctx.flags = 0;
+			NiAVObject::NiUpdateData ctx{};
+
 			object->UpdateWorldData(&ctx);
 		}
 

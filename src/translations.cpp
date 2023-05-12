@@ -10,7 +10,7 @@ namespace Translations {
 		if (TranslationLoaded || !g_scaleformManager || !(*g_scaleformManager)->stateBag)
 			return false;
 
-		BSScaleformTranslator* translator = static_cast<BSScaleformTranslator*>((*g_scaleformManager)->stateBag->GetStateAddRef(GFxState::kInterface_Translator));
+		auto translator = static_cast<BSScaleformTranslator*>((*g_scaleformManager)->stateBag->GetStateAddRef(GFxState::kInterface_Translator));
 
 		if (!translator)
 			return false;

@@ -4,10 +4,9 @@ constexpr char* ComOverride = "COM_Override";
 constexpr char* ExtraDataSAF = "SAF_Version";
 constexpr char* ExtraDataHHS = "HHS";
 
-constexpr char* DirData = "Data\\";
-constexpr char* DirMeshes = "Meshes\\";
-constexpr char* DirDataMeshes = "Data\\Meshes\\";
-constexpr char* DirF4SE = "Data\\F4SE\\Plugins\\HHS\\";
+constexpr auto DirData = "data\\"_sv;
+constexpr auto DirMeshes = "meshes\\"_sv;
+constexpr auto DirF4SE = "f4se\\plugins\\hhs\\"_sv;
 
 constexpr std::uint32_t PlayerID = 0x14;
 

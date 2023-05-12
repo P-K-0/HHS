@@ -12,7 +12,7 @@
 
 namespace InGame {
 
-	[[nodiscard]] std::uint32_t GetFormIDByHandle(UInt32 handle)
+	std::uint32_t HeightEdit::GetFormIDByHandle(UInt32 handle) noexcept
 	{
 		TESObjectREFR* refr{ nullptr };
 
@@ -49,7 +49,7 @@ namespace InGame {
 		if (registered)
 			return;
 
-		(*g_viewCasterUpdateDispatcher)->eventDispatcher.AddEventSink(&instance);
+		(*g_viewCasterUpdateDispatcher)->eventDispatcher.AddEventSink(std::addressof(instance));
 
 		registered = true;
 	}

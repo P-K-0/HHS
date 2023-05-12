@@ -22,6 +22,8 @@ namespace File {
 
 		[[nodiscard]] bool Read(std::string& dst) noexcept;
 
+		[[nodiscard]] const std::string& Filename() const noexcept { return filename; }
+
 	private:
 
 		std::string filename;

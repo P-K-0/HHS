@@ -1,23 +1,20 @@
 
 #include "fixes.h"
 
+#include "file.h"
+
 namespace Fixes {
 
 	bool Preset::Load() noexcept
 	{
-		std::ifstream ifs{ FilePreset, std::ios_base::binary };
-
-		if (!ifs)
-			return false;
+		std::string str;
 
 		_DMESSAGE("Reading preset file from %s...", FilePreset);
 
-		std::string str{};
+		File::Reader reader{ FilePreset };
 
-		for (char c{}; !ifs.eof(); ) {
-			ifs.read(&c, sizeof c);
-			str += c;
-		}
+		if (!reader.Read(str))
+			return false;
 
 		Json::Reader jReader;
 
@@ -35,6 +32,8 @@ namespace Fixes {
 
 		if (v.type() == Json::ValueType::intValue)
 			saf_version = v.asInt();
+
+		_DMESSAGE("Preset file Loaded!");
 
 		return true;
 	}

@@ -34,7 +34,7 @@ namespace Text {
 
 		if (dirF4SE) {
 
-			return std::string{ DirF4SE + path.filename().string()};
+			return std::string{ DirF4SE.data() + path.filename().string()};
 		}
 
 		return File::GetRelativeDir(path.string());
@@ -77,7 +77,7 @@ namespace Text {
 
 		boost::filesystem::create_directories(path);
 
-		std::ofstream ofs{ file };
+		std::ofstream ofs{ DirData.data() + file };
 
 		if (!ofs || value <= MinValue)
 			return false;
@@ -96,7 +96,7 @@ namespace Text {
 		std::vector<std::string> files{ GetTextFile(Filename, false), GetTextFile(Filename, true) };
 
 		for (auto& file : files)
-			ret |= boost::filesystem::remove(file);
+			ret |= boost::filesystem::remove(DirData.data() + file);
 
 		return ret;
 	}

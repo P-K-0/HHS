@@ -9,7 +9,7 @@
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
 
 namespace Aaf {
-	
+
 	using _SendCustomEvent = void (*)(VirtualMachine*, std::uint64_t, VMIdentifier*, const BSFixedString*, VMValue*);
 
 	static _SendCustomEvent SendCustomEvent_Original;
@@ -19,22 +19,42 @@ namespace Aaf {
 
 	constexpr std::uint32_t MaskId = 0xffffffff;
 
-	enum class Scenes : std::size_t {
+	class VMArgs {
 
-		OnSceneInit = 0xE79169C1EB02B794,
-		OnSceneEnd = 0x99E0925B288714AB,
-		OnAnimStart = 0xBA9490EA4EB21FF0,
-		OnAnimChange = 0x745E7A622197EEC
-	};
+	public:
 
-	struct Value {
+		VMArgs() = delete;
 
-		std::uint8_t Type{};
-		std::uint64_t Id{};	
-		std::int32_t Int{};
-		float Float{};
-		bool Bool{};	
-		std::string Str;
+		VMArgs(const VMArgs&) = delete;
+		VMArgs(VMArgs&&) = delete;
+
+		VMArgs& operator=(const VMArgs&) = delete;
+		VMArgs& operator=(VMArgs&&) = delete;
+
+		explicit VMArgs(const VMValue* args) noexcept;
+		~VMArgs() noexcept {}
+
+		template<typename T>
+		[[nodiscard]] T As(std::uint32_t index) noexcept;
+
+		template<typename T>
+		[[nodiscard]] std::vector<T> AsArray(std::uint32_t index) noexcept;
+
+	private:
+
+		void Get(VMArray<VMVariable>& var, std::uint32_t index, int& value) noexcept;
+		void Get(VMArray<VMVariable>& var, std::uint32_t index, float& value) noexcept;
+		void Get(VMArray<VMVariable>& var, std::uint32_t index, bool& value) noexcept;
+		void Get(VMArray<VMVariable>& var, std::uint32_t index, std::uint64_t& value) noexcept;
+		void Get(VMArray<VMVariable>& var, std::uint32_t index, std::string& value) noexcept;
+
+		void Push(std::vector<int>& vector, VMValue& value) noexcept;
+		void Push(std::vector<float>& vector, VMValue& value) noexcept;
+		void Push(std::vector<std::uint64_t>& vector, VMValue& value) noexcept;
+		void Push(std::vector<std::string>& vector, VMValue& value) noexcept;
+		void Push(std::vector<bool>& vector, VMValue& value) noexcept;
+
+		VMArray<VMVariable> vmVar;
 	};
 
 	class Scene {
@@ -56,8 +76,6 @@ namespace Aaf {
 		Scene& operator=(const Scene&) = delete;
 		Scene& operator=(Scene&&) = delete;
 
-		void Push(const VMValue* value, const bool recursive = false) noexcept;
-		void ParseVMValue(const VMValue* args) noexcept;
 		void StartStop(const std::uint64_t Handle, const bool& bStop, const bool& bTag) noexcept;
 
 		void OnSceneInit(const VMValue* args) noexcept;
@@ -66,7 +84,6 @@ namespace Aaf {
 		static Scene instance;
 
 		std::uint64_t uDoppelganger;
-		std::vector<Value> values;
 	};
 
 	class Event {

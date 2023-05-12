@@ -64,7 +64,6 @@ namespace hhs {
 		[[nodiscard]] const bool& IsAAF() const noexcept { return isAAF; }
 		[[nodiscard]] const bool& IsStop() const noexcept { return isStop; }
 		[[nodiscard]] const bool& IsSwimming() const noexcept { return isSwimming; }
-		[[nodiscard]] const bool& IsSitting() const noexcept { return isSitting; }
 
 		[[nodiscard]] Actors::Utility& GetActorUtil() noexcept { return util; }
 
@@ -76,8 +75,6 @@ namespace hhs {
 		bool isStop{};
 		bool isAAF{};
 		bool isSwimming{};
-		bool isSitting{};
-
 		bool hasOverride{};
 		
 		float height{};

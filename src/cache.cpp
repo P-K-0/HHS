@@ -4,15 +4,16 @@
 #include "settings.h"
 #include "skeleton.h"
 #include "text.h"
+#include "file.h"
 
 namespace Cache {
 
 	void Map::Insert(const std::string& filename, const float value, const bool text) noexcept
 	{
-		if (filename.empty() || value < MinValue)
+		if (filename == "" || value < MinValue)
 			return;
 
-		auto& info = cacheMap[filename];
+		auto& info = cacheMap[File::GetRelativeDir(filename)];
 
 		if (info.height == MinValue) {
 
@@ -28,20 +29,20 @@ namespace Cache {
 
 	void Map::Erase(const std::string& filename) noexcept
 	{
-		if (filename.empty())
+		if (filename == "")
 			return;
 
-		cacheMap.erase(boost::filesystem::path(filename).lexically_normal().string());
+		cacheMap.erase(File::GetRelativeDir(filename));
 
 		saved = false;
 	}
 
 	float Map::Find(const std::string& filename) noexcept
 	{
-		if (filename.empty()) 
+		if (filename == "")
 			return MinValue;
 
-		auto& info = cacheMap[filename];
+		auto& info = cacheMap[File::GetRelativeDir(filename)];
 
 		if (info.height == MinValue) {
 
@@ -64,7 +65,7 @@ namespace Cache {
 		if (filename.empty())
 			return false;
 
-		auto& it = cacheMap.find(boost::filesystem::path(filename).lexically_normal().string());
+		auto& it = cacheMap.find(File::GetRelativeDir(filename));
 
 		if (it != cacheMap.end())
 			return it->second.text;

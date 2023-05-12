@@ -37,6 +37,7 @@ namespace f4se {
 		static void MsgCallback(F4SEMessagingInterface::Message* msg) noexcept;
 
 		[[nodiscard]] static bool CheckPluginVersion(const F4SEInterface* f4se) noexcept;
+		[[nodiscard]] static std::string GetVersionString(std::uint32_t version) noexcept;
 
 		F4SEMessagingInterface* f4se_msg_interface{ nullptr };
 		F4SETaskInterface* f4se_task_interface{ nullptr };

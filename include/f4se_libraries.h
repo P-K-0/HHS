@@ -46,9 +46,3 @@
 
 #include "f4se/ScaleformTranslator.h"
 #include "f4se/ScaleformLoader.h"
-
-#define GETVERSIONSTRING(v) \
-	std::to_string(GET_EXE_VERSION_MAJOR(v)) + "." + \
-	std::to_string(GET_EXE_VERSION_MINOR(v)) + "." + \
-	std::to_string(GET_EXE_VERSION_BUILD(v)) + "." + \
-	std::to_string(GET_EXE_VERSION_SUB(v))

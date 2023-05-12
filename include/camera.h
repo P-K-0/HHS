@@ -7,6 +7,14 @@
 
 namespace Camera {
 
+	using SetINIFloat = void(*)(VirtualMachine*, std::uint64_t, void*, BSFixedString*, float);
+
+	static RelocAddr<SetINIFloat> SetINIFloat_Internal(0x014520A0);
+
+	static SetINIFloat o_SetINIFloat;
+
+	constexpr auto ApplyCameraNodeAnimations = "bApplyCameraNodeAnimations:Camera";
+
 	class Player {
 
 	public:
@@ -14,9 +22,11 @@ namespace Camera {
 		[[nodiscard]] static Player& GetInstance() noexcept { return instance; }
 
 		[[nodiscard]] bool IsCameraNodeAnimations() noexcept;
+		void SetApplyCameraNodeAnimations(bool value) noexcept;
 
 		void Init() noexcept;
 		void SetCameraHeight(Actor* akActor, const float height = MinValue) noexcept; 
+		void ResetCameraSettings() noexcept;
 
 		[[nodiscard]] const std::int32_t GetCameraState() const noexcept;
 
@@ -38,14 +48,16 @@ namespace Camera {
 		float height1st{ MinValue };
 		float height3rd{ MinValue };
 
-		std::vector<std::pair<const std::string, double>> Camera3rdSettings = {
-			{ "fOverShoulderPosZ:Camera", 0.0f },
-			{ "fOverShoulderMeleeCombatPosZ:Camera", 0.0f },
-			{ "fOverShoulderCombatPosZ:Camera", 0.0f }
-		};
+		void Hook() noexcept;
+
+		static std::vector<std::pair<const std::string, double>> Camera3rdSettings;
+
+		static void SetIniFloat(VirtualMachine*, std::uint64_t, void*, BSFixedString*, float);
 
 		[[nodiscard]] bool Get3rdCameraHeight() noexcept;
 
 		static Player instance;
+
+		void* g_moduleHandle{ nullptr };
 	};
 }

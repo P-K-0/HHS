@@ -89,7 +89,7 @@ namespace Skeleton {
 		if (!obj)
 			return false;
 
-		NiNode* node = obj->GetAsNiNode();
+		auto node = obj->GetAsNiNode();
 
 		if (!node)
 			return false;

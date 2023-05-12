@@ -147,6 +147,18 @@ namespace Scaleform {
 		EnableCamera();
 	}
 
+	void EnableCustomCameraPatch(GFxFunctionHandler::Args* args) noexcept
+	{
+		auto value = GetValue<bool>(args, 1);
+
+		Settings::Ini::GetInstance().Set_bEnableCustomCameraPatch(value);
+
+		if (!value)
+			Camera::Player::GetInstance().ResetCameraSettings();
+
+		EnableCamera();
+	}
+
 	void EnableCache(GFxFunctionHandler::Args* args) noexcept
 	{
 		Settings::Ini::GetInstance().Set_bCache(GetValue<bool>(args, 1));
@@ -251,6 +263,7 @@ namespace Scaleform {
 		{ "bEnableDynamicCamera", EnableDynamicCamera },
 		{ "bEnable1stCamera", EnableFirstPersonCamera },
 		{ "bEnable3rdCamera", EnableThirdPersonCamera },
+		{ "bEnableCustomCameraPatch", EnableCustomCameraPatch },
 		{ "bCache", EnableCache },
 		{ "bAltRead", EnableAltRead },
 		{ "bEnableAAF", EnableAAF },

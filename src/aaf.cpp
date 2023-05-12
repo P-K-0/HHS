@@ -5,128 +5,164 @@
 
 namespace Aaf {
 
-	void Scene::Push(const VMValue* value, const bool recursive) noexcept
+	VMArgs::VMArgs(const VMValue* args) noexcept
 	{
-		if (!value) 
-			return;
-
-		Value val;
-		
-		val.Type = value->GetTypeEnum();
-
-		switch (val.Type) {
-
-		case VMValue::kType_Int: 
-
-			val.Int = value->data.i;
-
-			break;
-
-		case VMValue::kType_Bool: 
-
-			val.Bool = value->data.b; 
-
-			break;
-
-		case VMValue::kType_Float:
-			
-			val.Float = value->data.f;
-
-			break;
-
-		case VMValue::kType_String:
-
-			if (value->data.GetStr()) {
-
-				val.Str = value->data.GetStr()->c_str();
-			}
-			else {
-
-				return;
-			}
-
-			break;
-
-		case VMValue::kType_Identifier:
-		{
-			VMIdentifier* id = value->data.id;
-
-			if (id) {
-
-				val.Id = id->GetHandle();
-			}
-			else {
-
-				return;
-			}
-
-			break;
-		}
-		case VMValue::kType_Variable:
-
-			if (recursive) return;
-
-			Push(value->data.var, true);
-
-			break;
-
-		//case VMValue::kType_Struct: 
-
-		default: 
-
-			return;
-		}
-
-		values.push_back(val);
+		UnpackValue(&vmVar, (VMValue*)args);
 	}
 
-	void Scene::ParseVMValue(const VMValue* args) noexcept
+	template<typename T>
+	T VMArgs::As(std::uint32_t index) noexcept
 	{
-		if (!args)
+		if (index >= vmVar.Length())
+			return T{};
+
+		T value{};
+
+		Get(vmVar, index, value);
+
+		return value;
+	}
+
+	template<typename T>
+	std::vector<T> VMArgs::AsArray(std::uint32_t index) noexcept
+	{
+		if (index >= vmVar.Length())
+			return std::vector<T>{};
+
+		VMVariable ret{};
+
+		vmVar.Get(&ret, index);
+
+		auto& v = ret.GetValue();
+
+		if (!v.data.arr)
+			return std::vector<T>{};
+
+		std::vector<T> vValues;
+
+		for (std::uint32_t idx{}; idx < v.data.arr->arr.count; idx++) {
+
+			auto value = v.data.arr->arr[idx];
+
+			if (value.GetTypeEnum() == VMValue::kType_Variable && value.data.var) {
+
+				Push(vValues, (*value.data.var));
+			
+				continue;
+			}
+
+			Push(vValues, value);
+		}
+
+		return vValues;
+	}
+
+	void VMArgs::Get(VMArray<VMVariable>& var, std::uint32_t index, int& value) noexcept
+	{
+		VMVariable ret{};
+
+		var.Get(&ret, index);
+
+		auto& v = ret.GetValue();
+
+		value = v.data.i;
+	}
+
+	void VMArgs::Get(VMArray<VMVariable>& var, std::uint32_t index, float& value) noexcept
+	{
+		VMVariable ret{};
+
+		var.Get(&ret, index);
+
+		auto& v = ret.GetValue();
+
+		value = v.data.f;
+	}
+
+	void VMArgs::Get(VMArray<VMVariable>& var, std::uint32_t index, bool& value) noexcept
+	{
+		VMVariable ret{};
+
+		var.Get(&ret, index);
+
+		auto& v = ret.GetValue();
+
+		value = v.data.b;
+	}
+
+	void VMArgs::Get(VMArray<VMVariable>& var, std::uint32_t index, std::uint64_t& value) noexcept
+	{
+		VMVariable ret{};
+
+		var.Get(&ret, index);
+
+		auto& v = ret.GetValue();
+
+		auto id = v.data.id;
+
+		if (!id) {
+
+			value = 0;
+
+			return;
+		}
+
+		value = id->GetHandle();
+	}
+
+	void VMArgs::Get(VMArray<VMVariable>& var, std::uint32_t index, std::string& value) noexcept
+	{
+		VMVariable ret{};
+
+		var.Get(&ret, index);
+
+		auto& v = ret.GetValue();
+
+		auto str = v.data.GetStr();
+
+		if (!str) {
+
+			value.clear();
+
+			return;
+		}
+
+		value = str->c_str();
+	}
+
+	void VMArgs::Push(std::vector<int>& vector, VMValue& value) noexcept
+	{
+		vector.push_back(value.data.i);
+	}
+
+	void VMArgs::Push(std::vector<float>& vector, VMValue& value) noexcept
+	{
+		vector.push_back(value.data.f);
+	}
+
+	void VMArgs::Push(std::vector<std::uint64_t>& vector, VMValue& value) noexcept
+	{
+		auto id = value.data.id;
+
+		if (!id)
 			return;
 
-		values.clear();
-		
-		VMArray<VMVariable> var;
-		VMVariable vmvar;
+		vector.push_back(id->GetHandle());
+	}
 
-		UnpackValue(&var, (VMValue*)args);
+	void VMArgs::Push(std::vector<std::string>& vector, VMValue& value) noexcept
+	{
+		auto str = value.data.GetStr();
 
-		for (std::uint32_t idx{}; idx < var.Length(); idx++) {
+		if (!str)
+			return;
 
-			var.Get(&vmvar, idx);
+		vector.push_back(str->c_str());
+	}
 
-			auto value = vmvar.GetValue();
-
-			switch (value.GetTypeEnum()) {
-
-			case VMValue::kType_VariableArray:
-			case VMValue::kType_IntArray:
-			case VMValue::kType_BoolArray:
-			case VMValue::kType_FloatArray:
-			case VMValue::kType_StringArray:
-			case VMValue::kType_StructArray:
-			case VMValue::kType_IdentifierArray:
-
-				if (value.data.arr) {
-
-					for (std::uint32_t iarr{}; iarr < value	.data.arr->arr.count; iarr++) {
-
-						auto valueArray = value.data.arr->arr[iarr];
-
-						Push(&valueArray);
-					}
-				}
-
-				break;
-
-			default: 
-
-				Push(&value);
-
-				break;
-			}
-		}
+	void VMArgs::Push(std::vector<bool>& vector, VMValue& value) noexcept
+	{
+		vector.push_back(value.data.b);
 	}
 
 	void Scene::StartStop(const std::uint64_t Handle, const bool& bStop, const bool& bTag) noexcept
@@ -135,7 +171,7 @@ namespace Aaf {
 
 		if (id == 0 || id == MaskId)
 			return;
-		
+
 		bool isStop{ bTag ? false : bStop };
 
 		hhs::Map::GetInstance().visit(false, id, [&](hhs::System& sys) {
@@ -146,75 +182,86 @@ namespace Aaf {
 
 	void Scene::OnSceneInit(const VMValue* args) noexcept
 	{
-		ParseVMValue(args);
+		VMArgs vmArgs{ args };
 
-		if (values.empty() || values.size() <= 1)
-			return;
+		auto status = vmArgs.As<int>(0);
 
-		auto status = values[0].Int;
-		
-		if (values[0].Type == VMValue::kType_Float)
-			status = static_cast<std::int32_t>(values[0].Float);
+		auto actors = vmArgs.AsArray<std::uint64_t>(1);
 
-		if (status != 0)
-			return;
+		auto locationformID = vmArgs.As<int>(3);
 
-		uDoppelganger = InvalidSlot;
+		auto coords = vmArgs.AsArray<float>(4);
 
-		for (auto& v = values.end(); v != values.begin(); v--) {
+		for (auto actor : actors) {
 
-			if (v->Type == VMValue::kType_Identifier) {
+			StartStop(actor, true, false);
 
-				if (uDoppelganger == InvalidSlot)
-					uDoppelganger = v->Id;
+			if ((actor & MaskId) == PlayerID) {
 
-				StartStop(v->Id, true, false);
+       			uDoppelganger = vmArgs.As<std::uint64_t>(2);
+			
+				StartStop(uDoppelganger, true, false);
 			}
 		}
 	}
 
 	void Scene::OnSceneEnd(const VMValue* args, const bool& stop) noexcept
 	{
+		VMArgs vmArgs{ args };
+
+		auto status = vmArgs.As<int>(0);
+
+		auto actors = vmArgs.AsArray<std::uint64_t>(1);
+
+		auto position = vmArgs.As<std::string>(2);
+
+		auto tags = vmArgs.AsArray<std::string>(3);
+
 		bool hasTag{};
 
-		for (auto& v = values.end(); v != values.begin(); v--) {
+		for (auto tag : tags) {
 
-			if (v->Type == VMValue::kType_String && Settings::Ini::GetInstance().CheckTagAAF(v->Str))
+			if (Settings::Ini::GetInstance().CheckTagAAF(tag)) {
+
 				hasTag = true;
 
-			if (v->Type == VMValue::kType_Identifier)
-				StartStop(v->Id, stop, hasTag);
+				break;
+			}
 		}
 
-		StartStop(uDoppelganger, stop, hasTag);
+		for (auto actor : actors) {
+
+			StartStop(actor, stop, hasTag);
+
+			if ((actor & MaskId) == PlayerID) {
+
+				StartStop(uDoppelganger, stop, hasTag);
+			}
+		}
 	}
 
 	void Scene::ProcessEvent(const BSFixedString* eventName, VMValue* args) noexcept
 	{
-		auto key = static_cast<Scenes>(std::hash<std::string>{}(eventName->c_str()));
+		auto key = std::hash<std::string>{}(eventName->c_str());
 
 		switch (key) {
 
-		case Scenes::OnSceneInit:
+		case "aaf:aaf_api_OnSceneInit"_hash:
 
 			OnSceneInit(args);
 
 			break;
 
-		case Scenes::OnAnimStart:
-		case Scenes::OnAnimChange:
+		case "aaf:aaf_api_OnAnimationStart"_hash:
+		case "aaf:aaf_api_OnAnimationChange"_hash:
 
 			OnSceneEnd(args, true);
 
 			break;
 
-		case Scenes::OnSceneEnd:
+		case "aaf:aaf_api_OnSceneEnd"_hash:
 
 			OnSceneEnd(args);
-
-			break;
-
-		default:
 
 			break;
 		}
@@ -293,14 +340,11 @@ namespace Aaf {
 
 				mov(rax, rsp);
 				mov(ptr[rax + 0x08], rbx);
-				mov(ptr[rax + 0x10], rbp);
-				mov(ptr[rax + 0x20], rdi);
-				push(r14);
 
 				jmp(ptr[rip + retnLabel]);
 
 				L(retnLabel);
-				dq(SendCustomEvent_Internal.GetUIntPtr() + 0x11);
+				dq(SendCustomEvent_Internal.GetUIntPtr() + 0x07);
 			}
 		};
 

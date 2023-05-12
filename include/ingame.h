@@ -49,6 +49,8 @@ namespace InGame {
 
 		static HeightEdit instance;
 
+		[[nodiscard]] std::uint32_t GetFormIDByHandle(UInt32 handle) noexcept;
+
 		[[nodiscard]] bool Process(const Key& key) noexcept;
 
 		void IncHeight() noexcept;

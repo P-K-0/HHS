@@ -24,7 +24,7 @@ namespace File {
 
 	std::uint32_t Reader::InputStreamRead(std::string& dst, const std::uint32_t len) noexcept
 	{
-		std::ifstream ifs{ filename, std::ios_base::binary };
+		std::ifstream ifs{ DirData.data() + filename, std::ios_base::binary };
 
 		if (!ifs)
 			return 0;
@@ -73,12 +73,14 @@ namespace File {
 	{
 		std::string path = boost::filesystem::path(str).lexically_normal().string();
 
-		if (_strcmpi(path.substr(0, strlen(DirMeshes)).c_str(), DirMeshes) == 0)
-			return DirData + str;
+		std::transform(path.begin(), path.end(), path.begin(), [](unsigned char c) { return std::tolower(c); });
 
-		if (_strcmpi(path.substr(0, strlen(DirData)).c_str(), DirData) == 0)
-			return str;
+		if (_strcmpi(path.substr(0, DirMeshes.length()).c_str(), DirMeshes.data()) == 0)
+			return path;
 
-		return DirDataMeshes + str;
+		if (_strcmpi(path.substr(0, DirData.length()).c_str(), DirData.data()) == 0)
+			return path.substr(DirData.length());
+
+		return DirMeshes.data() + path;
 	}
 }

@@ -367,7 +367,7 @@ namespace Settings {
 
 		for (auto& sTag : vTagAAF) {
 
-			if (sTag == tag)
+			if (_strcmpi(sTag.c_str(), tag.c_str()) == 0)
 				return true;
 		}
 
@@ -413,6 +413,8 @@ namespace Settings {
 		GETVALUE(bEnable1stCamera, Section::Main);
 
 		GETVALUE(bEnable3rdCamera, Section::Main);
+
+		GETVALUE(bEnableCustomCameraPatch, Section::Main);
 
 		GETVALUE(bCache, Section::Main);
 

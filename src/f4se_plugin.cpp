@@ -21,7 +21,7 @@ namespace f4se {
 		iLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Fallout4\\F4SE\\HHS.log");
 
 		info->infoVersion = PluginInfo::kInfoVersion;
-		info->name = Version::ShortName;
+		info->name = Version::ShortName.data();
 		info->version = 1;
 
 		hPlug = f4se->GetPluginHandle();
@@ -75,7 +75,7 @@ namespace f4se {
 
 			f4se_msg_interface->RegisterListener(hPlug, "F4SE", MsgCallback);
 
-			f4se_scaleform_interface->Register(Version::ShortName, Scaleform::Register);
+			f4se_scaleform_interface->Register(Version::ShortName.data(), Scaleform::Register);
 
 			return true;
 		}
@@ -83,16 +83,24 @@ namespace f4se {
 		return false;
 	}
 
+	std::string Plugin::GetVersionString(std::uint32_t version) noexcept
+	{
+		return std::to_string(GET_EXE_VERSION_MAJOR(version)) + "." +
+			std::to_string(GET_EXE_VERSION_MINOR(version)) + "." +
+			std::to_string(GET_EXE_VERSION_BUILD(version)) + "." +
+			std::to_string(GET_EXE_VERSION_SUB(version));
+	}
+
 	bool Plugin::CheckPluginVersion(const F4SEInterface* f4se) noexcept
 	{
 #if	RUNTIME_VERSION_1_10_138 < CURRENT_RELEASE_RUNTIME
-		std::string version = "(" + GETVERSIONSTRING(RUNTIME_VERSION_1_10_162) + "/" + GETVERSIONSTRING(RUNTIME_VERSION_1_10_163) + ")";
+		auto version = "(" + GetVersionString(RUNTIME_VERSION_1_10_162) + "/" + GetVersionString(RUNTIME_VERSION_1_10_163) + ")";
 #else
-		std::string version = "(" + GETVERSIONSTRING(CURRENT_RELEASE_RUNTIME) + ")";
+		auto version = "(" + GetVersionString(CURRENT_RELEASE_RUNTIME) + ")";
 #endif
 
 		_DMESSAGE("=================================================================================");
-		_DMESSAGE("%s Version (%i.%i) by PK0", Version::Name, Version::Major, Version::Minor);
+		_DMESSAGE("%s Version (%i.%i) by PK0", Version::Name.data(), Version::Major, Version::Minor);
 		_DMESSAGE("Game Version %s", version.c_str());
 		_DMESSAGE("=================================================================================");
 
@@ -103,11 +111,11 @@ namespace f4se {
 		if (f4se->runtimeVersion != CURRENT_RELEASE_RUNTIME) {
 #endif
 
-			std::string Msg = "Game version error (" + GETVERSIONSTRING(f4se->runtimeVersion) + "), compatible version " + version;
+			auto Msg = "Game version error (" + GetVersionString(f4se->runtimeVersion) + "), compatible version " + version;
 
 			_ERROR(Msg.c_str());
 
-			MessageBox(GetActiveWindow(), Msg.c_str(), std::string(Version::Name + std::string(" Warning!")).c_str(), MB_ICONWARNING);
+			MessageBox(GetActiveWindow(), Msg.c_str(), (std::string(Version::Name) + " Warning!"_sv.data()).c_str(), MB_ICONWARNING);
 
 			return false;
 		}

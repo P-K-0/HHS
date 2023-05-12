@@ -26,10 +26,7 @@ namespace hhs {
 
 		height = h;
 
-		isStop = false;
-		isAAF = false;
-		isSwimming = false;
-		isSitting = false;
+		isStop = isAAF = isSwimming = false;
 
 		return Error::Success;
 	}
@@ -42,7 +39,7 @@ namespace hhs {
 
 			return ResetHeight();
 		}
-
+	
 		auto ret = SetTransform(ComOverride, Node::Flags::PosZ, h);
 
 		Camera::Player::GetInstance().SetCameraHeight(util.GetActorPtr(), h);
@@ -55,10 +52,7 @@ namespace hhs {
 
 		height = h;
 
-		isStop = false;
-		isAAF = false;
-		isSwimming = false;
-		isSitting = false;
+		isStop = isAAF = isSwimming = false;
 
 		return Error::Success;
 	}
@@ -77,12 +71,7 @@ namespace hhs {
 
 		height = MinValue;
 
-		hasOverride = false;
-
-		isStop = false;
-		isAAF = false;
-		isSwimming = false;
-		isSitting = false;
+		hasOverride = isStop = isAAF = isSwimming = false;
 
 		return Error::Success;
 	}

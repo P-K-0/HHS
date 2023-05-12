@@ -49,6 +49,7 @@ namespace Settings {
 	constexpr bool Default_EnableDynamicCamera = false;
 	constexpr bool Default_Enable1stCamera = true;
 	constexpr bool Default_Enable3rdCamera = true;
+	constexpr bool Default_EnableCustomCameraPatch = true;
 	constexpr bool Default_Cache = false;
 	constexpr bool Default_AltRead = false;
 	constexpr bool Default_EnableAAF = false;
@@ -113,6 +114,7 @@ namespace Settings {
 		DECL_FN_GET_SET(bool, bEnableDynamicCamera);
 		DECL_FN_GET_SET(bool, bEnable1stCamera);
 		DECL_FN_GET_SET(bool, bEnable3rdCamera);
+		DECL_FN_GET_SET(bool, bEnableCustomCameraPatch);
 
 		DECL_FN_GET_SET(bool, bCache);
 
@@ -195,6 +197,7 @@ namespace Settings {
 		bool bEnableDynamicCamera{ Default_EnableDynamicCamera };
 		bool bEnable1stCamera{ Default_Enable1stCamera };
 		bool bEnable3rdCamera{ Default_Enable3rdCamera };
+		bool bEnableCustomCameraPatch{ Default_EnableCustomCameraPatch };
 
 		bool bCache{ Default_Cache };
 

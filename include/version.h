@@ -5,8 +5,8 @@
 
 namespace Version {
 
-	constexpr char* Name = "Fallout 4 High Heels System";
-	constexpr char* ShortName = "FO4HHS";
+	constexpr auto Name = "Fallout 4 High Heels System"_sv;
+	constexpr auto ShortName = "FO4HHS"_sv;
 	
 	constexpr std::uint32_t Major = 1;
 	constexpr std::uint32_t Minor = 8;	
