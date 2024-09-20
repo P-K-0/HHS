@@ -54,8 +54,11 @@ namespace BA2 {
 		public Base {
 
 		static const std::uint64_t Address_Entry = 24;
+
 		static const std::uint32_t Btdx_Hdr = 0x58445442;
-		static const std::uint32_t Version_Hdr = 0x01;
+
+		static const std::uint32_t Version1 = 0x01;
+		static const std::uint32_t Version8 = 0x08;
 
 	public:
 

@@ -16,6 +16,7 @@
 
 namespace f4se {
 
+#if CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
 	bool Plugin::Query(const F4SEInterface* f4se, PluginInfo* info) noexcept
 	{
 		iLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Fallout4\\F4SE\\HHS.log");
@@ -26,8 +27,9 @@ namespace f4se {
 
 		hPlug = f4se->GetPluginHandle();
 
-		if (!(isValid = CheckPluginVersion(f4se)))
+		if (!(isValid = CheckPluginVersion(f4se))) {
 			return false;
+		}
 
 		if (f4se->isEditor) {
 
@@ -66,9 +68,11 @@ namespace f4se {
 
 		return true;
 	}
+#endif
 
 	bool Plugin::Load(const F4SEInterface* a_f4se) noexcept
 	{
+#if CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
 		if (f4se_papyrus_interface && f4se_msg_interface && f4se_scaleform_interface) {
 
 			f4se_papyrus_interface->Register(Papyrus::Register);
@@ -79,6 +83,59 @@ namespace f4se {
 
 			return true;
 		}
+#else
+		iLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Fallout4\\F4SE\\HHS.log");
+
+		if (!(isValid = CheckPluginVersion(a_f4se))) {
+			return false;
+		}
+
+		if (a_f4se->isEditor) {
+
+			_ERROR("Plugin is not compatible with editor!");
+
+			return false;
+		}
+
+		if (!(f4se_papyrus_interface = static_cast<F4SEPapyrusInterface*>(a_f4se->QueryInterface(kInterface_Papyrus)))) {
+
+			_ERROR("Papyrus Interface error!");
+
+			return false;
+		}
+
+		if (!(f4se_task_interface = static_cast<F4SETaskInterface*>(a_f4se->QueryInterface(kInterface_Task)))) {
+
+			_ERROR("Task Interface error!");
+
+			return false;
+		}
+
+		if (!(f4se_msg_interface = static_cast<F4SEMessagingInterface*>(a_f4se->QueryInterface(kInterface_Messaging)))) {
+
+			_ERROR("Messaging Interface error!");
+
+			return false;
+		}
+
+		if (!(f4se_scaleform_interface = static_cast<F4SEScaleformInterface*>(a_f4se->QueryInterface(kInterface_Scaleform)))) {
+
+			_ERROR("Scaleform Interface error!");
+
+			return false;
+		}
+
+		if (f4se_papyrus_interface && f4se_msg_interface && f4se_scaleform_interface) {
+
+			f4se_papyrus_interface->Register(Papyrus::Register);
+
+			f4se_msg_interface->RegisterListener(a_f4se->GetPluginHandle(), "F4SE", MsgCallback);
+
+			f4se_scaleform_interface->Register(Version::ShortName.data(), Scaleform::Register);
+
+			return true;
+		}
+#endif
 
 		return false;
 	}
@@ -93,24 +150,22 @@ namespace f4se {
 
 	bool Plugin::CheckPluginVersion(const F4SEInterface* f4se) noexcept
 	{
-#if	RUNTIME_VERSION_1_10_138 < CURRENT_RELEASE_RUNTIME
+#if	CURRENT_RELEASE_RUNTIME >= RUNTIME_VERSION_1_10_162 && CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
 		auto version = "(" + GetVersionString(RUNTIME_VERSION_1_10_162) + "/" + GetVersionString(RUNTIME_VERSION_1_10_163) + ")";
 #else
 		auto version = "(" + GetVersionString(CURRENT_RELEASE_RUNTIME) + ")";
 #endif
 
 		_DMESSAGE("=================================================================================");
-		_DMESSAGE("%s Version (%i.%i) by PK0", Version::Name.data(), Version::Major, Version::Minor);
+		_DMESSAGE("%s Version (%i.%i.%i) by PK0", Version::Name.data(), Version::Major, Version::Minor, Version::Build);
 		_DMESSAGE("Game Version %s", version.c_str());
 		_DMESSAGE("=================================================================================");
 
-#if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME 
-#if	RUNTIME_VERSION_1_10_138 < CURRENT_RELEASE_RUNTIME
-		if (f4se->runtimeVersion < RUNTIME_VERSION_1_10_162 || RUNTIME_VERSION_1_10_163 < f4se->runtimeVersion) {
-#else
+#if	CURRENT_RELEASE_RUNTIME < RUNTIME_VERSION_1_10_162 && CURRENT_RELEASE_RUNTIME > RUNTIME_VERSION_1_10_163
 		if (f4se->runtimeVersion != CURRENT_RELEASE_RUNTIME) {
+#else
+		if (f4se->runtimeVersion < RUNTIME_VERSION_1_10_162 || f4se->runtimeVersion > RUNTIME_VERSION_1_10_163) {
 #endif
-
 			auto Msg = "Game version error (" + GetVersionString(f4se->runtimeVersion) + "), compatible version " + version;
 
 			_ERROR(Msg.c_str());
@@ -119,7 +174,6 @@ namespace f4se {
 
 			return false;
 		}
-#endif
 
 		return true;
 	}
@@ -129,6 +183,8 @@ namespace f4se {
 		switch (msg->type) {
 
 		case F4SEMessagingInterface::kMessage_GameLoaded:
+
+			Trampoline::GetSingleton().Create();
 
 			Settings::Ini::GetInstance().ReadAllSettings();
 
@@ -162,7 +218,8 @@ namespace f4se {
 
 	void Plugin::AddTask(ITaskDelegate* task) noexcept
 	{
-		if (f4se_task_interface)
+		if (f4se_task_interface) {
 			f4se_task_interface->AddTask(task);
+		}
 	}
 }

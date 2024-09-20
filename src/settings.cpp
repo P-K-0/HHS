@@ -235,7 +235,6 @@ namespace Settings {
 
 		std::uint32_t cnt{};
 
-
 		vRace.clear();
 
 		_DMESSAGE("Loading races :");
@@ -354,8 +353,9 @@ namespace Settings {
 
 	bool Ini::CheckRace(TESRace* race) noexcept
 	{
-		if (iRace == Race::AllRaces)
+		if (iRace == Race::AllRaces) {
 			return true;
+		}
 
 		return std::binary_search(vRace, race->formID);
 	}

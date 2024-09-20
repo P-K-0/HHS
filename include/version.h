@@ -9,7 +9,8 @@ namespace Version {
 	constexpr auto ShortName = "FO4HHS"_sv;
 	
 	constexpr std::uint32_t Major = 1;
-	constexpr std::uint32_t Minor = 8;	
+	constexpr std::uint32_t Minor = 8;
+	constexpr std::uint32_t Build = 6;
 
 	constexpr const float GetVersion() { return static_cast<float>(Major) + static_cast<float>(Minor) / 10.0f; }
 }

@@ -9,7 +9,13 @@ namespace Camera {
 
 	using SetINIFloat = void(*)(VirtualMachine*, std::uint64_t, void*, BSFixedString*, float);
 
+#if CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
 	static RelocAddr<SetINIFloat> SetINIFloat_Internal(0x014520A0);
+#elif CURRENT_RELEASE_RUNTIME == RUNTIME_VERSION_1_10_980
+	static RelocAddr<SetINIFloat> SetINIFloat_Internal(0x01105FF0);
+#elif CURRENT_RELEASE_RUNTIME == RUNTIME_VERSION_1_10_984
+	static RelocAddr<SetINIFloat> SetINIFloat_Internal(0x011063C0);
+#endif
 
 	static SetINIFloat o_SetINIFloat;
 
@@ -57,7 +63,5 @@ namespace Camera {
 		[[nodiscard]] bool Get3rdCameraHeight() noexcept;
 
 		static Player instance;
-
-		void* g_moduleHandle{ nullptr };
 	};
 }

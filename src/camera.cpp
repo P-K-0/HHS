@@ -14,7 +14,7 @@ namespace Camera {
 	{
 		auto val{ value };
 
-		if (name && Settings::Ini::GetInstance().Get_bEnableCustomCameraPatch()) {
+		if (Settings::Ini::GetInstance().Get_bEnableCustomCameraPatch() && name) {
 
 			for (auto& stgCamera : Camera3rdSettings) {
 
@@ -41,22 +41,7 @@ namespace Camera {
 	{
 		static bool hooked{};
 
-		if (hooked)
-			return;
-
-		std::size_t len{ 65536 };
-
-		if (!g_branchTrampoline.Create(len)) {
-
-			_ERROR("Branch Trampoline init error!");
-
-			return;
-		}
-
-		if (!g_localTrampoline.Create(len, g_moduleHandle)) {
-
-			_ERROR("Codegen buffer init error!");
-
+		if (hooked) {
 			return;
 		}
 
@@ -76,13 +61,7 @@ namespace Camera {
 			}
 		};
 
-		void* codeBuf = g_localTrampoline.StartAlloc();
-
-		SetINIFloat_Code code(codeBuf);
-
-		g_localTrampoline.EndAlloc(code.getCurr());
-
-		o_SetINIFloat = (SetINIFloat)codeBuf;
+		Trampoline::GetSingleton().Alloc<SetINIFloat_Code>(o_SetINIFloat);
 
 		if (g_branchTrampoline.Write5Branch(SetINIFloat_Internal.GetUIntPtr(), (std::uintptr_t)SetIniFloat)) {
 
@@ -104,8 +83,9 @@ namespace Camera {
 	
 	void Player::ResetCameraSettings() noexcept
 	{
-		for (auto& cam : Camera3rdSettings)
+		for (auto& cam : Camera3rdSettings) {
 			cam.second = 0.0f;
+		}
 	}
 
 	bool Player::IsCameraNodeAnimations() noexcept
@@ -115,7 +95,6 @@ namespace Camera {
 		double isApply{};
 
 		if (stg && stg->GetDouble(&isApply) && isApply) {
-
 			return false;
 		}
 
@@ -126,10 +105,9 @@ namespace Camera {
 	{
 		auto stg = GetINISetting(ApplyCameraNodeAnimations);
 
-		if (!stg)
-			return;
-
-		stg->SetDouble(value ? 1.0f : 0.0f);
+		if (stg) {
+			stg->SetDouble(value ? 1.0f : 0.0f);
+		}
 	}
 
 	bool Player::Get3rdCameraHeight() noexcept
@@ -142,8 +120,9 @@ namespace Camera {
 
 				auto setting = GetINISetting(stgCamera.first.c_str());
 
-				if (setting && setting->GetDouble(&val))
+				if (setting && setting->GetDouble(&val)) {
 					stgCamera.second = val;					
+				}
 			}
 
 			isCameraNodeAnimations = true;
@@ -156,8 +135,9 @@ namespace Camera {
 
 	void Player::SetCameraHeight(Actor* actor, const float height) noexcept
 	{
-		if (!actor || actor != (*g_player) || !isCameraNodeAnimations)
+		if (!actor || actor != (*g_player) || !isCameraNodeAnimations) {
 			return;
+		}
 
 		auto& settings = Settings::Ini::GetInstance();
 
@@ -165,8 +145,9 @@ namespace Camera {
 		float h1st{ settings.Get_bEnable1stCamera() ? h : MinValue };
 		float h3rd{ settings.Get_bEnable3rdCamera() ? h : MinValue };
 
-		if (height1st == h1st && height3rd == h3rd)
+		if (height1st == h1st && height3rd == h3rd) {
 			return;
+		}
 
 		height1st = h1st;
 		height3rd = h3rd;
@@ -184,8 +165,9 @@ namespace Camera {
 
 			auto setting = GetINISetting(cam.first.c_str());
 
-			if (setting)
+			if (setting) {
 				setting->SetDouble(h3rd > MinValue ? cam.second + h3rd : cam.second);
+			}
 		}
 
 		auto player = (*g_player);
@@ -195,8 +177,9 @@ namespace Camera {
 
 			auto thirdPersonCamera = DYNAMIC_CAST(playerCamera->cameraStates[PlayerCamera::kCameraState_ThirdPerson2], TESCameraState, ThirdPersonState);
 
-			if (thirdPersonCamera)
+			if (thirdPersonCamera) {
 				thirdPersonCamera->UpdateMode(player->actorState.IsWeaponDrawn());
+			}
 		}
 
 		return;
@@ -210,8 +193,9 @@ namespace Camera {
 
 			for (int i = 0; i < PlayerCamera::kNumCameraStates; i++) {
 
-				if (playerCamera->cameraState == playerCamera->cameraStates[i])
+				if (playerCamera->cameraState == playerCamera->cameraStates[i]) {
 					return i;
+				}
 			}
 		}
 

@@ -60,10 +60,13 @@ namespace hhs {
 		
 		[[nodiscard]] const bool& HasOverride() const noexcept { return hasOverride; }
 		[[nodiscard]] const bool HasHeight() const noexcept { return height > MinValue; }
-		
+
 		[[nodiscard]] const bool& IsAAF() const noexcept { return isAAF; }
 		[[nodiscard]] const bool& IsStop() const noexcept { return isStop; }
 		[[nodiscard]] const bool& IsSwimming() const noexcept { return isSwimming; }
+		[[nodiscard]] const bool& IsSkip() const noexcept { return skip; }
+
+		void Skip(const bool& skip) noexcept { this->skip = skip; }
 
 		[[nodiscard]] Actors::Utility& GetActorUtil() noexcept { return util; }
 
@@ -76,6 +79,7 @@ namespace hhs {
 		bool isAAF{};
 		bool isSwimming{};
 		bool hasOverride{};
+		bool skip{};
 		
 		float height{};
 
@@ -93,21 +97,25 @@ namespace hhs {
 		template<typename T, typename Fn = std::function<Error(System&)>>
 		[[nodiscard]] Error visit(const bool& bOverride, T t, Fn fn) noexcept
 		{
-			if (!f4se::Plugin::GetInstance().IsRuntimeValid())
+			if (!f4se::Plugin::GetInstance().IsRuntimeValid()) {
 				return Error::Runtime;
+			}
 
-			Actors::Utility util{ t };
+			Actors::Utility util(t);
 
-			if (!util)
+			if (!util) {
 				return Error::ActorDisabled;
+			}
 
-			if (!util.IsRaceCompatible())
+			if (!util.IsRaceCompatible()) {
 				return Error::Race;
+			}
 
 			auto handle = util.GetHandle();
 
-			if (handle == 0)
+			if (handle == 0) {
 				return Error::Unknown;
+			}
 
 			auto& it = map.find(handle);
 
@@ -115,8 +123,9 @@ namespace hhs {
 	
 				it->second.SetActorUtil(util);
 				
-				if (it->second.HasOverride() && !bOverride)
+				if (it->second.HasOverride() && !bOverride) {
 					return Error::Override;
+				}
 
 				return fn(it->second);
 			}

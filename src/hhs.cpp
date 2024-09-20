@@ -18,15 +18,16 @@ namespace hhs {
 
 		Camera::Player::GetInstance().SetCameraHeight(util.GetActorPtr(), h);
 
-		if (ret == -1)
+		if (ret == -1) {
 			return Error::ComOverride;
+		}
 
-		if (ret == -2)
+		if (ret == -2) {
 			return Error::SetHeight;
+		}
 
 		height = h;
-
-		isStop = isAAF = isSwimming = false;
+		skip = isStop = isAAF = isSwimming = false;
 
 		return Error::Success;
 	}
@@ -36,7 +37,6 @@ namespace hhs {
 		auto h = util.GetHeightFromWornItem(slot, id, equipped);
 
 		if (h <= MinValue) {
-
 			return ResetHeight();
 		}
 	
@@ -44,15 +44,16 @@ namespace hhs {
 
 		Camera::Player::GetInstance().SetCameraHeight(util.GetActorPtr(), h);
 
-		if (ret == -1)
+		if (ret == -1) {
 			return Error::ComOverride;
+		}
 
-		if (ret == -2)
+		if (ret == -2) {
 			return Error::SetHeight;
+		}
 
 		height = h;
-
-		isStop = isAAF = isSwimming = false;
+		skip = isStop = isAAF = isSwimming = false;
 
 		return Error::Success;
 	}
@@ -63,15 +64,16 @@ namespace hhs {
 
 		Camera::Player::GetInstance().SetCameraHeight(util.GetActorPtr());
 
-		if (ret == -1)
+		if (ret == -1) {
 			return Error::ComOverride;
+		}
 
-		if (ret == -2)
+		if (ret == -2) {
 			return Error::SetHeight;
+		}
 
 		height = MinValue;
-
-		hasOverride = isStop = isAAF = isSwimming = false;
+		skip = hasOverride = isStop = isAAF = isSwimming = false;
 
 		return Error::Success;
 	}
@@ -87,11 +89,13 @@ namespace hhs {
 
 		Camera::Player::GetInstance().SetCameraHeight(util.GetActorPtr());
 
-		if (ret == -1)
+		if (ret == -1) {
 			return Error::ComOverride;
+		}
 
-		if (ret == -2)
+		if (ret == -2) {
 			return Error::SetHeight;
+		}
 
 		isStop = true;
 		isAAF = stopAAF;
@@ -104,7 +108,6 @@ namespace hhs {
 		isSwimming = swim;
 		
 		if (swim) {
-
 			return Stop();
 		}
 
@@ -113,61 +116,67 @@ namespace hhs {
 
 	void System::DisableFix() noexcept
 	{
-		for (auto& m : map)
+		for (auto& m : map) {
 			ResetTransform(m.first);
+		}
 	}
 
 	void System::EnableFix(TESObjectREFR* furniture) noexcept
 	{
 		auto& settings = Settings::Ini::GetInstance();
 
-		if (!settings.Get_bEnableFixes())
+		if (!settings.Get_bEnableFixes()) {
 			return;
+		}
 
 		TESForm* form{ nullptr };
 
-		if (!furniture || !(form = furniture->baseForm))
+		if (!furniture || !(form = furniture->baseForm)) {
 			return;
+		}
 
 		TESFurniture* furn{ nullptr };
 
-		if (!(furn = DYNAMIC_CAST(form, TESForm, TESFurniture)))
+		if (!(furn = DYNAMIC_CAST(form, TESForm, TESFurniture))) {
 			return;
+		}
 
 		Skeleton::Reader skeleton{ util.GetActorPtr(), util.IsFemale() };
 
 		std::uint32_t version{};
 
-		if (!skeleton || !skeleton.GetExtraData(ExtraDataSAF, version))
+		if (!skeleton || !skeleton.GetExtraData(ExtraDataSAF, version)) {
 			return;
+		}
 
 		auto& fixes = Fixes::Preset::GetInstance();
 
-		if (settings.Get_bEnableReloadFixes())
+		if (settings.Get_bEnableReloadFixes()) {
 			fixes.Load();
+		}
 
-		if (fixes.GetSAFVersion() < version)
+		if (fixes.GetSAFVersion() < version) {
 			return;
+		}
 
-		for (std::uint32_t idx{}; idx < furn->keywordForm.numKeywords; idx++) {
+		bool ret{};
+
+		for (std::uint32_t idx{}; idx < furn->keywordForm.numKeywords && !ret; idx++) {
 
 			auto keywrd = furn->keywordForm.keywords[idx];
 
-			if (!keywrd)
-				continue;
+			if (keywrd) {
 
-			bool noStop{};
+				bool noStop{};
 
-			auto ret = fixes.GetPresetValues(keywrd->keyword.c_str(), noStop, [&](const Fixes::Values& values) {
+				ret = fixes.GetPresetValues(keywrd->keyword.c_str(), noStop, [&](const Fixes::Values& values) {
+					SetTransform(values.node, values.flags, values.value * (values.mulheight ? height : 1.0f));
+				});
 
-				SetTransform(values.node, values.flags, values.value * (values.mulheight ? height : 1.0f));
-			});
-
-			if (noStop)
-				Start();
-
-			if (ret)
-				break;
+				if (noStop) {
+					Start();
+				}
+			}
 		}
 	}
 

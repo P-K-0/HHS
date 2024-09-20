@@ -14,20 +14,18 @@ namespace JsonParser {
 	{
 		boost::filesystem::path path{ DirData.data() + directory };
 
-		if (!boost::filesystem::exists(path))
+		if (!boost::filesystem::exists(path)) {
 			return;
+		}
 
 		try {
 
 			for (auto& it : boost::filesystem::directory_iterator{ path }) {
 
-				if (!boost::filesystem::is_regular_file(it))
-					continue;
-
-				if (_strcmpi(it.path().extension().string().c_str(), ".json") != 0)
-					continue;
-
-				files.insert(directory + it.path().filename().string());
+				if (boost::filesystem::is_regular_file(it) &&
+					_strcmpi(it.path().extension().string().c_str(), ".json") == 0) {
+					files.insert(directory + it.path().filename().string());
+				}
 			}
 		}
 		catch (boost::filesystem::filesystem_error& err) {
@@ -42,38 +40,37 @@ namespace JsonParser {
 
 	void EnumFilesBA2(const std::string& directory, std_boost::set& files) noexcept
 	{
-		if (Settings::Ini::GetInstance().Get_bAltRead())
+		if (Settings::Ini::GetInstance().Get_bAltRead()) {
 			return;
+		}
 
 		boost::filesystem::path path{ DirData.data() };
 
-		if (!boost::filesystem::exists(path))
+		if (!boost::filesystem::exists(path)) {
 			return;
+		}
 
 		for (auto& dir : boost::filesystem::directory_iterator{ path }) {
 
-			if (!boost::filesystem::is_regular_file(dir))
-				continue;
+			if (boost::filesystem::is_regular_file(dir) &&
+				_strcmpi(dir.path().extension().string().c_str(), ".ba2") == 0) {
 
-			if (_strcmpi(dir.path().extension().string().c_str(), ".ba2") != 0)
-				continue;
+				BA2::Reader reader{ dir.path().string() };
 
-			BA2::Reader reader{ dir.path().string() };
+				if (reader &&
+					reader.GetError() == BA2::Error::Success &&
+					reader.GetHeader().GetType() == BA2::Type::GNRL) {
 
-			_DMESSAGE("Opening file : %s error code %i", dir.path().filename().string().c_str(), reader.GetError());
+					for (auto& tbl : reader.GetStringsTable()) {
 
-			if (!reader || reader.GetHeader().GetType() != BA2::Type::GNRL)
-				continue;
+						boost::filesystem::path file{ tbl.GetFilename() };
 
-			for (auto& tbl : reader.GetStringsTable()) {
+						std::string parent_path = file.branch_path().lexically_normal().string() + "\\";
 
-				boost::filesystem::path file{ tbl.GetFilename() };
-
-				std::string parent_path = file.branch_path().lexically_normal().string() + "\\";
-
-				if (_strcmpi(directory.c_str(), parent_path.c_str()) == 0 && _strcmpi(file.extension().string().c_str(), ".json") == 0) {
-
-					files.insert(file.string());
+						if (_strcmpi(directory.c_str(), parent_path.c_str()) == 0 && _strcmpi(file.extension().string().c_str(), ".json") == 0) {
+							files.insert(file.string());
+						}
+					}		
 				}
 			}
 		}
@@ -81,8 +78,9 @@ namespace JsonParser {
 
 	[[nodiscard]] std::uint32_t GetFormIDByModName(const std::string& name, const std::string& id) noexcept
 	{
-		if (name.empty() || id.empty())
+		if (name.empty() || id.empty()) {
 			return 0;
+		}
 
 		std::uint32_t formID{};
 
@@ -113,16 +111,16 @@ namespace JsonParser {
 	{
 		TESForm* form{ nullptr };
 
-		if (id == 0 || !(form = LookupFormByID(id)))
+		if (id == 0 || !(form = LookupFormByID(id))) {
 			return;
+		}
 
 		if (gender == 3) {
 
-			BGSMod::Attachment::Mod* objectmod = (BGSMod::Attachment::Mod*)DYNAMIC_CAST(form, TESForm, BGSMod__Attachment__Mod);
+			BGSMod::Attachment::Mod* objectMod = (BGSMod::Attachment::Mod*)DYNAMIC_CAST(form, TESForm, BGSMod__Attachment__Mod);
 
-			if (objectmod) {
-
-				func(objectmod->materialSwap.GetModelName());
+			if (objectMod) {
+				func(objectMod->materialSwap.GetModelName());
 			}
 			
 			return;
@@ -130,8 +128,9 @@ namespace JsonParser {
 		
 		TESObjectARMA* arma = DYNAMIC_CAST(form, TESForm, TESObjectARMA);
 
-		if (!arma)
+		if (!arma) {
 			return;
+		}
 
 		switch (gender) {
 
@@ -144,14 +143,17 @@ namespace JsonParser {
 
 		case 2:
 
-			for (int gndr = 0; gndr < 2; gndr++)
+			for (int gndr = 0; gndr < 2; gndr++) {
 				func(arma->swap50[gndr].GetModelName());
+			}
 
 			break;
 
 		default:
 
 			_DMESSAGE("Invalid gender : %i", gender);
+
+			break;
 		}
 	}
 
@@ -161,14 +163,16 @@ namespace JsonParser {
 
 		std::string buffer;
 
-		if (!reader.Read(buffer))
+		if (!reader.Read(buffer)) {
 			return false;
+		}
 
 		Json::Value root;
 		Json::Reader jReader;
 
-		if (!jReader.parse(buffer, root))
+		if (!jReader.parse(buffer, root)) {
 			return false;
+		}
 
 		auto& cache = Cache::Map::GetInstance();
 
@@ -176,30 +180,30 @@ namespace JsonParser {
 
 			auto& _root = root[member];
 
-			if (!_root.isArray())
-				continue;
+			if (_root.isArray()) {
 
-			for (auto& v : _root) {
+				for (auto& v : _root) {
 
-				auto& key = v["key"];
-				auto& value = v["value"];
+					auto& key = v["key"];
+					auto& value = v["value"];
 
-				if (!key.isString() || key.asString().empty()) {
+					if (!key.isString() || key.asString().empty()) {
 
-					auto& formId = v["formid"];
-					auto& gender = v["gender"];
+						auto& formId = v["formid"];
+						auto& gender = v["gender"];
 
-					auto id = GetFormIDByModName(member.c_str(), formId.asString());
+						auto id = GetFormIDByModName(member.c_str(), formId.asString());
 
-					GetPathFromID(id, gender.asInt(), [&](const std::string& filepath) {
+						GetPathFromID(id, gender.asInt(), [&](const std::string& filepath) {
 
-						cache.Insert(filepath, value.asFloat());
-					});					
+							cache.Insert(filepath, value.asFloat());
+						});					
+					}
+					else {
 
-					continue;
+						cache.Insert(key.asString(), value.asFloat());
+					}
 				}
-
-				cache.Insert(key.asString(), value.asFloat());
 			}
 		}
 
@@ -208,8 +212,9 @@ namespace JsonParser {
 
 	void EnumFiles() noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bEnableJsonFile())
+		if (!Settings::Ini::GetInstance().Get_bEnableJsonFile()) {
 			return;
+		}
 
 		std_boost::set files;
 
@@ -217,11 +222,11 @@ namespace JsonParser {
 
 		EnumFilesBA2(DirF4SE.data(), files);
 
-		if (files.empty())
+		if (files.empty()) {
 			return;
+		}
 
 		for (auto& f : files) {
-
 			_DMESSAGE("Loading Json : %s %s", f.c_str(), HeightFile(f) ? "parsed successfully." : "found errors!");
 		}
 	}

@@ -9,13 +9,15 @@ namespace Actors {
 
 	void Utility::Init() noexcept
 	{
-		if (!actor || !actor->race)
+		if (!actor || !actor->race) {
 			return;
+		}
 
 		TESNPC* npc{ nullptr };
 
-		if (!actor->baseForm || !(npc = DYNAMIC_CAST(actor->baseForm, TESForm, TESNPC)))
+		if (!actor->baseForm || !(npc = DYNAMIC_CAST(actor->baseForm, TESForm, TESNPC))) {
 			return;
+		}
 
 		isFemale = CALL_MEMBER_FN(npc, GetSex)();
 
@@ -28,11 +30,13 @@ namespace Actors {
 
 		if (isEnabled && gender != Settings::Gender::BothGender) {
 
-			if (isFemale && gender == Settings::Gender::Male)
+			if (isFemale && gender == Settings::Gender::Male) {
 				isEnabled = false;
+			}
 
-			if (!isFemale && gender == Settings::Gender::Female)
+			if (!isFemale && gender == Settings::Gender::Female) {
 				isEnabled = false;
+			}
 		}
 
 		isRaceCompatible = settings.CheckRace(actor->race);
@@ -62,8 +66,9 @@ namespace Actors {
 	{
 		auto refr = LookupFormByID(id);
 
-		if (!refr)
+		if (!refr) {
 			return;
+		}
 
 		actor = DYNAMIC_CAST(refr, TESObjectREFR, Actor);
 
@@ -98,8 +103,9 @@ namespace Actors {
 
 	std::uint32_t Utility::GetIDFromScriptKwrd() noexcept
 	{
-		if (!actor || !actor->equipData)
+		if (!actor || !actor->equipData) {
 			return 0;
+		}
 
 		TESObjectARMO* armor{ nullptr };
 
@@ -107,22 +113,25 @@ namespace Actors {
 
 			const auto itemSwap = actor->equipData->slots[slot].item;
 
-			if (!itemSwap || !(armor = DYNAMIC_CAST(itemSwap, TESForm, TESObjectARMO)))
+			if (!itemSwap || !(armor = DYNAMIC_CAST(itemSwap, TESForm, TESObjectARMO))) {
 				continue;
+			}
 			
 			for (std::uint32_t key = 0; key < armor->keywordForm.numKeywords; key++) {
 
 				BGSKeyword* kwrd = armor->keywordForm.keywords[key];
 
-				if (kwrd && _strcmpi(kwrd->keyword.c_str(), "HHS_Script") == 0) 
+				if (kwrd && _strcmpi(kwrd->keyword.c_str(), "HHS_Script") == 0) {
 					return itemSwap->formID;
+				}
 			}
 		}
 
 		const auto itemSwap = actor->equipData->slots[3].item;
 
-		if (itemSwap)
+		if (itemSwap) {
 			return itemSwap->formID;	
+		}
 
 		return 0;
 	}
@@ -136,31 +145,37 @@ namespace Actors {
 		TESForm* frm{ nullptr };
 		float height{ MinValue };
 
-		if (!actor || !actor->GetEquippedExtraData(slot, &stackDataList) || !stackDataList)
+		if (!actor || !actor->GetEquippedExtraData(slot, &stackDataList) || !stackDataList) {
 			return MinValue;
+		}
 
-		if (!(extraData = stackDataList->GetByType(ExtraDataType::kExtraData_ObjectInstance)))
+		if (!(extraData = stackDataList->GetByType(ExtraDataType::kExtraData_ObjectInstance))) {
 			return MinValue;
+		}
 
 		BGSObjectInstanceExtra* objectModData = DYNAMIC_CAST(extraData, BSExtraData, BGSObjectInstanceExtra);
 
-		if (!objectModData)
+		if (!objectModData) {
 			return MinValue;
+		}
 
 		const auto data = objectModData->data;
 
-		if (!data || !data->forms)
+		if (!data || !data->forms) {
 			return MinValue;
+		}
 
 		for (std::uint32_t i{}; i < data->blockSize / sizeof(BGSObjectInstanceExtra::Data::Form); i++) {
 
-			if (!(frm = LookupFormByID(data->forms[i].formId)))
+			if (!(frm = LookupFormByID(data->forms[i].formId))) {
 				continue;
+			}
 
 			BGSMod::Attachment::Mod* objectMod = (BGSMod::Attachment::Mod*)DYNAMIC_CAST(frm, TESForm, BGSMod__Attachment__Mod);
 
-			if (objectMod && (height = Cache::Map::GetInstance().Find(objectMod->materialSwap.GetModelName())) > MinValue)
+			if (objectMod && (height = Cache::Map::GetInstance().Find(objectMod->materialSwap.GetModelName())) > MinValue) {
 				return height;
+			}
 		}
 
 		return MinValue;
@@ -172,31 +187,35 @@ namespace Actors {
 		
 		float height{ MinValue };
 
-		if (!actor || !(equipdata = actor->equipData))
+		if (!actor || !(equipdata = actor->equipData)) {
 			return MinValue;
+		}
 
-		if (isPlayer && equipped && actor->middleProcess && actor->middleProcess->unk08) {
-			
+		if (isPlayer && equipped && actor->middleProcess && actor->middleProcess->unk08) {	
 			CALL_MEMBER_FN(actor->middleProcess, UpdateEquipment)(actor, 0);
 		}
 
 		for (std::uint32_t indexSlot = MinSlot; indexSlot < MaxSlot; indexSlot++) {
 
-			if (!equipped && (slot & (1 << indexSlot)) && id)
+			if (!equipped && (slot & (1 << indexSlot)) && id) {
 				continue;
+			}
 
 			const auto materialSwap = equipdata->slots[indexSlot].modelMatSwap;
 
-			if (!Settings::Ini::GetInstance().GetSlots()[indexSlot] || !materialSwap)
+			if (!Settings::Ini::GetInstance().GetSlots()[indexSlot] || !materialSwap) {
 				continue;
+			}
 
 			height = Cache::Map::GetInstance().Find(materialSwap->GetModelName());
 			
-			if (height == MinValue)
+			if (height == MinValue) {
 				height = GetHeightFromMod(indexSlot);
+			}
 
-			if (height > MinValue)
+			if (height > MinValue) {
 				return height;
+			}
 		}
 
 		return MinValue;
@@ -204,18 +223,21 @@ namespace Actors {
 
 	std::uint64_t Utility::GetHandle() noexcept
 	{
-		if (!actor || !(*g_gameVM))
+		if (!actor || !(*g_gameVM)) {
 			return 0;
+		}
 
 		auto registry = (*g_gameVM)->m_virtualMachine;
 
-		if (!registry)
+		if (!registry) {
 			return 0;
+		}
 
 		auto policy = registry->GetHandlePolicy();
 
-		if (policy) 
+		if (policy) {
 			return policy->Create(static_cast<UInt32>(actor->formType), (void*)actor);
+		}
 
 		return 0;
 	}
@@ -224,8 +246,9 @@ namespace Actors {
 	{
 		ActorEquipData* actEquipData{ nullptr };
 
-		if (!actor || !(actEquipData = actor->equipData))
+		if (!actor || !(actEquipData = actor->equipData)) {
 			return false;
+		}
 
 		id = 0;
 		filename.clear();
@@ -233,8 +256,9 @@ namespace Actors {
 		const auto itemSwap = actEquipData->slots[slot].item;
 		const auto materialSwap = actEquipData->slots[slot].modelMatSwap;
 
-		if (!itemSwap || !materialSwap)
+		if (!itemSwap || !materialSwap) {
 			return false;
+		}
 
 		id = itemSwap->formID;
 		filename = materialSwap->GetModelName();
@@ -246,13 +270,15 @@ namespace Actors {
 	{
 		TESObjectREFR* refr{ nullptr };
 
-		if (!actor || !actor->middleProcess)
+		if (!actor || !actor->middleProcess) {
 			return nullptr;
+		}
 
 		auto data08 = actor->middleProcess->unk08;
 
-		if (!data08)
+		if (!data08) {
 			return nullptr;
+		}
 
 		if (actor->actorState.flags & (ActorState::Flags::kUnk1 | ActorState::Flags::kUnk2)) {
 
@@ -268,18 +294,21 @@ namespace Actors {
 
 	std::uint32_t GetSlotMaskByID(const std::uint32_t& id) noexcept
 	{
-		if (id == 0)
+		if (id == 0) {
 			return InvalidSlot;
+		}
 
 		TESForm* ObjectFrm = LookupFormByID(id);
 
-		if (!ObjectFrm || ObjectFrm->formType != kFormType_ARMO)
+		if (!ObjectFrm || ObjectFrm->formType != kFormType_ARMO) {
 			return InvalidSlot;
+		}
 
 		TESObjectARMO* armor = DYNAMIC_CAST(ObjectFrm, TESForm, TESObjectARMO);
 
-		if (!armor)
+		if (!armor) {
 			return InvalidSlot;
+		}
 
 		return armor->bipedObject.GetSlotMask();
 	}

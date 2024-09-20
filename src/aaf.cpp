@@ -13,8 +13,9 @@ namespace Aaf {
 	template<typename T>
 	T VMArgs::As(std::uint32_t index) noexcept
 	{
-		if (index >= vmVar.Length())
+		if (index >= vmVar.Length()) {
 			return T{};
+		}
 
 		T value{};
 
@@ -26,8 +27,9 @@ namespace Aaf {
 	template<typename T>
 	std::vector<T> VMArgs::AsArray(std::uint32_t index) noexcept
 	{
-		if (index >= vmVar.Length())
+		if (index >= vmVar.Length()) {
 			return std::vector<T>{};
+		}
 
 		VMVariable ret{};
 
@@ -35,8 +37,9 @@ namespace Aaf {
 
 		auto& v = ret.GetValue();
 
-		if (!v.data.arr)
+		if (!v.data.arr) {
 			return std::vector<T>{};
+		}
 
 		std::vector<T> vValues;
 
@@ -47,11 +50,11 @@ namespace Aaf {
 			if (value.GetTypeEnum() == VMValue::kType_Variable && value.data.var) {
 
 				Push(vValues, (*value.data.var));
-			
-				continue;
 			}
+			else {
 
-			Push(vValues, value);
+				Push(vValues, value);
+			}
 		}
 
 		return vValues;
@@ -144,8 +147,9 @@ namespace Aaf {
 	{
 		auto id = value.data.id;
 
-		if (!id)
+		if (!id) {
 			return;
+		}
 
 		vector.push_back(id->GetHandle());
 	}
@@ -154,8 +158,9 @@ namespace Aaf {
 	{
 		auto str = value.data.GetStr();
 
-		if (!str)
+		if (!str) {
 			return;
+		}
 
 		vector.push_back(str->c_str());
 	}
@@ -169,13 +174,13 @@ namespace Aaf {
 	{
 		std::uint32_t id = static_cast<std::uint32_t>(Handle & MaskId);
 
-		if (id == 0 || id == MaskId)
+		if (id == 0 || id == MaskId) {
 			return;
+		}
 
 		bool isStop{ bTag ? false : bStop };
 
 		hhs::Map::GetInstance().visit(false, id, [&](hhs::System& sys) {
-
 			return isStop ? sys.Stop(true) : sys.Start();
 		});
 	}
@@ -269,10 +274,11 @@ namespace Aaf {
 
 	void Event::CustomEvent(VirtualMachine* vm, std::uint64_t unk1, VMIdentifier* sender, const BSFixedString* eventName, VMValue* args) noexcept
 	{
-		if (eventName && args && Settings::Ini::GetInstance().Get_bEnableAAF())
-			Scene::GetInstance().ProcessEvent(eventName, args);
-
 		SendCustomEvent_Original(vm, unk1, sender, eventName, args);
+
+		if (Settings::Ini::GetInstance().Get_bEnableAAF() && vm && sender && eventName && args) {
+			Scene::GetInstance().ProcessEvent(eventName, args);
+		}
 	}
 
 	bool Event::CheckPluginsInstalled() noexcept
@@ -281,19 +287,22 @@ namespace Aaf {
 
 		VisitMods([&](ModInfo* mod) {
 
-			if (_strcmpi(mod->name, PluginAAF) == 0)
+			if (_strcmpi(mod->name, PluginAAF) == 0) {
 				hasAAF = true;
+			}
 
-			if (_strcmpi(mod->name, PluginFO4HHS) == 0)
+			if (_strcmpi(mod->name, PluginFO4HHS) == 0) {
 				hasPlugin = true;
+			}
 
 			return hasAAF && hasPlugin;
 		});
 
 		_DMESSAGE("%s %sfound!", PluginAAF, hasAAF ? "" : "not ");
 
-		if (!hasAAF)
+		if (!hasAAF) {
 			return false;
+		}
 
 		if (hasPlugin) {
 
@@ -309,25 +318,11 @@ namespace Aaf {
 
 	void Event::Hook() noexcept
 	{
-		if (hasPlugin || hooked)
-			return;
-
-		if (!CheckPluginsInstalled())
-			return;
-
-		std::size_t len{ 65536 }; 
-
-		if (!g_branchTrampoline.Create(len)) {
-
-			_ERROR("Branch Trampoline init error!");
-
+		if (hasPlugin || hooked) {
 			return;
 		}
 
-		if (!g_localTrampoline.Create(len, g_moduleHandle)) {
-
-			_ERROR("Codegen buffer init error!");
-
+		if (!CheckPluginsInstalled()) {
 			return;
 		}
 
@@ -338,6 +333,12 @@ namespace Aaf {
 			{
 				Xbyak::Label retnLabel;
 
+#if CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
+
+				//.text:00000001413D9460	mov rax, rsp
+				//.text:00000001413D9463	mov[rax + 8], rbx
+				//.text:00000001413D9467	mov[rax + 10h], rbp
+
 				mov(rax, rsp);
 				mov(ptr[rax + 0x08], rbx);
 
@@ -345,19 +346,23 @@ namespace Aaf {
 
 				L(retnLabel);
 				dq(SendCustomEvent_Internal.GetUIntPtr() + 0x07);
+#else
+				//.text:00000001410AF220	mov[rsp + 8], rbx
+				//.text:00000001410AF225	mov[rsp + 10h], rbp
+
+				mov(ptr[rsp + 0x08], rbx);
+
+				jmp(ptr[rip + retnLabel]);
+
+				L(retnLabel);
+				dq(SendCustomEvent_Internal.GetUIntPtr() + 0x05);
+#endif
 			}
 		};
 
-		void* codeBuf = g_localTrampoline.StartAlloc();
-
-		SendCustomEvent_Code code(codeBuf);
-
-		g_localTrampoline.EndAlloc(code.getCurr());
-
-		SendCustomEvent_Original = (_SendCustomEvent)codeBuf;
+		Trampoline::GetSingleton().Alloc<SendCustomEvent_Code>(SendCustomEvent_Original);
 
 		if (g_branchTrampoline.Write5Branch(SendCustomEvent_Internal.GetUIntPtr(), (uintptr_t)CustomEvent)) {
-
 			_DMESSAGE("Code injected successfully!");
 		}
 
@@ -368,5 +373,4 @@ namespace Aaf {
 
 	Event Event::instance;
 }
-
 #endif

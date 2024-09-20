@@ -5,15 +5,17 @@ namespace Events {
 
 	void Dispatcher::OnButtonEvent(ButtonEvent* inputEvent)
 	{
-		if (!inputEvent || !inputEnabled)
+		if (!inputEvent || !inputEnabled) {
 			return;
+		}
 
 		std::uint32_t dev = inputEvent->deviceType;
 		bool isDown = inputEvent->isDown == 1.0f && inputEvent->timer == 0.0f;
 		std::uint32_t keycode = inputEvent->keyMask;
 
-		if (!isDown || dev != InputEvent::kDeviceType_Keyboard || keycode == 0)
+		if (!isDown || dev != InputEvent::kDeviceType_Keyboard || keycode == 0) {
 			return;
+		}
 
 		auto& settings = Settings::Ini::GetInstance();
 
@@ -22,7 +24,6 @@ namespace Events {
 			hhs::Map::GetInstance().visit(true, PlayerID, [&](hhs::System& sys) {
 
 				if (sys.IsStop()) {
-
 					return sys.Start();
 				}
 
@@ -37,7 +38,6 @@ namespace Events {
 				hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
 
 					if (sys.IsStop()) {
-
 						return sys.Start();
 					}
 
@@ -50,36 +50,44 @@ namespace Events {
 
 		auto& ingame = InGame::HeightEdit::GetInstance();
 
-		if (keycode == settings.Get_iKeyActivateEdit()) 
+		if (keycode == settings.Get_iKeyActivateEdit()) {
 			ingame.OnKeyPress(InGame::Key::Activate);
+		}
 
-		if (keycode == settings.Get_iKeyCreateHeight()) 
+		if (keycode == settings.Get_iKeyCreateHeight()) {
 			ingame.OnKeyPress(InGame::Key::Create);
+		}
 
-		if (keycode == settings.Get_iKeyDeleteHeight()) 
+		if (keycode == settings.Get_iKeyDeleteHeight()) {
 			ingame.OnKeyPress(InGame::Key::Delete);
+		}
 
-		if (keycode == settings.Get_iKeyIncrementHeight()) 
+		if (keycode == settings.Get_iKeyIncrementHeight()) {
 			ingame.OnKeyPress(InGame::Key::Increment);
+		}
 
-		if (keycode == settings.Get_iKeyDecrementHeight()) 
+		if (keycode == settings.Get_iKeyDecrementHeight()) {
 			ingame.OnKeyPress(InGame::Key::Decrement);
+		}
 
-		if (keycode == settings.Get_iKeyChangeRefr())		
+		if (keycode == settings.Get_iKeyChangeRefr()) {
 			ingame.OnKeyPress(InGame::Key::ChangeReference);
+		}
 
 #endif
 	}
 
 	EventResult Dispatcher::ReceiveEvent(TESFurnitureEvent* evn, void* dispatcher)
 	{
-		if (!evn || !evn->actor)
+		if (!evn || !evn->actor) {
 			return kEvent_Continue;
+		}
 
 		hhs::Map::GetInstance().visit(false, evn->actor, [&](hhs::System& sys) {
 
-			if (!sys.HasHeight())
+			if (!sys.HasHeight()) {
 				return hhs::Error::Success;
+			}
 
 			if (evn->isGettingUp) {
 
@@ -88,8 +96,9 @@ namespace Events {
 				return sys.SetHeight();
 			}
 			
-			if (Settings::Ini::GetInstance().CheckFurnitureBehavior(evn->furniture))
+			if (Settings::Ini::GetInstance().CheckFurnitureBehavior(evn->furniture)) {
 				return hhs::Error::Success;
+			}
 
 			auto ret = sys.Stop();
 
@@ -103,11 +112,11 @@ namespace Events {
 
 	EventResult Dispatcher::ReceiveEvent(TESDeathEvent * evn, void * dispatcher)
 	{
-		if (!evn || !evn->source)
+		if (!evn || !evn->source) {
 			return kEvent_Continue;
+		}
 
 		hhs::Map::GetInstance().visit(false, evn->source, [&](hhs::System& sys) {
-
 			return sys.ResetHeight();
 		});
 
@@ -116,13 +125,15 @@ namespace Events {
 
 	EventResult Dispatcher::ReceiveEvent(TESEquipEvent * evn, void * dispatcher)
 	{
-		if (!evn || !evn->source || evn->ObjectID == 0)
+		if (!evn || !evn->source || evn->ObjectID == 0) {
 			return kEvent_Continue;
+		}
 
 		std::uint32_t slot{ Actors::GetSlotMaskByID(evn->ObjectID) };
 
-		if ((slot & Settings::Ini::GetInstance().Get_uSlotFlags()) == InvalidSlot)
+		if ((slot & Settings::Ini::GetInstance().Get_uSlotFlags()) == InvalidSlot) {
 			return kEvent_Continue;
+		}
 
 		bool isEquipped{ static_cast<bool>(evn->equipped) };
 
@@ -130,15 +141,18 @@ namespace Events {
 
 			auto actor = sys.GetActorPtr();
 
-			if (actor->IsDead() || actor->IsSitting() || actor->IsSwimming() || sys.IsAAF())
+			if (actor->IsDead() || actor->IsSitting() || actor->IsSwimming() || sys.IsAAF()) {
 				return hhs::Error::Success;
+			}
 
-			if (!sys.HasOverride())
+			if (!sys.HasOverride()) {
 				return sys.SetHeight(slot, evn->ObjectID, isEquipped);
+			}
 
-			if (sys.HasOverride() && !isEquipped && evn->ObjectID == sys.GetActorUtil().GetIDFromScriptKwrd())
+			if (sys.HasOverride() && !isEquipped && evn->ObjectID == sys.GetActorUtil().GetIDFromScriptKwrd()) {
 				return sys.SetHeight(slot, evn->ObjectID, isEquipped);
-				
+			}
+
 			return hhs::Error::Success;
 		});
 
@@ -147,15 +161,20 @@ namespace Events {
 
 	EventResult Dispatcher::ReceiveEvent(TESRaceSwitchEvent * evn, void * dispatcher)
 	{
-		if (!evn || !evn->source)
+		if (!evn || !evn->source) {
 			return kEvent_Continue;
+		}
 
 		hhs::Map::GetInstance().visit(false, evn->source, [&](hhs::System& sys) {
 
 			auto actor = sys.GetActorPtr();
 
-			if (!actor->IsDead() && !actor->IsSitting() && !actor->IsSwimming())
+			if (!actor->IsDead() &&
+				!actor->IsSitting() &&
+				!actor->IsSwimming()) {
+
 				return sys.SetHeight();
+			}
 
 			return hhs::Error::Success;
 		});
@@ -165,8 +184,9 @@ namespace Events {
 
 	EventResult Dispatcher::ReceiveEvent(TESObjectLoadedEvent * evn, void * dispatcher)
 	{
-		if (!evn || !evn->loaded)
+		if (!evn || !evn->loaded) {
 			return kEvent_Continue;
+		}
 
 		LoadEvent(static_cast<std::uint32_t>(evn->formId));
 
@@ -175,11 +195,11 @@ namespace Events {
 
 	EventResult Dispatcher::ReceiveEvent(TESLoadGameEvent * evn, void * dispatcher)
 	{
-		if (!evn)
+		if (!evn) {
 			return kEvent_Continue;
+		}
 
 		VisitCell([&](TESObjectREFR* refr) {
-
 			LoadEvent(refr);
 		});
 
@@ -188,15 +208,28 @@ namespace Events {
 
 	EventResult Dispatcher::ReceiveEvent(TESCellAttachEvent* evn, void * dispatcher)
 	{
-		if (!evn || !evn->source || !evn->attached)
+		if (!evn || !evn->source || !evn->attached) {
 			return kEvent_Continue;
+		}
 
 		hhs::Map::GetInstance().visit(false, evn->source, [&](hhs::System& sys) {
 
 			auto actor = sys.GetActorPtr();
 
-			if (!actor->IsDead() && !actor->IsSitting() && !actor->IsSwimming() && !sys.IsStop() && !sys.IsAAF())
-				return sys.SetHeight();
+			if (!actor->IsDead() && 
+				!actor->IsSitting() &&
+				!actor->IsSwimming() &&
+				!sys.HasHeight() &&
+				!sys.IsStop() &&
+				!sys.IsAAF() &&
+				!sys.IsSkip()) {
+
+				auto ret = sys.SetHeight();
+
+				sys.Skip(true);
+
+				return ret;
+			}
 
 			return hhs::Error::Success;
 		});
@@ -206,8 +239,9 @@ namespace Events {
 
 	EventResult Dispatcher::ReceiveEvent(TESInitScriptEvent* evn, void* dispatcher)
 	{
-		if (!evn || !evn->reference)
+		if (!evn || !evn->reference) {
 			return kEvent_Continue;
+		}
 
 		LoadEvent(evn->reference);
 
@@ -216,21 +250,29 @@ namespace Events {
 
 	void Dispatcher::AnimObjFirstPerson(TESObjectREFR* refr, const bool& stop) noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bEnableFirstPersonAnim())
+		if (refr != *g_player) {
 			return;
+		}
 
-		if (Camera::Player::GetInstance().GetCameraState() != PlayerCamera::kCameraState_FirstPerson)
+		if (!Settings::Ini::GetInstance().Get_bEnableFirstPersonAnim()) {
 			return;
+		}
+
+		if (Camera::Player::GetInstance().GetCameraState() != PlayerCamera::kCameraState_FirstPerson) {
+			return;
+		}
 
 		hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
 
 			auto actor = sys.GetActorPtr();
 
-			if (actor->IsDead() || actor->IsSitting() || !sys.HasHeight())
+			if (actor->IsDead() || actor->IsSitting() || !sys.HasHeight()) {
 				return hhs::Error::Success;
+			}
 
-			if (!sys.GetActorUtil().IsPlayer())
-				return hhs::Error::Success;
+			//if (!sys.GetActorUtil().IsPlayer()) {
+			//	return hhs::Error::Success;
+			//}
 
 			if (stop) {
 
@@ -247,35 +289,38 @@ namespace Events {
 
 	void Dispatcher::SwimEvent(TESObjectREFR* refr, bool soundPlay) noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bEnableSwimming())
+		if (!Settings::Ini::GetInstance().Get_bEnableSwimming()) {
 			return;
+		}
 
 		hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
 
 			auto actor = sys.GetActorPtr();
 
-			if (actor->IsDead() || actor->IsSitting() || !sys.HasHeight())
+			if (actor->IsDead() || actor->IsSitting() || !sys.HasHeight()) {
 				return hhs::Error::Success;
+			}
 
-			if (actor->IsSwimming() && !sys.IsSwimming() && soundPlay)
+			if (actor->IsSwimming() && !sys.IsSwimming() && soundPlay) {
 				return sys.Swim(true);
+			}
 
-			if (sys.IsSwimming() && !soundPlay)
+			if (sys.IsSwimming() && !soundPlay) {
 				return sys.Swim(false);
+			}
 
 			return hhs::Error::Success;
 		});
 	}
 
-#if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-	void Dispatcher::unknownE21090(void* cls, BSAnimationGraphEvent* graph)
-#else
-	void Dispatcher::unknownE752E0(void* cls, BSAnimationGraphEvent* graph)
-#endif
+	void Dispatcher::ProcessEvent(void* cls, BSAnimationGraphEvent* graph)
 	{
 		if (graph && graph->refr && graph->eventName) {
 
 			auto key = std::hash<std::string>{}(graph->eventName.c_str());
+			
+			//if (graph->refr->formID == PlayerID)
+			//	_DMESSAGE("%.8X %s %I64X", graph->refr->formID, graph->eventName.c_str(), key);
 
 			switch (key) {
 
@@ -307,37 +352,66 @@ namespace Events {
 			}
 		}
 
-#if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-		o_unknownE21090(cls, graph);
-#else
-		o_unknownE752E0(cls, graph);
-#endif
+		o_ActorMediator_ProcessEvent(cls, graph);
 	}
 
 	EventResult Dispatcher::ReceiveEvent(MenuOpenCloseEvent* evn, void* dispatcher)
 	{
-		if (!evn || !Settings::Ini::GetInstance().Get_bLooksmenu())
+		if (!evn) {
 			return kEvent_Continue;
+		}
 
-		if (std::string(evn->menuName.c_str()) != "LooksMenu")
+		auto key = std::hash<std::string>{}(evn->menuName.c_str());
+
+		switch (key) {
+
+		case "LooksMenu"_hash:
+
+			if (!Settings::Ini::GetInstance().Get_bLooksmenu()) {
+
+				VisitCell([&](TESObjectREFR* refr) {
+
+					hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
+
+						auto actor = sys.GetActorPtr();
+
+						if (!actor->IsDead() && !actor->IsSitting() && !actor->IsSwimming() && !sys.IsAAF()) {
+
+							return evn->isOpen ? sys.Stop() : sys.Start();
+						}
+
+						return hhs::Error::Success;
+					});
+				});
+			}
+
+			break;
+
+		case "TerminalMenu"_hash:
+
+			if (Camera::Player::GetInstance().GetCameraState() == PlayerCamera::kCameraState_FirstPerson) {
+
+				hhs::Map::GetInstance().visit(true, PlayerID, [&](hhs::System& sys) {
+
+					auto actor = sys.GetActorPtr();
+
+					if (!actor->IsDead() && !sys.IsAAF()) {
+
+						return evn->isOpen ? sys.Stop() : sys.Start();
+					}
+
+					return hhs::Error::Success;
+				});
+			}
+
+			break;
+
+		default:
+
 			return kEvent_Continue;
+		}
 
 		inputEnabled = !evn->isOpen;
-
-		VisitCell([&](TESObjectREFR* refr) {
-
-			hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
-
-				auto actor = sys.GetActorPtr();
-
-				if (!actor->IsDead() && !actor->IsSitting() && !actor->IsSwimming() && !sys.IsAAF()) {
-
-					return evn->isOpen ? sys.Stop() : sys.Start();
-				}
-
-				return hhs::Error::Success;
-			});
-		});
 
 		return kEvent_Continue;
 	}
@@ -346,8 +420,9 @@ namespace Events {
 	{
 		static bool registered{};
 
-		if (registered) 
+		if (registered) {
 			return;
+		}
 
 		AddEvent<TESFurnitureEvent>();
 		AddEvent<TESDeathEvent>();
@@ -358,8 +433,11 @@ namespace Events {
 		AddEvent<TESCellAttachEvent>();
 		AddEvent<TESInitScriptEvent>();
 
-		if ((*g_ui))
-			(*g_ui)->menuOpenCloseEventSource.AddEventSink(&instance);
+		auto ui = *g_ui;
+
+		if (ui) {
+			ui->menuOpenCloseEventSource.AddEventSink(&instance);
+		}
 
 		_DMESSAGE("Events registered successfully!");
 
@@ -374,19 +452,22 @@ namespace Events {
 	{
 		static bool registered{};
 
-		if (registered) 
+		if (registered) {
 			return;
+		}
 		
 		auto playerCtrl = (*g_playerControls);
 
-		if (!playerCtrl)
+		if (!playerCtrl) {
 			return;
+		}
 
 		tArray<PlayerInputHandler*>* inputEvents = std::addressof(playerCtrl->inputEvents1);
 		PlayerInputHandler* inputHandler = std::addressof(instance);
 
-		if (!inputEvents)
+		if (!inputEvents) {
 			return;
+		}
 
 		auto idx = inputEvents->GetItemIndex(inputHandler);
 
@@ -406,8 +487,9 @@ namespace Events {
 	{
 		static bool registered{};
 
-		if (registered)
+		if (registered) {
 			return;
+		}
 
 		/*
 
@@ -429,22 +511,6 @@ namespace Events {
 		rdx = struct BSAnimationGraphEvent
 
 		*/
-		
-		std::size_t len{ 65536 };
-
-		if (!g_branchTrampoline.Create(len)) {
-
-			_ERROR("Branch Trampoline init error!");
-
-			return;
-		}
-
-		if (!g_localTrampoline.Create(len, g_moduleHandle)) {
-
-			_ERROR("Codegen buffer init error!");
-
-			return;
-		}
 
 		struct AnimationGraphEvent_Code : Xbyak::CodeGenerator {
 
@@ -459,39 +525,18 @@ namespace Events {
 
 				L(retnLabel);
 
-#if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-				dq(reloc_unknownE21090.GetUIntPtr() + 0x05);
-#else
-				dq(reloc_unknownE752E0.GetUIntPtr() + 0x05);
-#endif
+				dq(reloc_ActorMediator_ProcessEvent.GetUIntPtr() + 0x05);
 			}
 		};
 
-		void* codeBuf = g_localTrampoline.StartAlloc();
+		Trampoline::GetSingleton().Alloc<AnimationGraphEvent_Code>(o_ActorMediator_ProcessEvent);
 
-		AnimationGraphEvent_Code code(codeBuf);
-
-		g_localTrampoline.EndAlloc(code.getCurr());
-
-#if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-		o_unknownE21090 = (_unknownE21090)codeBuf;
-
-		if (g_branchTrampoline.Write5Branch(reloc_unknownE21090.GetUIntPtr(), (uintptr_t)unknownE21090)) {
+		if (g_branchTrampoline.Write5Branch(reloc_ActorMediator_ProcessEvent.GetUIntPtr(), (uintptr_t)ProcessEvent)) {
 
 			_DMESSAGE("Animation Graph Event registered successfully!");
 
 			registered = true;
 		}	
-#else
-		o_unknownE752E0 = (_unknownE752E0)codeBuf;
-
-		if (g_branchTrampoline.Write5Branch(reloc_unknownE752E0.GetUIntPtr(), (uintptr_t)unknownE752E0)) {
-
-			_DMESSAGE("Animation Graph Event registered successfully!");
-
-			registered = true;
-		}
-#endif
 	}
 
 	Dispatcher Dispatcher::instance;

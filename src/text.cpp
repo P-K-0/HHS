@@ -11,13 +11,15 @@ namespace Text {
 		std::regex reg{ R"((\s*)(\w*)(\s*)=(\s*)(\d*.\d*))" };
 		std::smatch matches;
 
-		if (!std::regex_search(str, matches, reg))
+		if (!std::regex_search(str, matches, reg)) {
 			return InvalidValue;
+		}
 
 		try {
 
-			if (_strcmpi(matches[2].str().c_str(), "height") != 0)
+			if (_strcmpi(matches[2].str().c_str(), "height") != 0) {
 				return InvalidValue;
+			}
 
 			return std::stof(matches[5].str());
 		}
@@ -33,7 +35,6 @@ namespace Text {
 		path.replace_extension(".txt");
 
 		if (dirF4SE) {
-
 			return std::string{ DirF4SE.data() + path.filename().string()};
 		}
 
@@ -42,8 +43,9 @@ namespace Text {
 
 	float GetHeightFromText(const std::string& filename) noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bEnableTextFile())
+		if (!Settings::Ini::GetInstance().Get_bEnableTextFile()) {
 			return InvalidValue;
+		}
 
 		std::vector<std::string> files{ GetTextFile(filename, false), GetTextFile(filename, true) };
 
@@ -51,17 +53,13 @@ namespace Text {
 
 		float height{ MinValue };
 
-		for (auto& file : files) {
+		for (std::size_t i{}; i < files.size() && height <= MinValue; ++i) {
 
-			File::Reader reader{ file }; 
+			File::Reader reader{ files[i] };
 
-			if (!reader.Read(str))
-				continue;
-
-			height = Parser(str);
-
-			if (height > MinValue)
-				break;
+			if (reader.Read(str)) {
+				height = Parser(str);
+			}
 		}
 
 		return height > MinValue ? height : InvalidValue;
@@ -79,8 +77,9 @@ namespace Text {
 
 		std::ofstream ofs{ DirData.data() + file };
 
-		if (!ofs || value <= MinValue)
+		if (!ofs || value <= MinValue) {
 			return false;
+		}
 
 		ofs << "Height = " << value;
 
@@ -95,8 +94,9 @@ namespace Text {
 
 		std::vector<std::string> files{ GetTextFile(Filename, false), GetTextFile(Filename, true) };
 
-		for (auto& file : files)
+		for (auto& file : files) {
 			ret |= boost::filesystem::remove(DirData.data() + file);
+		}
 
 		return ret;
 	}

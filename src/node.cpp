@@ -5,16 +5,18 @@ namespace Node {
 
 	void Transform::ResetTransform(const std::string& sNode) noexcept
 	{
-		for (std::uint32_t idx{}; idx < static_cast<std::uint32_t>(Flags::Count); idx++)
+		for (std::uint32_t idx{}; idx < static_cast<std::uint32_t>(Flags::Count); idx++) {
 			ResetTransform(sNode, static_cast<Flags>(idx));
+		}
 	}
 
 	std::int32_t Transform::ResetTransform(const std::string& node, const Flags& flags) noexcept
 	{
 		auto& m = map[node];
 
-		if (!m.second.second[flags])
+		if (!m.second.second[flags]) {
 			return -1;
+		}
 
 		return Visit(node, true, [&](NiAVObject* obj) {
 
@@ -22,11 +24,13 @@ namespace Node {
 
 			bool res{};
 
-			for (auto& v : m.second.second)
+			for (auto& v : m.second.second) {
 				res |= v;
+			}
 
-			if (!res)
+			if (!res) {
 				m.first = false;
+			}
 
 			switch (flags) {
 
@@ -258,8 +262,9 @@ namespace Node {
 	{
 		NiNode* root{ nullptr };
 
-		if (!act || !(root = act->GetActorRootNode(firstPerson)))
+		if (!act || !(root = act->GetActorRootNode(firstPerson))) {
 			return -1;
+		}
 
 		BSFixedString node_str{ sNode.c_str() };
 
@@ -269,8 +274,9 @@ namespace Node {
 		auto object = CALL_MEMBER_FN(root, GetAVObjectByName)(&node_str, 0, 0);
 #endif
 
-		if (!object)
+		if (!object) {
 			return -2;
+		}
 
 		fn(object);
 

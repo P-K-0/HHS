@@ -35,33 +35,33 @@ namespace Fixes {
 		{
 			Json::Value objs;
 
-			if (!FindKeyword(sKeyword, objs))
+			if (!FindKeyword(sKeyword, objs)) {
 				return false;
+			}
 
 			for (auto& obj : objs.getMemberNames()) {
 
 				auto& ref_obj = objs[obj];
 
 				if (obj == "nostop" && ref_obj.isBool()) {
-
 					noStop = ref_obj.asBool();
-				
-					continue;
-				} 
+				}
+				else {
 
-				if (!ref_obj.isObject())
-					continue;
+					if (ref_obj.isObject()) {
 
-				for (auto& flag : ref_obj.getMemberNames()) {
+						for (auto& flag : ref_obj.getMemberNames()) {
 
-					auto& value = ref_obj[flag];
+							auto& value = ref_obj[flag];
 
-					if (!value.isObject())
-						continue;
+							if (value.isObject()) {
 
-					Values values{ obj.c_str(), GetFlags(flag), value["value"].asFloat(), value["mulheight"].asBool() };
+								Values values{ obj.c_str(), GetFlags(flag), value["value"].asFloat(), value["mulheight"].asBool() };
 
-					fn(values);
+								fn(values);
+							}
+						}
+					}
 				}
 			}
 

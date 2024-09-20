@@ -19,6 +19,79 @@ constexpr std::uint32_t ReservedSlots = 12;
 constexpr std::uint32_t MinSlot = 0;
 constexpr std::uint32_t MaxSlot = (ActorEquipData::kMaxSlots - ReservedSlots);
 
+class Trampoline {
+
+public:
+
+	[[nodiscard]] static Trampoline& GetSingleton() noexcept
+	{
+		static Trampoline instance;
+		return instance;
+	}
+
+	void Create() noexcept
+	{
+		if (created) {
+			return;
+		}
+
+		_DMESSAGE("Trampoline Space allocated : %i bytes", len);
+
+		if (!g_branchTrampoline.Create(len)) {
+
+			_ERROR("Branch Trampoline init error!");
+
+			return;
+		}
+
+		if (!g_localTrampoline.Create(len, g_moduleHandle)) {
+
+			_ERROR("Codegen buffer init error!");
+
+			return;
+		}
+
+		created = true;
+	}
+
+	[[nodiscard]] const bool& IsCreated() const noexcept { return created; }
+
+	void PrintSpaceLeft() noexcept
+	{
+		_DMESSAGE("Trampoline space left : %i/%i bytes (%.2f %%)",
+			g_localTrampoline.Remain(),
+			len,
+			(100.0 * static_cast<double>(g_localTrampoline.Remain()) / static_cast<double>(len)));
+	}
+
+	template<typename T, typename Fn>
+	void Alloc(Fn& fn)
+	{
+		void* codeBuf = g_localTrampoline.StartAlloc();
+		T code(codeBuf);
+		g_localTrampoline.EndAlloc(code.getCurr());
+
+		PrintSpaceLeft();
+
+		fn = (decltype(fn))codeBuf;
+	}
+
+private:
+
+	Trampoline() = default;
+	virtual ~Trampoline() = default;
+
+	Trampoline(const Trampoline&) = delete;
+	Trampoline(Trampoline&&) = delete;
+
+	Trampoline& operator=(const Trampoline&) = delete;
+	Trampoline& operator=(Trampoline&&) = delete;
+
+	void* g_moduleHandle{ nullptr };
+	std::size_t len{ 65536 };
+	bool created{};
+};
+
 template<typename T>
 [[nodiscard]] char* as_bytes(T& t)
 {

@@ -33,7 +33,7 @@ namespace Cache {
 
 		[[nodiscard]] static Map& GetInstance() noexcept { return instance; }
 
-		void Insert(const std::string& filename, const float value, const bool text = false) noexcept;
+		void Insert(const std::string& filename, const float value, const bool text = false, const bool force = false) noexcept;
 		void Erase(const std::string& filename) noexcept;
 		[[nodiscard]] float Find(const std::string& filename) noexcept;
 		[[nodiscard]] bool IsText(const std::string& filename) noexcept;

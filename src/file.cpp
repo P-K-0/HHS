@@ -7,15 +7,15 @@ namespace File {
 
 	bool Reader::Read(std::string& dst) noexcept
 	{
-		if (filename.empty())
+		if (filename.empty()) {
 			return 0;
+		}
 
 		auto& settings = Settings::Ini::GetInstance();
 
 		len = settings.Get_iReadBufferLen();
 
 		if (settings.Get_bAltRead()) {
-
 			return InputStreamRead(dst, len) > 0;
 		}
 
@@ -26,19 +26,16 @@ namespace File {
 	{
 		std::ifstream ifs{ DirData.data() + filename, std::ios_base::binary };
 
-		if (!ifs)
+		if (!ifs) {
 			return 0;
+		}
 
 		dst.clear();
 
 		char c{};
 		std::uint32_t count{};
 
-		for (count = 0; count < len; count++) {
-
-			if (ifs.eof())
-				break;
-
+		for (count = 0; count < len && !ifs.eof(); ++count) {
 			ifs.read(&c, sizeof c);
 			dst += c;
 		}
@@ -50,19 +47,16 @@ namespace File {
 	{
 		BSResourceNiBinaryStream bsRead(filename.c_str());
 
-		if (!bsRead.IsValid())
+		if (!bsRead.IsValid()) {
 			return 0;
+		}
 
 		dst.clear();
 
 		char c{};
 		std::uint32_t count{};
 
-		for (count = 0; count < len; count++) {
-
-			if (bsRead.Read(&c, sizeof c) == 0)
-				break;
-
+		for (count = 0; count < len && bsRead.Read(&c, sizeof c) != 0; ++count) {
 			dst += c;
 		}
 
@@ -75,11 +69,13 @@ namespace File {
 
 		std::transform(path.begin(), path.end(), path.begin(), [](unsigned char c) { return std::tolower(c); });
 
-		if (_strcmpi(path.substr(0, DirMeshes.length()).c_str(), DirMeshes.data()) == 0)
+		if (_strcmpi(path.substr(0, DirMeshes.length()).c_str(), DirMeshes.data()) == 0) {
 			return path;
+		}
 
-		if (_strcmpi(path.substr(0, DirData.length()).c_str(), DirData.data()) == 0)
+		if (_strcmpi(path.substr(0, DirData.length()).c_str(), DirData.data()) == 0) {
 			return path.substr(DirData.length());
+		}
 
 		return DirMeshes.data() + path;
 	}

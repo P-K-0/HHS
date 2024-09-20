@@ -16,8 +16,9 @@ namespace InGame {
 	{
 		TESObjectREFR* refr{ nullptr };
 
-		if (!LookupREFRByHandle(&handle, &refr) || !refr)
+		if (!LookupREFRByHandle(&handle, &refr) || !refr) {
 			return 0;
+		}
 
 		return refr->formID;
 	}
@@ -26,18 +27,21 @@ namespace InGame {
 	{
 		handle = 0;
 
-		if (!evn || evn->handle == 0 || evn->handle == (*g_invalidRefHandle))
+		if (!evn || evn->handle == 0 || evn->handle == (*g_invalidRefHandle)) {
 			return kEvent_Continue;
+		}
 
 		handle = evn->handle;
 
-		if (!enabled)
+		if (!enabled) {
 			return kEvent_Continue;
+		}
 
 		auto id = GetFormIDByHandle(handle);
 
-		if (id != 0)
+		if (id != 0) {
 			Papyrus::Notification("ID:", id);
+		}
 
 		return kEvent_Continue;
 	};
@@ -46,8 +50,9 @@ namespace InGame {
 	{
 		static bool registered{};
 
-		if (registered)
+		if (registered) {
 			return;
+		}
 
 		(*g_viewCasterUpdateDispatcher)->eventDispatcher.AddEventSink(std::addressof(instance));
 
@@ -68,37 +73,38 @@ namespace InGame {
 		std::uint32_t refID{ PlayerID };
 
 		if (handle != 0 && settings.Get_iReference() == Settings::Reference::CrossHair) {
-
 			refID = GetFormIDByHandle(handle);
 		}
 
 		hhs::Error err = hhs::Map::GetInstance().visit(false, refID, [&](hhs::System& sys) {
 
-			if (!sys.GetActorUtil().GetEquipData(settings.Get_iSlot(), id, filename))
+			if (!sys.GetActorUtil().GetEquipData(settings.Get_iSlot(), id, filename)) {
 				return hhs::Error::Unknown;
+			}
 
-			if (!cache.IsText(filename))
+			if (!cache.IsText(filename)) {
 				return hhs::Error::HeightTxt;
+			}
 
-			hhs::Error e{ hhs::Error::Success };
+			hhs::Error err{ hhs::Error::Success };
 
 			if (key == Key::Delete) {
 					
-				if ((e = sys.ResetHeight()) == hhs::Error::Success) {
+				if ((err = sys.ResetHeight()) == hhs::Error::Success) {
 
 					cache.Erase(filename);
 
 					ret = Text::RemoveHeightFile(filename);
 				}
 
-				return e;
+				return err;
 			}
 
 			auto height = settings.Get_fHeight();
 
-			if ((e = sys.SetHeight(height)) == hhs::Error::Success) {
+			if ((err = sys.SetHeight(height)) == hhs::Error::Success) {
 
-				cache.Insert(filename, height, true);
+				cache.Insert(filename, height, true, true);
 
 				if (key == Key::Create) {
 
@@ -106,7 +112,7 @@ namespace InGame {
 				}
 			}
 
-			return e;
+			return err;
 		});
 
 		ShowError(err);
@@ -173,8 +179,9 @@ namespace InGame {
 			Papyrus::Notification(lang[enabled ? Translations::LangID::Activated : Translations::LangID::Deactivated]);
 		}
 
-		if (!enabled)
+		if (!enabled) {
 			return;
+		}
 
 		switch (key) {
 
@@ -227,8 +234,9 @@ namespace InGame {
 
 	void HeightEdit::ShowError(const hhs::Error& error) noexcept
 	{
-		if (error == hhs::Error::Success)
+		if (error == hhs::Error::Success) {
 			return;
+		}
 
 		auto& lang = Translations::Lang::GetInstance();
 		

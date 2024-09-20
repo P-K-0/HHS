@@ -13,8 +13,9 @@ namespace Fixes {
 
 		File::Reader reader{ FilePreset };
 
-		if (!reader.Read(str))
+		if (!reader.Read(str)) {
 			return false;
+		}
 
 		Json::Reader jReader;
 
@@ -22,16 +23,19 @@ namespace Fixes {
 
 		root.clear();
 
-		if (!jReader.parse(str, root))
+		if (!jReader.parse(str, root)) {
 			return false;
+		}
 
-		if (root.empty())
+		if (root.empty()) {
 			return false;
+		}
 
 		auto v = root["saf"];
 
-		if (v.type() == Json::ValueType::intValue)
+		if (v.type() == Json::ValueType::intValue) {
 			saf_version = v.asInt();
+		}
 
 		_DMESSAGE("Preset file Loaded!");
 
@@ -64,8 +68,9 @@ namespace Fixes {
 
 		for (std::uint32_t index{}; index < v_flags.size(); index++) {
 
-			if (str == v_flags[index])
+			if (str == v_flags[index]) {
 				return Node::flags_cast(index);
+			}
 		}
 
 		return Node::Flags::PosX;

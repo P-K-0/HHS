@@ -8,29 +8,31 @@
 
 namespace Cache {
 
-	void Map::Insert(const std::string& filename, const float value, const bool text) noexcept
+	void Map::Insert(const std::string& filename, const float value, const bool text, const bool force) noexcept
 	{
-		if (filename == "" || value < MinValue)
+		if (filename == "" || value < MinValue) {
 			return;
+		}
 
 		auto& info = cacheMap[File::GetRelativeDir(filename)];
 
-		if (info.height == MinValue) {
+		if (info.height == MinValue || force) {
 
 			info.path = filename;
 			info.height = std::clamp(value, MinValue, MaxValue);
 			info.text = text;
+
+			_DMESSAGE("File : %s Height : %.2f %s", filename.c_str(), value, info.height != MinValue ? "added to cache." : "not added to cache!");
+
+			saved = false;
 		}
-
-		_DMESSAGE("File : %s Height : %.2f %s", filename.c_str(), value, info.height != MinValue ? "added to cache." : "not added to cache!");
-
-		saved = false;
 	}
 
 	void Map::Erase(const std::string& filename) noexcept
 	{
-		if (filename == "")
+		if (filename == "") {
 			return;
+		}
 
 		cacheMap.erase(File::GetRelativeDir(filename));
 
@@ -39,10 +41,13 @@ namespace Cache {
 
 	float Map::Find(const std::string& filename) noexcept
 	{
-		if (filename == "")
+		if (filename == "") {
 			return MinValue;
+		}
 
 		auto& info = cacheMap[File::GetRelativeDir(filename)];
+
+		//_DMESSAGE("%s : %s / %s (%f, %s, %i)", __FUNCTION__, File::GetRelativeDir(filename).c_str(), filename.c_str(), info.height, info.path.c_str(), info.text);
 
 		if (info.height == MinValue) {
 
@@ -57,18 +62,22 @@ namespace Cache {
 			saved = false;
 		}
 
+		//_DMESSAGE("%f", info.height);
+
 		return std::clamp(info.height, MinValue, MaxValue);
 	}
 
 	bool Map::IsText(const std::string& filename) noexcept
 	{
-		if (filename.empty())
+		if (filename.empty()) {
 			return false;
+		}
 
 		auto& it = cacheMap.find(File::GetRelativeDir(filename));
 
-		if (it != cacheMap.end())
+		if (it != cacheMap.end()) {
 			return it->second.text;
+		}
 
 		return true;
 	}
@@ -125,19 +134,28 @@ namespace Cache {
 						
 						ifs.read(&c, sizeof c);
 
-						if (c == '\0')
-							errorRead++;
+						if (c == '\0') {
+							++errorRead;
+						}
 					}
 
-					if (errorRead > 0) 
-						filename.clear();
+					//_DMESSAGE("%s %i", filename.c_str(), errorRead);
 
-					if (Find(filename) > MinValue)
-						found++;
+					if (errorRead > 0) {
+						filename.clear();
+					}
+
+					if (Find(filename) > MinValue) {
+						++found;
+					}
 				}
 
-				if (ifs.eof()) 
+				//_DMESSAGE("%i / %i", ifs.eof(), ifs.fail());
+			
+				if (ifs.eof()) {
+
 					break;
+				}
 
 				if (ifs.fail()) {
 

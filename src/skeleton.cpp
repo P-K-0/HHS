@@ -37,11 +37,13 @@ namespace Skeleton {
 
 		BSResourceNiBinaryStream binaryStream(file.c_str());
 
-		if (!binaryStream.IsValid())
+		if (!binaryStream.IsValid()) {
 			return false;
+		}
 
-		if (!niStream->LoadStream(&binaryStream) || !niStream->root_objects.m_data)
+		if (!niStream->LoadStream(&binaryStream) || !niStream->root_objects.m_data) {
 			return false;
+		}
 
 		return true;
 	}
@@ -53,15 +55,17 @@ namespace Skeleton {
 
 	Reader::Reader(Actor* actor, const bool& isFemale) noexcept
 	{
-		if (!actor)
+		if (!actor) {
 			return;
+		}
 
 		std::uint32_t female = isFemale ? 1 : 0;
 
 		auto race{ actor->GetActorRace() };
 
-		if (!race)
+		if (!race) {
 			return;
+		}
 
 		isValid = Init(race->models[female].GetModelName());
 	}
@@ -70,15 +74,17 @@ namespace Skeleton {
 	{
 		Actor* actor{ nullptr };
 
-		if (!refr || !(actor = DYNAMIC_CAST(refr, TESObjectREFR, Actor)))
+		if (!refr || !(actor = DYNAMIC_CAST(refr, TESObjectREFR, Actor))) {
 			return;
+		}
 
 		std::uint32_t female = isFemale ? 1 : 0;
 
 		auto race{ actor->GetActorRace() };
 
-		if (!race)
+		if (!race) {
 			return;
+		}
 
 		isValid = Init(race->models[female].GetModelName());
 	}
@@ -86,26 +92,26 @@ namespace Skeleton {
 	template<typename Func>
 	bool Reader::Visit(NiAVObject* obj, Func fn) noexcept
 	{
-		if (!obj)
+		if (!obj) {
 			return false;
+		}
 
 		auto node = obj->GetAsNiNode();
 
-		if (!node)
+		if (!node) {
 			return false;
+		}
 
 		for (std::uint32_t idx{}; idx < node->m_children.m_emptyRunStart; idx++) {
 
 			auto child = node->m_children.m_data[idx];
 
-			if (!child)
-				continue;
+			if (child) {
 
-			if (fn(child))
-				return true;
-
-			if (Visit(child, fn))
-				return true;
+				if (fn(child) || Visit(child, fn)) {
+					return true;
+				}
+			}
 		}
 
 		return false;
@@ -114,28 +120,30 @@ namespace Skeleton {
 	template<typename Func>
 	bool Reader::Visit(Func fn) noexcept
 	{
-		if (!isValid)
+		if (!isValid) {
 			return false;
+		}
 
 		for (std::uint32_t idx{}; idx < niStream->root_objects.m_emptyRunStart; idx++) {
 
 			auto obj = niStream->root_objects.m_data[idx];
 
-			if (!obj)
-				continue;
+			if (obj) {
 
-			auto node = obj->GetAsNiNode();
+				auto node = obj->GetAsNiNode();
 
-			if (!node)
-				continue;
+				if (node) {
 
-			return Visit(node, [&](NiAVObject* obj) {
+					return Visit(node, [&](NiAVObject* obj) {
 
-				if (fn(obj)) 
-					return true;
+						if (fn(obj)) {
+							return true;
+						}
 
-				return false;
-			});
+						return false;
+					});
+				}
+			}
 		}
 
 		return false;
@@ -145,8 +153,9 @@ namespace Skeleton {
 	{
 		return Visit([&](NiAVObject* obj) {
 
-			if (name == obj->m_name.c_str()) 
+			if (name == obj->m_name.c_str()) {
 				return true;
+			}
 
 			return false;
 		});
@@ -218,8 +227,9 @@ namespace Skeleton {
 
 	float GetHeightFromSkeleton(const std::string& filename) noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bEnableExtraData())
+		if (!Settings::Ini::GetInstance().Get_bEnableExtraData()) {
 			return InvalidValue;
+		}
 
 		auto height{ MinValue };
 

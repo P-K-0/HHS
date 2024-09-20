@@ -9,9 +9,23 @@ namespace BA2 {
 
 		ifs >> Magic[0] >> Magic[1] >> type >> CountFiles >> AddrStringTable;
 
-		if (Magic[0] == Btdx_Hdr && Magic[1] == Version_Hdr) {
+		if (Magic[0] == Btdx_Hdr) {
 
-			SetNextAddr(ifs);
+			switch (Magic[1]) {
+
+			case Version1:
+			case Version8:
+
+				SetNextAddr(ifs);
+
+				break;
+
+			default:
+
+				_DMESSAGE("Error : BA2 unknown version (%i)!", Magic[1]);
+
+				break;
+			}
 		}
 	}
 
@@ -24,7 +38,6 @@ namespace BA2 {
 			>> SizeComp >> SizeUnComp >> SignEof;
 
 		if (SignEof == Eof) {
-
 			SetNextAddr(ifs);
 		}
 	}
@@ -39,8 +52,9 @@ namespace BA2 {
 
 			filename.assign(len_filename, '\0');
 
-			for (auto& c : filename)
+			for (auto& c : filename) {
 				ifs.read(&c, sizeof c);
+			}
 
 			SetNextAddr(ifs);
 		}
@@ -92,11 +106,13 @@ namespace BA2 {
 
 		for (std::uint32_t idx{}; idx < hdr.GetCountFiles(); idx++) {
 
-			if (!GetEntry(entry))
+			if (!GetEntry(entry)) {
 				return;
+			}
 
-			if (!GetStringTable(str_tbl))
+			if (!GetStringTable(str_tbl)) {
 				return;
+			}
 		}
 
 		err = Error::Success;

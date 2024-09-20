@@ -8,19 +8,19 @@
 
 namespace Events {
 
+	using _ActorMediator_ProcessEvent = void (*)(void*, BSAnimationGraphEvent*);
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-	using _unknownE21090 = void (*)(void*, BSAnimationGraphEvent*);
-
-	static RelocAddr<_unknownE21090> reloc_unknownE21090(0xE21090);
-
-	static _unknownE21090 o_unknownE21090;
-#else
-	using _unknownE752E0 = void (*)(void*, BSAnimationGraphEvent*);
-
-	static RelocAddr<_unknownE752E0> reloc_unknownE752E0(0xE752E0);
-
-	static _unknownE752E0 o_unknownE752E0;
+#if CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
+	static RelocAddr<_ActorMediator_ProcessEvent> reloc_ActorMediator_ProcessEvent(0xE21090);
+#elif CURRENT_RELEASE_RUNTIME == RUNTIME_VERSION_1_10_980
+	static RelocAddr<_ActorMediator_ProcessEvent> reloc_ActorMediator_ProcessEvent(0xC63600);
+#elif CURRENT_RELEASE_RUNTIME == RUNTIME_VERSION_1_10_984
+	static RelocAddr<_ActorMediator_ProcessEvent> reloc_ActorMediator_ProcessEvent(0xC63990);
 #endif
+#else
+	static RelocAddr<_ActorMediator_ProcessEvent> reloc_ActorMediator_ProcessEvent(0xE752E0);
+#endif
+	static _ActorMediator_ProcessEvent o_ActorMediator_ProcessEvent;
 
 	class Dispatcher :
 		public BSTEventSink<TESFurnitureEvent>,
@@ -76,11 +76,7 @@ namespace Events {
 		static void AnimObjFirstPerson(TESObjectREFR* refr, const bool& stop) noexcept;
 		static void SwimEvent(TESObjectREFR* refr, bool soundPlay) noexcept;
 
-#if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-		static void unknownE21090(void*, BSAnimationGraphEvent*);
-#else
-		static void unknownE752E0(void*, BSAnimationGraphEvent*);
-#endif
+		static void ProcessEvent(void*, BSAnimationGraphEvent*);
 
 		template<typename T>
 		void LoadEvent(T t) noexcept
@@ -93,13 +89,15 @@ namespace Events {
 
 				auto ret = sys.SetHeight();
 
-				if (actor->IsDead())
+				if (actor->IsDead()) {
 					return sys.ResetHeight();
+				}
 
 				auto furniture = sys.GetActorUtil().GetFurnitureReference();
 
-				if (Settings::Ini::GetInstance().CheckFurnitureBehavior(furniture))
+				if (Settings::Ini::GetInstance().CheckFurnitureBehavior(furniture)) {
 					return hhs::Error::Success;
+				}
 
 				if (actor->IsSitting()) {
 
@@ -108,16 +106,15 @@ namespace Events {
 					return sys.Stop();
 				}
 
-				if (actor->IsSwimming())
+				if (actor->IsSwimming()) {
 					return sys.Swim(true);
+				}
 
 				return ret;
 			});
 		}
 
 		bool inputEnabled{ true };
-
-		void* g_moduleHandle{ nullptr };
 
 		static Dispatcher instance;
 	};
