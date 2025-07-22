@@ -21,12 +21,12 @@ namespace Actors {
 
 		isFemale = CALL_MEMBER_FN(npc, GetSex)();
 
-		auto& settings = Settings::Ini::GetInstance();
+		auto& settings = Settings::Ini::GetSingleton();
 
 		isPlayer = actor == *g_player;
 		isEnabled = isPlayer ? settings.Get_bEnablePlayer() : settings.Get_bEnableNPCs();
 
-		const auto& gender = settings.Get_iGender();
+		auto gender = settings.Get_iGender();
 
 		if (isEnabled && gender != Settings::Gender::BothGender) {
 
@@ -117,7 +117,7 @@ namespace Actors {
 				continue;
 			}
 			
-			for (std::uint32_t key = 0; key < armor->keywordForm.numKeywords; key++) {
+			for (std::uint32_t key = 0; key < armor->keywordForm.numKeywords; ++key) {
 
 				BGSKeyword* kwrd = armor->keywordForm.keywords[key];
 
@@ -138,31 +138,31 @@ namespace Actors {
 
 	class BGSMod__Attachment__Mod;
 
-	float Utility::GetHeightFromMod(const std::uint32_t& slot) noexcept
+	float Utility::GetHeightFromMod(std::uint32_t slot) noexcept
 	{
 		ExtraDataList* stackDataList{ nullptr };
 		BSExtraData* extraData{ nullptr };
 		TESForm* frm{ nullptr };
-		float height{ MinValue };
+		float height{ ZeroValue };
 
 		if (!actor || !actor->GetEquippedExtraData(slot, &stackDataList) || !stackDataList) {
-			return MinValue;
+			return ZeroValue;
 		}
 
 		if (!(extraData = stackDataList->GetByType(ExtraDataType::kExtraData_ObjectInstance))) {
-			return MinValue;
+			return ZeroValue;
 		}
 
 		BGSObjectInstanceExtra* objectModData = DYNAMIC_CAST(extraData, BSExtraData, BGSObjectInstanceExtra);
 
 		if (!objectModData) {
-			return MinValue;
+			return ZeroValue;
 		}
 
 		const auto data = objectModData->data;
 
 		if (!data || !data->forms) {
-			return MinValue;
+			return ZeroValue;
 		}
 
 		for (std::uint32_t i{}; i < data->blockSize / sizeof(BGSObjectInstanceExtra::Data::Form); i++) {
@@ -173,22 +173,22 @@ namespace Actors {
 
 			BGSMod::Attachment::Mod* objectMod = (BGSMod::Attachment::Mod*)DYNAMIC_CAST(frm, TESForm, BGSMod__Attachment__Mod);
 
-			if (objectMod && (height = Cache::Map::GetInstance().Find(objectMod->materialSwap.GetModelName())) > MinValue) {
+			if (objectMod && (height = Cache::Map::GetSingleton().Find(objectMod->materialSwap.GetModelName())) != ZeroValue) {
 				return height;
 			}
 		}
 
-		return MinValue;
+		return ZeroValue;
 	}
 
-	float Utility::GetHeightFromWornItem(const std::uint32_t& slot, const std::uint32_t& id, const bool equipped) noexcept
+	float Utility::GetHeightFromWornItem(std::uint32_t slot, std::uint32_t id, bool equipped) noexcept
 	{
 		ActorEquipData* equipdata{ nullptr };
 		
-		float height{ MinValue };
+		float height{ ZeroValue };
 
 		if (!actor || !(equipdata = actor->equipData)) {
-			return MinValue;
+			return ZeroValue;
 		}
 
 		if (isPlayer && equipped && actor->middleProcess && actor->middleProcess->unk08) {	
@@ -203,22 +203,22 @@ namespace Actors {
 
 			const auto materialSwap = equipdata->slots[indexSlot].modelMatSwap;
 
-			if (!Settings::Ini::GetInstance().GetSlots()[indexSlot] || !materialSwap) {
+			if (!Settings::Ini::GetSingleton().GetSlots()[indexSlot] || !materialSwap) {
 				continue;
 			}
 
-			height = Cache::Map::GetInstance().Find(materialSwap->GetModelName());
+			height = Cache::Map::GetSingleton().Find(materialSwap->GetModelName());
 			
-			if (height == MinValue) {
+			if (height == ZeroValue) {
 				height = GetHeightFromMod(indexSlot);
 			}
 
-			if (height > MinValue) {
+			if (height != ZeroValue) {
 				return height;
 			}
 		}
 
-		return MinValue;
+		return ZeroValue;
 	}
 
 	std::uint64_t Utility::GetHandle() noexcept
@@ -268,7 +268,11 @@ namespace Actors {
 
 	TESObjectREFR* Utility::GetFurnitureReference() noexcept
 	{
+#if CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
 		TESObjectREFR* refr{ nullptr };
+#else
+		NiPointer<TESObjectREFR> refr{};
+#endif
 
 		if (!actor || !actor->middleProcess) {
 			return nullptr;
@@ -282,12 +286,20 @@ namespace Actors {
 
 		if (actor->actorState.flags & (ActorState::Flags::kUnk1 | ActorState::Flags::kUnk2)) {
 
+#if CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
 			LookupREFRByHandle(&data08->furnitureHandle2, &refr);
+#else
+			LookupREFRByHandle(data08->furnitureHandle2, refr);
+#endif
 
 			return refr;
 		}
 
+#if CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
 		LookupREFRByHandle(&data08->furnitureHandle1, &refr);
+#else
+		LookupREFRByHandle(data08->furnitureHandle1, refr);
+#endif
 
 		return refr;
 	}

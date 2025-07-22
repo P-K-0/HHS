@@ -10,7 +10,7 @@ namespace Node {
 		}
 	}
 
-	std::int32_t Transform::ResetTransform(const std::string& node, const Flags& flags) noexcept
+	std::int32_t Transform::ResetTransform(const std::string& node, Flags flags) noexcept
 	{
 		auto& m = map[node];
 
@@ -79,7 +79,7 @@ namespace Node {
 		});
 	}
 
-	std::int32_t Transform::SetTransform(const std::string& node, const Flags& flags, const float& value) noexcept
+	std::int32_t Transform::SetTransform(const std::string& node, Flags flags, float value) noexcept
 	{
 		auto& m = map[node];
 
@@ -143,7 +143,7 @@ namespace Node {
 		});
 	}
 
-	float Transform::GetTransform(const std::string& node, const Flags& flags) noexcept
+	float Transform::GetTransform(const std::string& node, Flags flags) noexcept
 	{
 		float value{};
 
@@ -198,7 +198,7 @@ namespace Node {
 		return value;
 	}
 
-	float Transform::GetEulerAngle(NiTransform& niTransform, const Angle& angle) noexcept
+	float Transform::GetEulerAngle(NiTransform& niTransform, Angle angle) noexcept
 	{
 		float h, a, b;
 
@@ -217,7 +217,7 @@ namespace Node {
 		return 0.0f;
 	}
 
-	void Transform::SetEulerAngle(NiTransform& src, NiTransform& dst, const Angle& angle, const float& value) noexcept
+	void Transform::SetEulerAngle(NiTransform& src, NiTransform& dst, Angle angle, float value) noexcept
 	{
 		float h0, a0, b0;
 
@@ -258,7 +258,7 @@ namespace Node {
 	}
 
 	template<typename Func>
-	std::int32_t Transform::Visit(const std::string& sNode, const bool update, Func fn) noexcept
+	std::int32_t Transform::Visit(const std::string& sNode, bool update, Func fn) noexcept
 	{
 		NiNode* root{ nullptr };
 

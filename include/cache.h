@@ -22,20 +22,26 @@ namespace Cache {
 
 	struct InfoCache {
 
-		float height{};
+		float height{ ZeroValue };
 		std::string path;
-		bool text{};
+		bool isText{};
+		bool isCached{};
 	};
 
 	class Map {
 
 	public:
 
-		[[nodiscard]] static Map& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Map& GetSingleton() noexcept { 
+			static Map instance;
+			return instance; 
+		}
 
-		void Insert(const std::string& filename, const float value, const bool text = false, const bool force = false) noexcept;
+		void Insert(const std::string& filename, float value, bool isText = false, bool forceInsert = false) noexcept;
 		void Erase(const std::string& filename) noexcept;
+
 		[[nodiscard]] float Find(const std::string& filename) noexcept;
+
 		[[nodiscard]] bool IsText(const std::string& filename) noexcept;
 
 		[[nodiscard]] bool Load() noexcept;
@@ -58,7 +64,5 @@ namespace Cache {
 		std::unordered_map<std::string, InfoCache> cacheMap;
 
 		bool saved{};
-
-		static Map instance;
 	};
 }

@@ -8,7 +8,7 @@
 
 namespace InGame {
 
-	enum class Key {
+	enum class Key : std::uint32_t {
 
 		Activate = 0,
 		Test,
@@ -24,7 +24,10 @@ namespace InGame {
 
 	public:
 
-		static [[nodiscard]] HeightEdit& GetInstance() noexcept { return instance; }
+		static [[nodiscard]] HeightEdit& GetSingleton() noexcept {
+			static HeightEdit instance;
+			return instance; 
+		}
 
 		[[nodiscard]] bool Test() noexcept;
 		[[nodiscard]] bool Create() noexcept;
@@ -47,16 +50,14 @@ namespace InGame {
 		HeightEdit& operator=(const HeightEdit&) = delete;
 		HeightEdit& operator=(HeightEdit&&) = delete;
 
-		static HeightEdit instance;
-
 		[[nodiscard]] std::uint32_t GetFormIDByHandle(UInt32 handle) noexcept;
 
-		[[nodiscard]] bool Process(const Key& key) noexcept;
+		[[nodiscard]] bool Process(Key key) noexcept;
 
 		void IncHeight() noexcept;
 		void DecHeight() noexcept;
 
-		void ShowError(const hhs::Error& error) noexcept;
+		void ShowError(hhs::Error error) noexcept;
 
 		bool enabled{};
 

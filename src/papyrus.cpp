@@ -17,17 +17,18 @@ namespace Papyrus {
 
 	bool IsValidF4SE_HHS(StaticFunctionTag* base)
 	{
-		return f4se::Plugin::GetInstance().IsRuntimeValid();
+		return f4se::Plugin::GetSingleton().IsRuntimeValid();
 	}
 	
 	SInt32 SetFloatHeight_HHS(StaticFunctionTag* base, TESObjectREFR* akActor, float height)
 	{
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			auto err = sys.SetHeight(height);
 
-			if (err == hhs::Error::Success)
+			if (err == hhs::Error::Success) {
 				sys.SetOverride(true);
+			}
 
 			return err;
 		});
@@ -37,7 +38,7 @@ namespace Papyrus {
 
 	bool RemoveHeight_HHS(StaticFunctionTag* base, TESObjectREFR* akActor)
 	{
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			sys.SetOverride(false);
 
@@ -49,7 +50,7 @@ namespace Papyrus {
 
 	bool StartHeight_HHS(StaticFunctionTag* base, TESObjectREFR* akActor)
 	{
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			return sys.Start();
 		});
@@ -59,7 +60,7 @@ namespace Papyrus {
 
 	bool StopHeight_HHS(StaticFunctionTag* base, TESObjectREFR* akActor)
 	{
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			return sys.Stop();
 		});
@@ -69,7 +70,7 @@ namespace Papyrus {
 
 	bool EnableFix(StaticFunctionTag* base, TESObjectREFR* akActor, TESObjectREFR* furniture)
 	{
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			sys.EnableFix(furniture);
 
@@ -81,7 +82,7 @@ namespace Papyrus {
 
 	bool DisableFix(StaticFunctionTag* base, TESObjectREFR* akActor)
 	{
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			sys.DisableFix();
 
@@ -93,7 +94,7 @@ namespace Papyrus {
 
 	bool StartHeightAAF_HHS(StaticFunctionTag* base, TESObjectREFR* akActor)
 	{
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			return sys.Start();
 		});
@@ -103,7 +104,7 @@ namespace Papyrus {
 
 	bool StopHeightAAF_HHS(StaticFunctionTag* base, TESObjectREFR* akActor)
 	{
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			return sys.Stop(true);
 		});
@@ -113,14 +114,14 @@ namespace Papyrus {
 
 	bool HasTagAAF_HHS(StaticFunctionTag* base, BSFixedString tag)
 	{
-		return Settings::Ini::GetInstance().CheckTagAAF(tag.c_str());
+		return Settings::Ini::GetSingleton().CheckTagAAF(tag.c_str());
 	}
 
 	float GetFloatHeight_HHS(StaticFunctionTag* base, TESObjectREFR* akActor)
 	{
-		float h{ MinValue };
+		float h{ ZeroValue };
 
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			h = sys.GetHeight();
 		
@@ -134,7 +135,7 @@ namespace Papyrus {
 	{
 		bool hasHeight{};
 
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			hasHeight = sys.HasHeight();
 
@@ -148,7 +149,7 @@ namespace Papyrus {
 	{
 		bool hasOverride{};
 
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			hasOverride = sys.HasOverride();
 
@@ -162,7 +163,7 @@ namespace Papyrus {
 	{
 		bool isStop{};
 
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			isStop = sys.IsStop();
 
@@ -174,31 +175,32 @@ namespace Papyrus {
 
 	bool IsSwimming_HHS(StaticFunctionTag* base, TESObjectREFR* akActor)
 	{
-		if (!akActor)
+		if (!akActor) {
 			return false;
+		}
 
 		auto actor = DYNAMIC_CAST(akActor, TESObjectREFR, Actor);
 
-		if (!actor)
+		if (!actor) {
 			return false;
+		}
 
 		return actor->IsSwimming();
 	}
 
 	bool HasKeywordException_HHS(StaticFunctionTag* base, TESObjectREFR* object)
 	{
-		return Settings::Ini::GetInstance().CheckFurnitureBehavior(object);
+		return Settings::Ini::GetSingleton().CheckFurnitureBehavior(object);
 	}
 
 	void StartStopPlayer_HHS(StaticFunctionTag* base)
 	{
-		if (!Events::Dispatcher::GetInstance().GetInputEnabled())
+		if (!Events::Dispatcher::GetSingleton().GetInputEnabled())
 			return;
 
-		auto ret = hhs::Map::GetInstance().visit(true, PlayerID, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, PlayerID, [&](hhs::System& sys) {
 
 			if (sys.IsStop()) {
-
 				return sys.Start();
 			}
 
@@ -208,12 +210,13 @@ namespace Papyrus {
 
 	void StartStopAllActorsInCell_HHS(StaticFunctionTag* base)
 	{
-		if (!Events::Dispatcher::GetInstance().GetInputEnabled())
+		if (!Events::Dispatcher::GetSingleton().GetInputEnabled()) {
 			return;
+		}
 
 		VisitCell([&](TESObjectREFR* refr) {
 
-			hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
+			hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, refr, [&](hhs::System& sys) {
 
 				if (sys.IsStop()) {
 
@@ -227,61 +230,67 @@ namespace Papyrus {
 
 	void ActivateEdit_HHS(StaticFunctionTag* base) 
 	{
-		if (!Events::Dispatcher::GetInstance().GetInputEnabled())
+		if (!Events::Dispatcher::GetSingleton().GetInputEnabled()) {
 			return;
+		}
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-		InGame::HeightEdit::GetInstance().OnKeyPress(InGame::Key::Activate);
+		InGame::HeightEdit::GetSingleton().OnKeyPress(InGame::Key::Activate);
 #endif
 	}
 
 	void ChangeRefr_HHS(StaticFunctionTag* base)
 	{
-		if (!Events::Dispatcher::GetInstance().GetInputEnabled())
+		if (!Events::Dispatcher::GetSingleton().GetInputEnabled()) {
 			return;
+		}
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-		InGame::HeightEdit::GetInstance().OnKeyPress(InGame::Key::ChangeReference);
+		InGame::HeightEdit::GetSingleton().OnKeyPress(InGame::Key::ChangeReference);
 #endif
 	}
 
 	void CreateHeight_HHS(StaticFunctionTag* base)
 	{
-		if (!Events::Dispatcher::GetInstance().GetInputEnabled())
+		if (!Events::Dispatcher::GetSingleton().GetInputEnabled()) {
 			return;
+		}
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-		InGame::HeightEdit::GetInstance().OnKeyPress(InGame::Key::Create);
+		InGame::HeightEdit::GetSingleton().OnKeyPress(InGame::Key::Create);
 #endif
 	}
 
 	void DeleteHeight_HHS(StaticFunctionTag* base)
 	{
-		if (!Events::Dispatcher::GetInstance().GetInputEnabled())
+		if (!Events::Dispatcher::GetSingleton().GetInputEnabled()) {
 			return;
+		}
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-		InGame::HeightEdit::GetInstance().OnKeyPress(InGame::Key::Delete);
+		InGame::HeightEdit::GetSingleton().OnKeyPress(InGame::Key::Delete);
 #endif
 	}
 
 	void IncrementHeight_HHS(StaticFunctionTag* base)
 	{
-		if (!Events::Dispatcher::GetInstance().GetInputEnabled())
+		if (!Events::Dispatcher::GetSingleton().GetInputEnabled()) {
 			return;
+		}
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-		InGame::HeightEdit::GetInstance().OnKeyPress(InGame::Key::Increment);
+		InGame::HeightEdit::GetSingleton().OnKeyPress(InGame::Key::Increment);
 #endif
 	}
 
 	void DecrementHeight_HHS(StaticFunctionTag* base)
 	{
-		if (!Events::Dispatcher::GetInstance().GetInputEnabled())
+		if (!Events::Dispatcher::GetSingleton().GetInputEnabled()) {
 			return;
+		}
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-		InGame::HeightEdit::GetInstance().OnKeyPress(InGame::Key::Decrement);
+		InGame::HeightEdit::GetSingleton().OnKeyPress(InGame::Key::Decrement);
 #endif
 	}
 
@@ -289,7 +298,7 @@ namespace Papyrus {
 	{
 		float value{};
 
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
 			value = sys.GetTransform(node.c_str(), Node::flags_cast(flags));
 
@@ -301,10 +310,11 @@ namespace Papyrus {
 
 	SInt32 SetTransform_HHS(StaticFunctionTag* base, TESObjectREFR* akActor, BSFixedString node, SInt32 flags, float value)
 	{
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
-			if (sys.SetTransform(node.c_str(), Node::flags_cast(flags), value) != 0)
+			if (sys.SetTransform(node.c_str(), Node::flags_cast(flags), value) != 0) {
 				return hhs::Error::Unknown;
+			}
 
 			return hhs::Error::Success;
 		});
@@ -314,10 +324,11 @@ namespace Papyrus {
 
 	SInt32 ResetTransform_HHS(StaticFunctionTag* base, TESObjectREFR* akActor, BSFixedString node, SInt32 flags)
 	{
-		auto ret = hhs::Map::GetInstance().visit(true, akActor, [&](hhs::System& sys) {
+		auto ret = hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, akActor, [&](hhs::System& sys) {
 
-			if (sys.ResetTransform(node.c_str(), Node::flags_cast(flags)) != 0)
+			if (sys.ResetTransform(node.c_str(), Node::flags_cast(flags)) != 0) {
 				return hhs::Error::Unknown;
+			}
 
 			return hhs::Error::Success;
 		});
@@ -331,16 +342,18 @@ namespace Papyrus {
 
 		std::uint32_t version{};
 
-		if (!reader.GetExtraData(ExtraDataSAF, version))
+		if (!reader.GetExtraData(ExtraDataSAF, version)) {
 			return -1;
+		}
 
 		return static_cast<SInt32>(version);
 	}
 
 	bool Register(VirtualMachine* vm) noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bEnableScript())
+		if (!Settings::Ini::GetSingleton().Get_bEnableScript()) {
 			return false;
+		}
 
 #define GET_FUNCTION(func) # func, "HHS", func, vm
 

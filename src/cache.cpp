@@ -8,29 +8,35 @@
 
 namespace Cache {
 
-	void Map::Insert(const std::string& filename, const float value, const bool text, const bool force) noexcept
+	void Map::Insert(const std::string& filename, float value, bool isText, bool forceInsert) noexcept
 	{
-		if (filename == "" || value < MinValue) {
+		if (filename.empty()) {
 			return;
 		}
 
 		auto& info = cacheMap[File::GetRelativeDir(filename)];
 
-		if (info.height == MinValue || force) {
+		if (info.isCached && !forceInsert) {
+			return;
+		}
 
-			info.path = filename;
+		if (value != ZeroValue) {
+
 			info.height = std::clamp(value, MinValue, MaxValue);
-			info.text = text;
+			info.isText = isText;
 
-			_DMESSAGE("File : %s Height : %.2f %s", filename.c_str(), value, info.height != MinValue ? "added to cache." : "not added to cache!");
+			_DMESSAGE("File : %s Height : %.2f %s", filename.c_str(), value, info.height != ZeroValue ? "added to cache." : "not added to cache!");
 
 			saved = false;
 		}
+
+		info.path = filename;
+		info.isCached = true;
 	}
 
 	void Map::Erase(const std::string& filename) noexcept
 	{
-		if (filename == "") {
+		if (filename.empty()) {
 			return;
 		}
 
@@ -41,28 +47,28 @@ namespace Cache {
 
 	float Map::Find(const std::string& filename) noexcept
 	{
-		if (filename == "") {
-			return MinValue;
+		if (filename.empty()) {
+			return ZeroValue;
 		}
 
 		auto& info = cacheMap[File::GetRelativeDir(filename)];
 
-		//_DMESSAGE("%s : %s / %s (%f, %s, %i)", __FUNCTION__, File::GetRelativeDir(filename).c_str(), filename.c_str(), info.height, info.path.c_str(), info.text);
+		if (!info.isCached) {
 
-		if (info.height == MinValue) {
-
-			info.path = filename;
-
-			if ((info.height = Skeleton::GetHeightFromSkeleton(filename)) == InvalidValue) {
+			if ((info.height = Skeleton::GetHeightFromSkeleton(filename)) == ZeroValue) {
 
 				info.height = Text::GetHeightFromText(filename);
-				info.text = true; // info.height > MinValue;
+				info.isText = true; // info.height != ZeroValue;
 			}
 
 			saved = false;
+
+			info.path = filename;
+			info.isCached = true;
 		}
 
-		//_DMESSAGE("%f", info.height);
+		//_DMESSAGE("%s : %s / %s (%f, %s, %i, %i)", __FUNCTION__, File::GetRelativeDir(filename).c_str(), filename.c_str(), info.height, info.path.c_str(), info.isText, info.isCached);
+		//_DMESSAGE("%f", std::clamp(info.height, MinValue, MaxValue));
 
 		return std::clamp(info.height, MinValue, MaxValue);
 	}
@@ -76,12 +82,12 @@ namespace Cache {
 		auto& it = cacheMap.find(File::GetRelativeDir(filename));
 
 		if (it != cacheMap.end()) {
-			return it->second.text;
+			return it->second.isText;
 		}
 
 		return true;
 	}
-
+		
 	bool Map::ReadHeader(std::ifstream& ifs) noexcept
 	{
 		std::uint32_t hdr{};
@@ -95,8 +101,9 @@ namespace Cache {
 
 	bool Map::Load() noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bCache())
+		if (!Settings::Ini::GetSingleton().Get_bCache()) {
 			return false;
+		}
 
 		std::ifstream ifs{ CacheFilename, std::ios_base::binary };
 
@@ -145,7 +152,7 @@ namespace Cache {
 						filename.clear();
 					}
 
-					if (Find(filename) > MinValue) {
+					if (Find(filename) != ZeroValue) {
 						++found;
 					}
 				}
@@ -195,15 +202,15 @@ namespace Cache {
 
 	bool Map::Save() noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bCache() || saved)
+		if (!Settings::Ini::GetSingleton().Get_bCache() || saved) {
 			return false;
+		}
 
 		std::ofstream ofs(CacheFilename, std::ios_base::binary);
 
 		Error err{ Error::Success };
 
 		if (!ofs || !WriteHeader(ofs)) {
-
 			err = Error::NotOpen;
 		}
 
@@ -251,6 +258,4 @@ namespace Cache {
 
 		return err == Error::Success;
 	}
-
-	Map Map::instance;
 }

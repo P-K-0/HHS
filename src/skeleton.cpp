@@ -53,7 +53,7 @@ namespace Skeleton {
 		isValid = Init(Filename);
 	}
 
-	Reader::Reader(Actor* actor, const bool& isFemale) noexcept
+	Reader::Reader(Actor* actor, bool isFemale) noexcept
 	{
 		if (!actor) {
 			return;
@@ -70,7 +70,7 @@ namespace Skeleton {
 		isValid = Init(race->models[female].GetModelName());
 	}
 
-	Reader::Reader(TESObjectREFR* refr, const bool& isFemale) noexcept
+	Reader::Reader(TESObjectREFR* refr, bool isFemale) noexcept
 	{
 		Actor* actor{ nullptr };
 
@@ -176,13 +176,15 @@ namespace Skeleton {
 
 				obj->m_extraData->GetNthItem(idx, extraData);
 
-				if (!extraData)
+				if (!extraData) {
 					continue;
+				}
 
 				auto data = DYNAMIC_CAST(extraData, NiExtraData, NiFloatExtraData);
 
-				if (!data || name != data->m_name.c_str())
+				if (!data || name != data->m_name.c_str()) {
 					continue;
+				}
 
 				value = data->value;
 
@@ -197,8 +199,9 @@ namespace Skeleton {
 	{
 		return Visit([&](NiAVObject* obj) {
 
-			if (!obj->m_extraData)
+			if (!obj->m_extraData) {
 				return false;
+			}
 
 			SimpleLocker lock(&obj->m_extraData->lock);
 
@@ -208,13 +211,15 @@ namespace Skeleton {
 
 				obj->m_extraData->GetNthItem(idx, extraData);
 
-				if (!extraData)
+				if (!extraData) {
 					continue;
+				}
 
 				auto data = DYNAMIC_CAST(extraData, NiExtraData, NiIntegerExtraData);
 
-				if (!data || name != data->m_name.c_str())
+				if (!data || name != data->m_name.c_str()) {
 					continue;
+				}
 
 				value = data->value;
 
@@ -227,16 +232,16 @@ namespace Skeleton {
 
 	float GetHeightFromSkeleton(const std::string& filename) noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bEnableExtraData()) {
-			return InvalidValue;
+		if (!Settings::Ini::GetSingleton().Get_bEnableExtraData()) {
+			return ZeroValue;
 		}
 
-		auto height{ MinValue };
+		auto height{ ZeroValue };
 
 		Skeleton::Reader reader{ filename };
 
 		reader.GetExtraData(ExtraDataHHS, height);
 
-		return height > MinValue ? height : InvalidValue;
+		return std::clamp(height, MinValue, MaxValue);
 	}
 }

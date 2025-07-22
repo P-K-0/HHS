@@ -42,8 +42,8 @@ namespace Skeleton {
 
 		Reader() noexcept {}
 		Reader(const std::string& Filename) noexcept;
-		Reader(Actor* actor, const bool& isFemale) noexcept;
-		Reader(TESObjectREFR* refr, const bool& isFemale) noexcept;
+		Reader(Actor* actor, bool isFemale) noexcept;
+		Reader(TESObjectREFR* refr, bool isFemale) noexcept;
 
 		~Reader() noexcept {}
 

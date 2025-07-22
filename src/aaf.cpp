@@ -180,7 +180,7 @@ namespace Aaf {
 
 		bool isStop{ bTag ? false : bStop };
 
-		hhs::Map::GetInstance().visit(false, id, [&](hhs::System& sys) {
+		hhs::Map::GetSingleton().visit(hhs::VisitFlags::None, id, [&](hhs::System& sys) {
 			return isStop ? sys.Stop(true) : sys.Start();
 		});
 	}
@@ -210,7 +210,7 @@ namespace Aaf {
 		}
 	}
 
-	void Scene::OnSceneEnd(const VMValue* args, const bool& stop) noexcept
+	void Scene::OnSceneEnd(const VMValue* args, bool stop) noexcept
 	{
 		VMArgs vmArgs{ args };
 
@@ -226,7 +226,7 @@ namespace Aaf {
 
 		for (auto tag : tags) {
 
-			if (Settings::Ini::GetInstance().CheckTagAAF(tag)) {
+			if (Settings::Ini::GetSingleton().CheckTagAAF(tag)) {
 
 				hasTag = true;
 
@@ -276,8 +276,8 @@ namespace Aaf {
 	{
 		SendCustomEvent_Original(vm, unk1, sender, eventName, args);
 
-		if (Settings::Ini::GetInstance().Get_bEnableAAF() && vm && sender && eventName && args) {
-			Scene::GetInstance().ProcessEvent(eventName, args);
+		if (Settings::Ini::GetSingleton().Get_bEnableAAF() && vm && sender && eventName && args) {
+			Scene::GetSingleton().ProcessEvent(eventName, args);
 		}
 	}
 
@@ -368,9 +368,5 @@ namespace Aaf {
 
 		return;
 	}
-	
-	Scene Scene::instance;
-
-	Event Event::instance;
 }
 #endif

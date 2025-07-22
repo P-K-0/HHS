@@ -33,10 +33,13 @@ namespace Translations {
 
 	public:
 
-		[[nodiscard]] static Lang& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Lang& GetSingleton() noexcept {
+			static Lang instance;
+			return instance; 
+		}
 
 		[[nodiscard]] bool Load() noexcept;
-		[[nodiscard]] const std::string& operator[](const LangID& id) noexcept { return ids[static_cast<std::int32_t>(id)]; }
+		[[nodiscard]] const std::string& operator[](LangID id) const noexcept { return ids[static_cast<std::int32_t>(id)]; }
 
 	private:
 
@@ -70,7 +73,5 @@ namespace Translations {
 			"$HHS_MSG_PLAYER_REFR",
 			"$HHS_MSG_CROSSHAIR_REFR"
 		};	
-
-		static Lang instance;
 	};
 }

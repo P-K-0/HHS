@@ -130,8 +130,9 @@ namespace Settings {
 	{
 		std::string str = GetValue(ini, section, key, def);
 
-		if (str.empty())
+		if (str.empty()) {
 			return false;
+		}
 
 		ParseString(str, vStr);
 
@@ -156,13 +157,15 @@ namespace Settings {
 	{
 		auto data = (*g_dataHandler);
 
-		if (!data)
+		if (!data) {
 			return;
+		}
 
 		std::vector<std::string> vStr;
 
-		if (!ParseString(ini, Section::Main, "sFurnitureKeyword", "", vStr))
+		if (!ParseString(ini, Section::Main, "sFurnitureKeyword", "", vStr)) {
 			return;
+		}
 
 		std::uint32_t cnt{};
 
@@ -174,20 +177,20 @@ namespace Settings {
 
 			auto key = data->arrKYWD[iKey];
 
-			if (!key)
-				continue;
+			if (key) {
 
-			for (const auto& s : vStr) {
+				for (const auto& s : vStr) {
 
-				if (_strcmpi(s.c_str(), key->keyword.c_str()) == 0) {
+					if (_strcmpi(s.c_str(), key->keyword.c_str()) == 0) {
 
-					vFurnitureKeyword.push_back(key->formID);
+						vFurnitureKeyword.push_back(key->formID);
 					
-					cnt++;
+						cnt++;
 					
-					DbgMessage("Keyword", key->keyword.c_str(), key->formID);
+						DbgMessage("Keyword", key->keyword.c_str(), key->formID);
 					
-					break;
+						break;
+					}
 				}
 			}
 		}
@@ -214,8 +217,9 @@ namespace Settings {
 
 			auto keyRaceHHS = race->keywordForm.keywords[i];
 
-			if (keyRaceHHS && _strcmpi("ActorType_HHS", keyRaceHHS->keyword.c_str()) == 0)
+			if (keyRaceHHS && _strcmpi("ActorType_HHS", keyRaceHHS->keyword.c_str()) == 0) {
 				return true;
+			}
 		}
 
 		return false;
@@ -225,13 +229,15 @@ namespace Settings {
 	{
 		auto data = (*g_dataHandler);
 
-		if (!data || iRace == Race::AllRaces)
+		if (!data || iRace == Race::AllRaces) {
 			return;
+		}
 
 		std::vector<std::string> vStr;
 
-		if (!ParseString(ini, Section::Race, "sRace", "", vStr))
+		if (!ParseString(ini, Section::Race, "sRace", "", vStr)) {
 			return;
+		}
 
 		std::uint32_t cnt{};
 
@@ -243,43 +249,43 @@ namespace Settings {
 
 			auto race = data->arrRACE[idx];
 
-			if (!race)
-				continue;
+			if (race) {
 
-			if (iRace & Race::FromSkeleton) {
+				if (iRace & Race::FromSkeleton) {
 
-				for (std::uint32_t isFemale{}; isFemale < 2; isFemale++) {
+					for (std::uint32_t isFemale{}; isFemale < 2; isFemale++) {
 
-					Skeleton::Reader skeleton{ race->models[isFemale].GetModelName() };
+						Skeleton::Reader skeleton{ race->models[isFemale].GetModelName() };
 
-					if (!skeleton || !skeleton.HasNode(ComOverride))
-						continue;
+						if (skeleton && skeleton.HasNode(ComOverride)) {
 
-					vRace.push_back(race->formID);
+							vRace.push_back(race->formID);
 
-					cnt++;
+							cnt++;
 
-					DbgMessage("Race", race->editorId.c_str(), race->formID, "from Skeleton");
+							DbgMessage("Race", race->editorId.c_str(), race->formID, "from Skeleton");
 
-					break;
+							break;
+						}
+					}
 				}
-			}
 
-			if (iRace & Race::FromEditorID) {
+				if (iRace & Race::FromEditorID) {
 
-				for (const auto& s : vStr) {
+					for (const auto& s : vStr) {
 
-					bool hasKeyword{ HasKeywordRace(race) };
+						bool hasKeyword{ HasKeywordRace(race) };
 
-					if (_strcmpi(s.c_str(), race->editorId.c_str()) == 0 || hasKeyword) {
+						if (_strcmpi(s.c_str(), race->editorId.c_str()) == 0 || hasKeyword) {
 
-						vRace.push_back(race->formID);
+							vRace.push_back(race->formID);
 
-						cnt++;
+							cnt++;
 
-						DbgMessage("Race", race->editorId.c_str(), race->formID, "from " + std::string(hasKeyword ? "Keyword" : "Settings"));
+							DbgMessage("Race", race->editorId.c_str(), race->formID, "from " + std::string(hasKeyword ? "Keyword" : "Settings"));
 
-						break;
+							break;
+						}
 					}
 				}
 			}
@@ -296,10 +302,11 @@ namespace Settings {
 		vRace.erase(std::unique(vRace), vRace.end());
 	}
 
-	void Ini::Set_bEnableSlot(const std::uint32_t& index, const bool& value) noexcept
+	void Ini::Set_bEnableSlot(std::uint32_t index, bool value) noexcept
 	{
-		if (index < MinSlot || index >= MaxSlot)
+		if (index < MinSlot || index >= MaxSlot) {
 			return;
+		}
 
 		bEnableSlot[index] = value;
 
@@ -317,8 +324,9 @@ namespace Settings {
 	{
 		for (std::uint32_t idx{ MinSlot }; idx < MaxSlot; idx++) {
 
-			if (bEnableSlot[idx])
+			if (bEnableSlot[idx]) {
 				uSlotFlags |= (1 << idx);
+			}
 		}
 	}
 
@@ -326,25 +334,29 @@ namespace Settings {
 	{
 		TESForm* frm{};
 
-		if (!refr || !(frm = refr->baseForm))
+		if (!refr || !(frm = refr->baseForm)) {
 			return false;
+		}
 
-		if (iBehaviorFurniture == Furniture::Disabled)
+		if (iBehaviorFurniture == Furniture::Disabled) {
 			return true;
+		}
 
 		if (iBehaviorFurniture == Furniture::Keywords) {
 
 			TESFurniture* furn{ nullptr };
 
-			if (vFurnitureKeyword.empty() || !(furn = DYNAMIC_CAST(frm, TESForm, TESFurniture)))
+			if (vFurnitureKeyword.empty() || !(furn = DYNAMIC_CAST(frm, TESForm, TESFurniture))) {
 				return false;
+			}
 
 			for (std::uint32_t idx{}; idx < furn->keywordForm.numKeywords; idx++) {
 
 				auto key = furn->keywordForm.keywords[idx];
 
-				if (key && std::binary_search(vFurnitureKeyword, key->formID))
+				if (key && std::binary_search(vFurnitureKeyword, key->formID)) {
 					return true;
+				}
 			}
 		}
 
@@ -362,13 +374,15 @@ namespace Settings {
 
 	bool Ini::CheckTagAAF(const std::string& tag) noexcept
 	{
-		if (!bEnableTagAAF)
+		if (!bEnableTagAAF) {
 			return false;
+		}
 
 		for (auto& sTag : vTagAAF) {
 
-			if (_strcmpi(sTag.c_str(), tag.c_str()) == 0)
+			if (_strcmpi(sTag.c_str(), tag.c_str()) == 0) {
 				return true;
+			}
 		}
 
 		return false;
@@ -436,8 +450,9 @@ namespace Settings {
 
 		InitFurnitureKeywords(ini);
 
-		for (std::uint32_t index{ MinSlot }; index < MaxSlot; index++) 
+		for (std::uint32_t index{ MinSlot }; index < MaxSlot; index++) {
 			Set_bEnableSlot(index, GetValue(ini, Section::Slot, std::string("bEnableSlot") + std::to_string(index + 30), true));
+		}
 
 		GETVALUE(bEnableSwimming, Section::AnimEvent);
 
@@ -477,6 +492,4 @@ namespace Settings {
 
 		GETVALUE(iKeyDecrementHeight, Section::Keys);
 	}
-
-	Ini Ini::instance;
 }	

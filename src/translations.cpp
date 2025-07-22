@@ -5,9 +5,9 @@ namespace Translations {
 
 	bool Lang::Load() noexcept
 	{
-		static bool TranslationLoaded{};
+		static bool loaded{};
 
-		if (TranslationLoaded || !g_scaleformManager || !(*g_scaleformManager)->stateBag) {
+		if (loaded || !g_scaleformManager || !(*g_scaleformManager)->stateBag) {
 			return false;
 		}
 
@@ -19,10 +19,8 @@ namespace Translations {
 
 		Translation::ParseTranslation(translator, std::string(Version::ShortName));
 
-		TranslationLoaded = true;
+		loaded = true;
 
 		return true;
 	}
-
-	Lang Lang::instance;
 }

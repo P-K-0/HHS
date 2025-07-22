@@ -11,7 +11,7 @@ namespace File {
 			return 0;
 		}
 
-		auto& settings = Settings::Ini::GetInstance();
+		auto& settings = Settings::Ini::GetSingleton();
 
 		len = settings.Get_iReadBufferLen();
 
@@ -65,7 +65,7 @@ namespace File {
 
 	std::string GetRelativeDir(const std::string& str) noexcept
 	{
-		std::string path = boost::filesystem::path(str).lexically_normal().string();
+		std::string path = std::filesystem::path(str).lexically_normal().string();
 
 		std::transform(path.begin(), path.end(), path.begin(), [](unsigned char c) { return std::tolower(c); });
 

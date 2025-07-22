@@ -10,13 +10,13 @@ namespace hhs {
 		SetActor(util.GetActorPtr());
 	}
 
-	Error System::SetHeight(const float& Height) noexcept
+	Error System::SetHeight(float Height) noexcept
 	{
 		auto h{ Height };
 
 		auto ret = SetTransform(ComOverride, Node::Flags::PosZ, h);
 
-		Camera::Player::GetInstance().SetCameraHeight(util.GetActorPtr(), h);
+		Camera::Player::GetSingleton().SetCameraHeight(util.GetActorPtr(), h);
 
 		if (ret == -1) {
 			return Error::ComOverride;
@@ -32,17 +32,21 @@ namespace hhs {
 		return Error::Success;
 	}
 
-	Error System::SetHeight(const std::uint32_t& slot, const std::uint32_t& id, const bool equipped) noexcept
+	Error System::SetHeight(std::uint32_t slot, std::uint32_t id, bool equipped) noexcept
 	{
 		auto h = util.GetHeightFromWornItem(slot, id, equipped);
 
-		if (h <= MinValue) {
+		//_DMESSAGE("%s : id: %i equipped: %i h: %f", __FUNCTION__, id, equipped, h);
+
+		if (h == ZeroValue) {
 			return ResetHeight();
 		}
 	
 		auto ret = SetTransform(ComOverride, Node::Flags::PosZ, h);
 
-		Camera::Player::GetInstance().SetCameraHeight(util.GetActorPtr(), h);
+		//_DMESSAGE("%s : ret: %i", __FUNCTION__, ret);
+
+		Camera::Player::GetSingleton().SetCameraHeight(util.GetActorPtr(), h);
 
 		if (ret == -1) {
 			return Error::ComOverride;
@@ -62,7 +66,7 @@ namespace hhs {
 	{
 		auto ret = ResetTransform(ComOverride, Node::Flags::PosZ);
 
-		Camera::Player::GetInstance().SetCameraHeight(util.GetActorPtr());
+		Camera::Player::GetSingleton().SetCameraHeight(util.GetActorPtr());
 
 		if (ret == -1) {
 			return Error::ComOverride;
@@ -72,7 +76,7 @@ namespace hhs {
 			return Error::SetHeight;
 		}
 
-		height = MinValue;
+		height = ZeroValue;
 		skip = hasOverride = isStop = isAAF = isSwimming = false;
 
 		return Error::Success;
@@ -83,11 +87,11 @@ namespace hhs {
 		return SetHeight(height);
 	}
 
-	Error System::Stop(const bool& stopAAF) noexcept
+	Error System::Stop(bool stopAAF) noexcept
 	{
 		auto ret = ResetTransform(ComOverride, Node::Flags::PosZ);
 
-		Camera::Player::GetInstance().SetCameraHeight(util.GetActorPtr());
+		Camera::Player::GetSingleton().SetCameraHeight(util.GetActorPtr());
 
 		if (ret == -1) {
 			return Error::ComOverride;
@@ -103,7 +107,7 @@ namespace hhs {
 		return Error::Success;
 	}
 
-	Error System::Swim(const bool& swim) noexcept 
+	Error System::Swim(bool swim) noexcept 
 	{
 		isSwimming = swim;
 		
@@ -123,7 +127,7 @@ namespace hhs {
 
 	void System::EnableFix(TESObjectREFR* furniture) noexcept
 	{
-		auto& settings = Settings::Ini::GetInstance();
+		auto& settings = Settings::Ini::GetSingleton();
 
 		if (!settings.Get_bEnableFixes()) {
 			return;
@@ -149,7 +153,7 @@ namespace hhs {
 			return;
 		}
 
-		auto& fixes = Fixes::Preset::GetInstance();
+		auto& fixes = Fixes::Preset::GetSingleton();
 
 		if (settings.Get_bEnableReloadFixes()) {
 			fixes.Load();
@@ -179,6 +183,4 @@ namespace hhs {
 			}
 		}
 	}
-
-	Map Map::instance;
 }

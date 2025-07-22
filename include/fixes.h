@@ -22,11 +22,14 @@ namespace Fixes {
 
 	public:
 
-		static [[nodiscard]] Preset& GetInstance() noexcept { return instance; }
+		static [[nodiscard]] Preset& GetSingleton() noexcept {
+			static Preset instance;
+			return instance;
+		}
 
 		[[nodiscard]] bool Load() noexcept;
 
-		[[nodiscard]] const std::int32_t& GetSAFVersion() const noexcept { return saf_version; }
+		[[nodiscard]] std::int32_t GetSAFVersion() const noexcept { return saf_version; }
 
 		[[nodiscard]] bool FindKeyword(const std::string& sKeyword, Json::Value& value) noexcept;
 
@@ -84,7 +87,5 @@ namespace Fixes {
 		Json::Value root;
 
 		std::int32_t saf_version{};
-
-		static Preset instance;
 	};
 }

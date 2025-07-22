@@ -27,9 +27,13 @@ namespace f4se {
 
 		hPlug = f4se->GetPluginHandle();
 
+#if CURRENT_RELEASE_RUNTIME != RUNTIME_VR_VERSION_1_2_72
 		if (!(isValid = CheckPluginVersion(f4se))) {
 			return false;
 		}
+#else
+		isValid = true;
+#endif
 
 		if (f4se->isEditor) {
 
@@ -161,7 +165,7 @@ namespace f4se {
 		_DMESSAGE("Game Version %s", version.c_str());
 		_DMESSAGE("=================================================================================");
 
-#if	CURRENT_RELEASE_RUNTIME < RUNTIME_VERSION_1_10_162 && CURRENT_RELEASE_RUNTIME > RUNTIME_VERSION_1_10_163
+#if	CURRENT_RELEASE_RUNTIME < RUNTIME_VERSION_1_10_162 || CURRENT_RELEASE_RUNTIME > RUNTIME_VERSION_1_10_163
 		if (f4se->runtimeVersion != CURRENT_RELEASE_RUNTIME) {
 #else
 		if (f4se->runtimeVersion < RUNTIME_VERSION_1_10_162 || f4se->runtimeVersion > RUNTIME_VERSION_1_10_163) {
@@ -186,31 +190,31 @@ namespace f4se {
 
 			Trampoline::GetSingleton().Create();
 
-			Settings::Ini::GetInstance().ReadAllSettings();
+			Settings::Ini::GetSingleton().ReadAllSettings();
 
-			Translations::Lang::GetInstance().Load();
+			Translations::Lang::GetSingleton().Load();
 
-			Fixes::Preset::GetInstance().Load();
+			Fixes::Preset::GetSingleton().Load();
 
 			JsonParser::EnumFiles();
 
-			Cache::Map::GetInstance().Load();
+			Cache::Map::GetSingleton().Load();
 
-			Camera::Player::GetInstance().Init();
+			Camera::Player::GetSingleton().Init();
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-			Aaf::Event::GetInstance().Hook();
+			Aaf::Event::GetSingleton().Hook();
 
-			InGame::HeightEdit::GetInstance().Register();
+			InGame::HeightEdit::GetSingleton().Register();
 #endif
 
-			Events::Dispatcher::GetInstance().Register();
+			Events::Dispatcher::GetSingleton().Register();
 
 			break;
 
 		case F4SEMessagingInterface::kMessage_PostSaveGame:
 
-			Cache::Map::GetInstance().Save();
+			Cache::Map::GetSingleton().Save();
 
 			break;
 		}

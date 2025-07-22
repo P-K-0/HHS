@@ -22,15 +22,15 @@ namespace Actors {
 		Utility& operator=(const Utility& util) noexcept;
 		Utility& operator=(Utility&& util) noexcept;
 
-		[[nodiscard]] const bool& IsFemale() const noexcept { return isFemale; }
-		[[nodiscard]] const bool& IsPlayer() const noexcept { return isPlayer; }
-		[[nodiscard]] const bool& IsEnabled() const noexcept { return isEnabled; }
-		[[nodiscard]] const bool& IsRaceCompatible() const noexcept { return isRaceCompatible; }
+		[[nodiscard]] bool IsFemale() const noexcept { return isFemale; }
+		[[nodiscard]] bool IsPlayer() const noexcept { return isPlayer; }
+		[[nodiscard]] bool IsEnabled() const noexcept { return isEnabled; }
+		[[nodiscard]] bool IsRaceCompatible() const noexcept { return isRaceCompatible; }
 
 		[[nodiscard]] Actor* GetActorPtr() noexcept { return actor; }
 		[[nodiscard]] std::uint32_t GetIDFromScriptKwrd() noexcept;
-		[[nodiscard]] float GetHeightFromMod(const std::uint32_t& slot) noexcept;
-		[[nodiscard]] float GetHeightFromWornItem(const std::uint32_t& slot = 0, const std::uint32_t& id = 0, const bool equipped = false) noexcept;
+		[[nodiscard]] float GetHeightFromMod(std::uint32_t slot) noexcept;
+		[[nodiscard]] float GetHeightFromWornItem(std::uint32_t slot = 0, std::uint32_t id = 0, bool equipped = false) noexcept;
 		[[nodiscard]] std::uint64_t GetHandle() noexcept;
 		[[nodiscard]] bool GetEquipData(const std::uint32_t& slot, std::uint32_t& id, std::string& filename) noexcept;
 		[[nodiscard]] TESObjectREFR* GetFurnitureReference() noexcept;

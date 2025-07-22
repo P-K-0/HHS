@@ -8,7 +8,7 @@
 
 namespace Events {
 
-	using _ActorMediator_ProcessEvent = void (*)(void*, BSAnimationGraphEvent*);
+	using _ActorMediator_ProcessEvent = void* (*)(void*, BSAnimationGraphEvent*, void*);
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
 #if CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
 	static RelocAddr<_ActorMediator_ProcessEvent> reloc_ActorMediator_ProcessEvent(0xE21090);
@@ -20,6 +20,7 @@ namespace Events {
 #else
 	static RelocAddr<_ActorMediator_ProcessEvent> reloc_ActorMediator_ProcessEvent(0xE752E0);
 #endif
+
 	static _ActorMediator_ProcessEvent o_ActorMediator_ProcessEvent;
 
 	class Dispatcher :
@@ -36,7 +37,10 @@ namespace Events {
 
 	public:
 
-		[[nodiscard]] static Dispatcher& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Dispatcher& GetSingleton() noexcept {
+			static Dispatcher instance;
+			return instance;
+		}
 
 		virtual void OnButtonEvent(ButtonEvent* inputEvent);
 
@@ -52,9 +56,9 @@ namespace Events {
 
 		void Register() noexcept;
 
-		void EnableAllInputs(const bool& value) noexcept { inputEnabled = value; }
+		void EnableAllInputs(bool value) noexcept { inputEnabled = value; }
 
-		[[nodiscard]] const bool& GetInputEnabled() const noexcept { return inputEnabled; }
+		[[nodiscard]] bool GetInputEnabled() const noexcept { return inputEnabled; }
 
 	private:
 
@@ -71,17 +75,17 @@ namespace Events {
 		void RegisterAnimationGraphEvent() noexcept;
 
 		template<typename Tevent>
-		void AddEvent() noexcept { GetEventDispatcher<Tevent>()->AddEventSink(std::addressof(instance)); }
+		void AddEvent() noexcept { GetEventDispatcher<Tevent>()->AddEventSink(this); }
 
-		static void AnimObjFirstPerson(TESObjectREFR* refr, const bool& stop) noexcept;
+		static void AnimObjFirstPerson(TESObjectREFR* refr, bool stop) noexcept;
 		static void SwimEvent(TESObjectREFR* refr, bool soundPlay) noexcept;
 
-		static void ProcessEvent(void*, BSAnimationGraphEvent*);
+		static void* ProcessEvent(void*, BSAnimationGraphEvent*, void*);
 
 		template<typename T>
 		void LoadEvent(T t) noexcept
 		{
-			hhs::Map::GetInstance().visit(false, t, [&](hhs::System& sys) {
+			hhs::Map::GetSingleton().visit(hhs::VisitFlags::None, t, [&](hhs::System& sys) {
 
 				auto actor = sys.GetActorPtr();
 
@@ -95,7 +99,7 @@ namespace Events {
 
 				auto furniture = sys.GetActorUtil().GetFurnitureReference();
 
-				if (Settings::Ini::GetInstance().CheckFurnitureBehavior(furniture)) {
+				if (Settings::Ini::GetSingleton().CheckFurnitureBehavior(furniture)) {
 					return hhs::Error::Success;
 				}
 
@@ -115,7 +119,5 @@ namespace Events {
 		}
 
 		bool inputEnabled{ true };
-
-		static Dispatcher instance;
 	};
 }

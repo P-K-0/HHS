@@ -12,25 +12,25 @@ namespace Text {
 		std::smatch matches;
 
 		if (!std::regex_search(str, matches, reg)) {
-			return InvalidValue;
+			return ZeroValue;
 		}
 
 		try {
 
 			if (_strcmpi(matches[2].str().c_str(), "height") != 0) {
-				return InvalidValue;
+				return ZeroValue;
 			}
 
 			return std::stof(matches[5].str());
 		}
 		catch (...) {}
 
-		return InvalidValue;
+		return ZeroValue;
 	}
 
 	std::string GetTextFile(const std::string& Filename, const bool& dirF4SE) noexcept
 	{
-		boost::filesystem::path path{ Filename };
+		std::filesystem::path path{ Filename };
 
 		path.replace_extension(".txt");
 
@@ -43,17 +43,17 @@ namespace Text {
 
 	float GetHeightFromText(const std::string& filename) noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bEnableTextFile()) {
-			return InvalidValue;
+		if (!Settings::Ini::GetSingleton().Get_bEnableTextFile()) {
+			return ZeroValue;
 		}
 
 		std::vector<std::string> files{ GetTextFile(filename, false), GetTextFile(filename, true) };
 
 		std::string str;
 
-		float height{ MinValue };
+		float height{ ZeroValue };
 
-		for (std::size_t i{}; i < files.size() && height <= MinValue; ++i) {
+		for (std::size_t i{}; i < files.size() && height == ZeroValue; ++i) {
 
 			File::Reader reader{ files[i] };
 
@@ -62,22 +62,26 @@ namespace Text {
 			}
 		}
 
-		return height > MinValue ? height : InvalidValue;
+		return std::clamp(height, MinValue, MaxValue);
 	}
 
-	bool CreateHeightFile(const std::string& Filename, const float value) noexcept
+	bool CreateHeightFile(const std::string& Filename, float value) noexcept
 	{
-		std::string file{ GetTextFile(Filename, Settings::Ini::GetInstance().Get_iDirF4SE()) };
+		if (value == ZeroValue) {
+			return false;
+		}
 
-		boost::filesystem::path path{ file };
+		std::string file{ GetTextFile(Filename, Settings::Ini::GetSingleton().Get_iDirF4SE()) };
+
+		std::filesystem::path path{ file };
 
 		path.remove_filename();
 
-		boost::filesystem::create_directories(path);
+		std::filesystem::create_directories(path);
 
 		std::ofstream ofs{ DirData.data() + file };
 
-		if (!ofs || value <= MinValue) {
+		if (!ofs) {
 			return false;
 		}
 
@@ -95,7 +99,7 @@ namespace Text {
 		std::vector<std::string> files{ GetTextFile(Filename, false), GetTextFile(Filename, true) };
 
 		for (auto& file : files) {
-			ret |= boost::filesystem::remove(DirData.data() + file);
+			ret |= std::filesystem::remove(DirData.data() + file);
 		}
 
 		return ret;

@@ -14,13 +14,13 @@ namespace Camera {
 	{
 		auto val{ value };
 
-		if (Settings::Ini::GetInstance().Get_bEnableCustomCameraPatch() && name) {
+		if (Settings::Ini::GetSingleton().Get_bEnableCustomCameraPatch() && name) {
 
 			for (auto& stgCamera : Camera3rdSettings) {
 
 				if (_strcmpi(name->c_str(), stgCamera.first.c_str()) == 0) {
 
-					hhs::Map::GetInstance().visit(true, PlayerID, [&](hhs::System& sys) {
+					hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, PlayerID, [&](hhs::System& sys) {
 
 						stgCamera.second = val;
 
@@ -133,17 +133,17 @@ namespace Camera {
 		return isCameraNodeAnimations;
 	}
 
-	void Player::SetCameraHeight(Actor* actor, const float height) noexcept
+	void Player::SetCameraHeight(Actor* actor, float height) noexcept
 	{
 		if (!actor || actor != (*g_player) || !isCameraNodeAnimations) {
 			return;
 		}
 
-		auto& settings = Settings::Ini::GetInstance();
+		auto& settings = Settings::Ini::GetSingleton();
 
-		float h{ settings.Get_bEnableDynamicCamera() ? height : MinValue };
-		float h1st{ settings.Get_bEnable1stCamera() ? h : MinValue };
-		float h3rd{ settings.Get_bEnable3rdCamera() ? h : MinValue };
+		float h{ settings.Get_bEnableDynamicCamera() ? height : ZeroValue };
+		float h1st{ settings.Get_bEnable1stCamera() ? h : ZeroValue };
+		float h3rd{ settings.Get_bEnable3rdCamera() ? h : ZeroValue };
 
 		if (height1st == h1st && height3rd == h3rd) {
 			return;
@@ -152,7 +152,7 @@ namespace Camera {
 		height1st = h1st;
 		height3rd = h3rd;
 
-		if (h1st > MinValue) {
+		if (h1st != ZeroValue) {
 
 			Camera1st.SetTransform(ComOverride, Node::Flags::PosZ, h1st);
 		}
@@ -166,7 +166,7 @@ namespace Camera {
 			auto setting = GetINISetting(cam.first.c_str());
 
 			if (setting) {
-				setting->SetDouble(h3rd > MinValue ? cam.second + h3rd : cam.second);
+				setting->SetDouble(h3rd != ZeroValue ? cam.second + h3rd : cam.second);
 			}
 		}
 
@@ -185,7 +185,7 @@ namespace Camera {
 		return;
 	}
 
-	const std::int32_t Player::GetCameraState() const noexcept
+	std::int32_t Player::GetCameraState() const noexcept
 	{
 		auto playerCamera = (*g_playerCamera);
 
@@ -201,6 +201,4 @@ namespace Camera {
 
 		return -1;
 	}
-
-	Player Player::instance;
 }

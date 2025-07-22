@@ -8,7 +8,7 @@ namespace Papyrus {
 
 	inline void Notification(const std::string& message) noexcept { CallGlobalFunctionNoWait1("Debug", "Notification", BSFixedString(message.c_str())); }
 
-	inline void Notification(const std::string& message, const std::uint32_t& id) noexcept 
+	inline void Notification(const std::string& message, std::uint32_t id) noexcept 
 	{ 
 		std::stringstream ss;
 

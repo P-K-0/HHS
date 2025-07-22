@@ -25,16 +25,19 @@ namespace Camera {
 
 	public:
 
-		[[nodiscard]] static Player& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Player& GetSingleton() noexcept {
+			static Player instance;
+			return instance;
+		}
 
 		[[nodiscard]] bool IsCameraNodeAnimations() noexcept;
 		void SetApplyCameraNodeAnimations(bool value) noexcept;
 
 		void Init() noexcept;
-		void SetCameraHeight(Actor* akActor, const float height = MinValue) noexcept; 
+		void SetCameraHeight(Actor* akActor, float height = ZeroValue) noexcept; 
 		void ResetCameraSettings() noexcept;
 
-		[[nodiscard]] const std::int32_t GetCameraState() const noexcept;
+		[[nodiscard]] std::int32_t GetCameraState() const noexcept;
 
 	private:
 
@@ -51,8 +54,8 @@ namespace Camera {
 
 		bool isCameraNodeAnimations{};
 
-		float height1st{ MinValue };
-		float height3rd{ MinValue };
+		float height1st{ ZeroValue };
+		float height3rd{ ZeroValue };
 
 		void Hook() noexcept;
 
@@ -61,7 +64,5 @@ namespace Camera {
 		static void SetIniFloat(VirtualMachine*, std::uint64_t, void*, BSFixedString*, float);
 
 		[[nodiscard]] bool Get3rdCameraHeight() noexcept;
-
-		static Player instance;
 	};
 }

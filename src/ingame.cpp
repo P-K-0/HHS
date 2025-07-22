@@ -54,16 +54,16 @@ namespace InGame {
 			return;
 		}
 
-		(*g_viewCasterUpdateDispatcher)->eventDispatcher.AddEventSink(std::addressof(instance));
+		(*g_viewCasterUpdateDispatcher)->eventDispatcher.AddEventSink(this);
 
 		registered = true;
 	}
 
-	bool HeightEdit::Process(const Key& key) noexcept
+	bool HeightEdit::Process(Key key) noexcept
 	{
-		auto& cache = Cache::Map::GetInstance();
+		auto& cache = Cache::Map::GetSingleton();
 
-		auto& settings = Settings::Ini::GetInstance();
+		auto& settings = Settings::Ini::GetSingleton();
 
 		std::string filename;
 		std::uint32_t id{};
@@ -76,7 +76,7 @@ namespace InGame {
 			refID = GetFormIDByHandle(handle);
 		}
 
-		hhs::Error err = hhs::Map::GetInstance().visit(false, refID, [&](hhs::System& sys) {
+		hhs::Error err = hhs::Map::GetSingleton().visit(hhs::VisitFlags::None, refID, [&](hhs::System& sys) {
 
 			if (!sys.GetActorUtil().GetEquipData(settings.Get_iSlot(), id, filename)) {
 				return hhs::Error::Unknown;
@@ -122,7 +122,7 @@ namespace InGame {
 
 	bool HeightEdit::Test() noexcept
 	{
-		auto& lang = Translations::Lang::GetInstance();
+		auto& lang = Translations::Lang::GetSingleton();
 
 		if (!Process(Key::Test)) {
 
@@ -138,7 +138,7 @@ namespace InGame {
 
 	bool HeightEdit::Create() noexcept
 	{
-		auto& lang = Translations::Lang::GetInstance();
+		auto& lang = Translations::Lang::GetSingleton();
 
 		if (!Process(Key::Create)) {
 
@@ -154,7 +154,7 @@ namespace InGame {
 
 	bool HeightEdit::Delete() noexcept
 	{
-		auto& lang = Translations::Lang::GetInstance();
+		auto& lang = Translations::Lang::GetSingleton();
 
 		if (!Process(Key::Delete)) {
 
@@ -170,7 +170,7 @@ namespace InGame {
 
 	void HeightEdit::OnKeyPress(const Key& key) noexcept
 	{
-		auto& lang = Translations::Lang::GetInstance();
+		auto& lang = Translations::Lang::GetSingleton();
 
 		if (key == Key::Activate) {
 
@@ -196,7 +196,7 @@ namespace InGame {
 		case Key::ChangeReference: 
 
 			{
-				auto& settings = Settings::Ini::GetInstance();
+				auto& settings = Settings::Ini::GetSingleton();
 
 				if (settings.Get_iReference() == Settings::Reference::Player) {
 
@@ -216,7 +216,7 @@ namespace InGame {
 
 	void HeightEdit::IncHeight() noexcept
 	{
-		auto& settings = Settings::Ini::GetInstance();
+		auto& settings = Settings::Ini::GetSingleton();
 
 		settings.Set_fHeight(settings.Get_fHeight() + settings.Get_fStep());
 
@@ -225,45 +225,61 @@ namespace InGame {
 
 	void HeightEdit::DecHeight() noexcept
 	{
-		auto& settings = Settings::Ini::GetInstance();
+		auto& settings = Settings::Ini::GetSingleton();
 
 		settings.Set_fHeight(settings.Get_fHeight() - settings.Get_fStep());
 
 		Process(Key::Test);
 	}
 
-	void HeightEdit::ShowError(const hhs::Error& error) noexcept
+	void HeightEdit::ShowError(hhs::Error error) noexcept
 	{
 		if (error == hhs::Error::Success) {
 			return;
 		}
 
-		auto& lang = Translations::Lang::GetInstance();
+		auto& lang = Translations::Lang::GetSingleton();
 		
 		switch (error) {
 
-		case hhs::Error::Unknown: Papyrus::Message_Box(lang[Translations::LangID::ErrorUnknown]); break;
+		case hhs::Error::Unknown:
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorUnknown]); 
+			break;
 
-		case hhs::Error::ComOverride: Papyrus::Message_Box(lang[Translations::LangID::ErrorComOverride]); break;
+		case hhs::Error::ComOverride: 
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorComOverride]);
+			break;
 
-		case hhs::Error::Runtime: Papyrus::Message_Box(lang[Translations::LangID::ErrorRuntime]); break;
+		case hhs::Error::Runtime:
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorRuntime]);
+			break;
 
-		case hhs::Error::ActorDisabled: Papyrus::Message_Box(lang[Translations::LangID::ErrorActorDisabled]); break;
+		case hhs::Error::ActorDisabled:
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorActorDisabled]);
+			break;
 
-		case hhs::Error::Override: Papyrus::Message_Box(lang[Translations::LangID::ErrorOverride]); break;
+		case hhs::Error::Override:
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorOverride]);
+			break;
 
-		case hhs::Error::SetHeight: Papyrus::Message_Box(lang[Translations::LangID::ErrorSetHeight]); break;
+		case hhs::Error::SetHeight:
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorSetHeight]);
+			break;
 
-		case hhs::Error::Race: Papyrus::Message_Box(lang[Translations::LangID::ErrorRace]); break;
+		case hhs::Error::Race: 
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorRace]);
+			break;
 
-		case hhs::Error::HeightTxt: Papyrus::Message_Box(lang[Translations::LangID::ErrorHeightTxt]); break;
+		case hhs::Error::HeightTxt: 
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorHeightTxt]);
+			break;
 
-		case hhs::Error::Arguments: Papyrus::Message_Box(lang[Translations::LangID::ErrorArguments]); break;
+		case hhs::Error::Arguments: 
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorArguments]); 
+			break;
 
 		}
 	}
-
-	HeightEdit HeightEdit::instance;
 }
 
 #endif

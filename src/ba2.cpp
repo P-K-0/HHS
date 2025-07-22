@@ -14,6 +14,7 @@ namespace BA2 {
 			switch (Magic[1]) {
 
 			case Version1:
+			case Version7:
 			case Version8:
 
 				SetNextAddr(ifs);

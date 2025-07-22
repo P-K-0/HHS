@@ -10,25 +10,25 @@
 
 namespace JsonParser {
 
-	void EnumFiles(const std::string& directory, std_boost::set& files) noexcept
+	void EnumFiles(const std::string& directory, std_lib::set& files) noexcept
 	{
-		boost::filesystem::path path{ DirData.data() + directory };
+		std::filesystem::path path{ DirData.data() + directory };
 
-		if (!boost::filesystem::exists(path)) {
+		if (!std::filesystem::exists(path)) {
 			return;
 		}
 
 		try {
 
-			for (auto& it : boost::filesystem::directory_iterator{ path }) {
+			for (auto& it : std::filesystem::directory_iterator{ path }) {
 
-				if (boost::filesystem::is_regular_file(it) &&
+				if (std::filesystem::is_regular_file(it) &&
 					_strcmpi(it.path().extension().string().c_str(), ".json") == 0) {
 					files.insert(directory + it.path().filename().string());
 				}
 			}
 		}
-		catch (boost::filesystem::filesystem_error& err) {
+		catch (std::filesystem::filesystem_error& err) {
 
 			_DMESSAGE("%s", err.what());
 		}
@@ -38,21 +38,21 @@ namespace JsonParser {
 		}
 	}
 
-	void EnumFilesBA2(const std::string& directory, std_boost::set& files) noexcept
+	void EnumFilesBA2(const std::string& directory, std_lib::set& files) noexcept
 	{
-		if (Settings::Ini::GetInstance().Get_bAltRead()) {
+		if (Settings::Ini::GetSingleton().Get_bAltRead()) {
 			return;
 		}
 
-		boost::filesystem::path path{ DirData.data() };
+		std::filesystem::path path{ DirData.data() };
 
-		if (!boost::filesystem::exists(path)) {
+		if (!std::filesystem::exists(path)) {
 			return;
 		}
 
-		for (auto& dir : boost::filesystem::directory_iterator{ path }) {
+		for (auto& dir : std::filesystem::directory_iterator{ path }) {
 
-			if (boost::filesystem::is_regular_file(dir) &&
+			if (std::filesystem::is_regular_file(dir) &&
 				_strcmpi(dir.path().extension().string().c_str(), ".ba2") == 0) {
 
 				BA2::Reader reader{ dir.path().string() };
@@ -63,9 +63,9 @@ namespace JsonParser {
 
 					for (auto& tbl : reader.GetStringsTable()) {
 
-						boost::filesystem::path file{ tbl.GetFilename() };
+						std::filesystem::path file{ tbl.GetFilename() };
 
-						std::string parent_path = file.branch_path().lexically_normal().string() + "\\";
+						std::string parent_path = file.lexically_normal().string() + "\\";
 
 						if (_strcmpi(directory.c_str(), parent_path.c_str()) == 0 && _strcmpi(file.extension().string().c_str(), ".json") == 0) {
 							files.insert(file.string());
@@ -174,7 +174,7 @@ namespace JsonParser {
 			return false;
 		}
 
-		auto& cache = Cache::Map::GetInstance();
+		auto& cache = Cache::Map::GetSingleton();
 
 		for (auto& member : root.getMemberNames()) {
 
@@ -212,11 +212,11 @@ namespace JsonParser {
 
 	void EnumFiles() noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bEnableJsonFile()) {
+		if (!Settings::Ini::GetSingleton().Get_bEnableJsonFile()) {
 			return;
 		}
 
-		std_boost::set files;
+		std_lib::set files;
 
 		EnumFiles(DirF4SE.data(), files);
 

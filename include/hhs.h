@@ -27,7 +27,7 @@ namespace hhs {
 	};
 
 	template<typename RetT = int>
-	[[nodiscard]] inline constexpr RetT cast_error(const Error& err) noexcept { return static_cast<RetT>(err); }
+	[[nodiscard]] inline constexpr RetT cast_error(Error err) noexcept { return static_cast<RetT>(err); }
 
 	class System : 
 		public Node::Transform {
@@ -43,33 +43,24 @@ namespace hhs {
 		System() noexcept {}
 		~System() noexcept {}
 
-		[[nodiscard]] Error SetHeight(const float& Height) noexcept;
-		[[nodiscard]] Error SetHeight(const std::uint32_t& slot = 0, const std::uint32_t& id = 0, const bool equipped = false) noexcept;
-
+		[[nodiscard]] Error SetHeight(float Height) noexcept;
+		[[nodiscard]] Error SetHeight(std::uint32_t slot = 0, std::uint32_t id = 0, bool equipped = false) noexcept;
 		[[nodiscard]] Error ResetHeight() noexcept;
-
 		[[nodiscard]] Error Start() noexcept;
-		[[nodiscard]] Error Stop(const bool& stopAAF = false) noexcept;
-
-		[[nodiscard]] Error Swim(const bool& swim) noexcept;
-
-		void SetActorUtil(Actors::Utility& utility) noexcept;
-		void SetOverride(const bool& value) noexcept { hasOverride = value; }
-
-		[[nodiscard]] const float& GetHeight() const noexcept { return height; }
-		
-		[[nodiscard]] const bool& HasOverride() const noexcept { return hasOverride; }
-		[[nodiscard]] const bool HasHeight() const noexcept { return height > MinValue; }
-
-		[[nodiscard]] const bool& IsAAF() const noexcept { return isAAF; }
-		[[nodiscard]] const bool& IsStop() const noexcept { return isStop; }
-		[[nodiscard]] const bool& IsSwimming() const noexcept { return isSwimming; }
-		[[nodiscard]] const bool& IsSkip() const noexcept { return skip; }
-
-		void Skip(const bool& skip) noexcept { this->skip = skip; }
-
+		[[nodiscard]] Error Stop(bool stopAAF = false) noexcept;
+		[[nodiscard]] Error Swim(bool swim) noexcept;
+		[[nodiscard]] float GetHeight() const noexcept { return height; }
+		[[nodiscard]] bool HasOverride() const noexcept { return hasOverride; }
+		[[nodiscard]] bool HasHeight() const noexcept { return height != ZeroValue; }
+		[[nodiscard]] bool IsAAF() const noexcept { return isAAF; }
+		[[nodiscard]] bool IsStop() const noexcept { return isStop; }
+		[[nodiscard]] bool IsSwimming() const noexcept { return isSwimming; }
+		[[nodiscard]] bool IsSkip() const noexcept { return skip; }
 		[[nodiscard]] Actors::Utility& GetActorUtil() noexcept { return util; }
 
+		void SetActorUtil(Actors::Utility& utility) noexcept;
+		void SetOverride(bool value) noexcept { hasOverride = value; }
+		void Skip(bool skip) noexcept { this->skip = skip; }
 		void EnableFix(TESObjectREFR* furniture) noexcept;
 		void DisableFix() noexcept;
 
@@ -86,18 +77,27 @@ namespace hhs {
 		Actors::Utility util;
 	};
 
+	enum class VisitFlags : std::uint32_t {
+
+		None = 0,
+		Override
+	};
+
 	class Map {
 
 	public:
 
-		using iterator = std::unordered_map<std::uint64_t, System>::iterator;
-
-		[[nodiscard]] static Map& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Map& GetSingleton() noexcept {
+			static Map instance;
+			return instance;
+		}
 
 		template<typename T, typename Fn = std::function<Error(System&)>>
-		[[nodiscard]] Error visit(const bool& bOverride, T t, Fn fn) noexcept
+		[[nodiscard]] Error visit(VisitFlags flags, T t, Fn fn) noexcept
 		{
-			if (!f4se::Plugin::GetInstance().IsRuntimeValid()) {
+			std::lock_guard<std::mutex> lock(mutex);
+
+			if (!f4se::Plugin::GetSingleton().IsRuntimeValid()) {
 				return Error::Runtime;
 			}
 
@@ -123,7 +123,7 @@ namespace hhs {
 	
 				it->second.SetActorUtil(util);
 				
-				if (it->second.HasOverride() && !bOverride) {
+				if (it->second.HasOverride() && flags == VisitFlags::None) {
 					return Error::Override;
 				}
 
@@ -137,8 +137,15 @@ namespace hhs {
 			return fn(m);
 		}
 
-		[[nodiscard]] iterator begin() noexcept { return map.begin(); }
-		[[nodiscard]] iterator end() noexcept { return map.end(); }
+		template<typename Fn = std::function<void(System&)>>
+		void visit_all(Fn fn) noexcept
+		{
+			std::lock_guard<std::mutex> lock(mutex);
+
+			for (auto& m : map) {
+				fn(m.second);
+			}
+		}
 
 	private:
 
@@ -152,7 +159,7 @@ namespace hhs {
 		~Map() noexcept {}
 
 		std::unordered_map<std::uint64_t, System> map;
-
-		static Map instance;
+	
+		std::mutex mutex;
 	};
 }

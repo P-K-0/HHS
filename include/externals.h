@@ -10,9 +10,9 @@ constexpr auto DirF4SE = "f4se\\plugins\\hhs\\"_sv;
 
 constexpr std::uint32_t PlayerID = 0x14;
 
-constexpr float MinValue = 0.0f;
+constexpr float MinValue = -1000.0f;
 constexpr float MaxValue = 1000.0f;
-constexpr float InvalidValue = MinValue - 1.0f;
+constexpr float ZeroValue = 0.0f;
 
 constexpr std::uint32_t InvalidSlot = 0;
 constexpr std::uint32_t ReservedSlots = 12;
@@ -54,7 +54,7 @@ public:
 		created = true;
 	}
 
-	[[nodiscard]] const bool& IsCreated() const noexcept { return created; }
+	[[nodiscard]] bool IsCreated() const noexcept { return created; }
 
 	void PrintSpaceLeft() noexcept
 	{
@@ -105,8 +105,9 @@ void VisitCell(Func func)
 {
 	auto frm = LookupFormByID(PlayerID);
 
-	if (!frm)
+	if (!frm) {
 		return;
+	}
 
 	auto actor = DYNAMIC_CAST(frm, TESForm, Actor);
 
@@ -117,10 +118,9 @@ void VisitCell(Func func)
 	
 		auto refr = actor->parentCell->objectList[index];
 
-		if (!refr)
-			continue;
-
-		func(refr);
+		if (refr) {
+			func(refr);
+		}
 	}
 }
 
@@ -129,8 +129,9 @@ void VisitMods(Func func)
 {
 	auto data = (*g_dataHandler);
 
-	if (!data)
+	if (!data) {
 		return;
+	}
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
 
@@ -142,8 +143,9 @@ void VisitMods(Func func)
 
 			auto modinfo{ itype == 0 ? data->modList.loadedMods[imods] : data->modList.lightMods[imods] };
 
-			if (modinfo && func(modinfo))
+			if (modinfo && func(modinfo)) {
 				return;
+			}
 		}
 	}
 
@@ -155,8 +157,9 @@ void VisitMods(Func func)
 
 		auto modinfo = data->modList.loadedMods[imods];
 
-		if (modinfo && func(modinfo))
+		if (modinfo && func(modinfo)) {
 			return;
+		}
 	}
 
 #endif

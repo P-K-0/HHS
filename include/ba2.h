@@ -42,7 +42,7 @@ namespace BA2 {
 
 		void SetAddr(const std::uint64_t addr) noexcept { next_addr = addr; }
 		void SetNextAddr(std::ifstream& ifs) noexcept { isValid = true; next_addr = ifs.tellg(); }
-		[[nodiscard]] const std::uint64_t& GetNextAddr() const noexcept { return next_addr; }
+		[[nodiscard]] std::uint64_t GetNextAddr() const noexcept { return next_addr; }
 
 	protected:
 
@@ -58,14 +58,15 @@ namespace BA2 {
 		static const std::uint32_t Btdx_Hdr = 0x58445442;
 
 		static const std::uint32_t Version1 = 0x01;
+		static const std::uint32_t Version7 = 0x07;
 		static const std::uint32_t Version8 = 0x08;
 
 	public:
 
-		[[nodiscard]] const Type& GetType() const noexcept { return type; }
-		[[nodiscard]] const std::uint32_t& GetCountFiles() const noexcept { return CountFiles; }
-		[[nodiscard]] const std::uint64_t& GetAddrEntry() const noexcept { return Address_Entry; }
-		[[nodiscard]] const std::uint64_t& GetAddrStringTable() const noexcept { return AddrStringTable; }
+		[[nodiscard]] Type GetType() const noexcept { return type; }
+		[[nodiscard]] std::uint32_t GetCountFiles() const noexcept { return CountFiles; }
+		[[nodiscard]] std::uint64_t GetAddrEntry() const noexcept { return Address_Entry; }
+		[[nodiscard]] std::uint64_t GetAddrStringTable() const noexcept { return AddrStringTable; }
 
 		void Read(std::ifstream& ifs, std::uint64_t addr) noexcept override;
 
@@ -86,9 +87,9 @@ namespace BA2 {
 
 		using Base::Base;
 
-		[[nodiscard]] const std::uint64_t& GetFileAddr() const noexcept { return AddrFile; }
-		[[nodiscard]] const std::uint32_t& GetSizeComp() const noexcept { return SizeComp; }
-		[[nodiscard]] const std::uint32_t& GetSizeUncomp() const noexcept { return SizeUnComp; }
+		[[nodiscard]] std::uint64_t GetFileAddr() const noexcept { return AddrFile; }
+		[[nodiscard]] std::uint32_t GetSizeComp() const noexcept { return SizeComp; }
+		[[nodiscard]] std::uint32_t GetSizeUncomp() const noexcept { return SizeUnComp; }
 
 		void Read(std::ifstream& ifs, std::uint64_t addr) noexcept override;
 
@@ -137,7 +138,7 @@ namespace BA2 {
 		void Close() noexcept { ifs_ba2.close(); }
 
 		[[nodiscard]] Header& GetHeader() noexcept { return hdr; }
-		[[nodiscard]] const Error& GetError() const noexcept { return err; }
+		[[nodiscard]] Error GetError() const noexcept { return err; }
 
 		[[nodiscard]] Entries& GetEntries() noexcept { return entries; }
 		[[nodiscard]] StringsTable& GetStringsTable() noexcept { return strsTbl; }

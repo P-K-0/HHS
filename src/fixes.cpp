@@ -44,8 +44,9 @@ namespace Fixes {
 
 	bool Preset::FindKeyword(const std::string& sKeyword, Json::Value& value) noexcept
 	{
-		if (root.empty())
+		if (root.empty()) {
 			return false;
+		}
 
 		auto members = root.getMemberNames();
 
@@ -75,6 +76,4 @@ namespace Fixes {
 
 		return Node::Flags::PosX;
 	}
-
-	Preset Preset::instance;
 }

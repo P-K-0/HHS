@@ -8,7 +8,7 @@ namespace f4se {
 
 	public:
 
-		[[nodiscard]] static Plugin& GetInstance() noexcept
+		[[nodiscard]] static Plugin& GetSingleton() noexcept
 		{
 			static Plugin instance;
 			return instance;
@@ -21,7 +21,7 @@ namespace f4se {
 
 		[[nodiscard]] const F4SEPapyrusInterface& GetPapyrusInterface() noexcept { return *f4se_papyrus_interface; }
 
-		[[nodiscard]] const bool IsRuntimeValid() const noexcept { return isValid; }
+		[[nodiscard]] bool IsRuntimeValid() const noexcept { return isValid; }
 
 	private:
 

@@ -70,22 +70,22 @@ namespace Settings {
 	constexpr std::uint32_t Default_ReadBufferLen = 131072;
 
 	template<typename T>
-	inline [[nodiscard]] Gender gender_cast(const T value) noexcept {
+	inline [[nodiscard]] Gender gender_cast(T value) noexcept {
 		return std::clamp(static_cast<Gender>(value), Gender::BothGender, Gender::Male);
 	}
 
 	template<typename T>
-	inline [[nodiscard]] Furniture furniture_cast(const T value) noexcept {
+	inline [[nodiscard]] Furniture furniture_cast(T value) noexcept {
 		return std::clamp(static_cast<Furniture>(value), Furniture::Disabled, Furniture::Enable);
 	}
 
 	template<typename T>
-	inline [[nodiscard]] Race race_cast(const T value) noexcept	{
+	inline [[nodiscard]] Race race_cast(T value) noexcept	{
 		return std::clamp(static_cast<Race>(value), Race::AllRaces, Race::FromIDAndSkeleton);
 	}
 
 	template<typename T>
-	inline [[nodiscard]] Reference reference_cast(const T value) noexcept {
+	inline [[nodiscard]] Reference reference_cast(T value) noexcept {
 		return std::clamp(static_cast<Reference>(value), Reference::Player, Reference::CrossHair);
 	}
 
@@ -95,13 +95,16 @@ namespace Settings {
 
 		using Slots = std::vector<bool>;
 
-		[[nodiscard]] static Ini& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Ini& GetSingleton() noexcept {
+			static Ini instance;
+			return instance;
+		}
 
 		[[nodiscard]] const Slots& GetSlots() const { return bEnableSlot; }
 
 #define DECL_FN_GET_SET(t, v) \
-		[[nodiscard]] const t& Get_ ## v () const noexcept { return v; } \
-		void Set_ ## v (const t value) noexcept { v = value; } 
+		[[nodiscard]] t Get_ ## v () const noexcept { return v; } \
+		void Set_ ## v (t value) noexcept { v = value; } 
 		
 		DECL_FN_GET_SET(bool, bEnablePlayer);
 		DECL_FN_GET_SET(bool, bEnableNPCs);
@@ -136,8 +139,8 @@ namespace Settings {
 
 		DECL_FN_GET_SET(Furniture, iBehaviorFurniture);
 
-		void Set_bEnableSlot(const std::uint32_t& index, const bool& value) noexcept;
-		[[nodiscard]] const Slots& Get_bEnableSlot() noexcept { return bEnableSlot; }
+		void Set_bEnableSlot(std::uint32_t index, bool value) noexcept;
+		[[nodiscard]] Slots Get_bEnableSlot() const noexcept { return bEnableSlot; }
 		void SetSlotFlags() noexcept;
 
 		DECL_FN_GET_SET(std::uint32_t, uSlotFlags);
@@ -158,8 +161,8 @@ namespace Settings {
 		DECL_FN_GET_SET(float, fStep);
 		DECL_FN_GET_SET(Reference, iReference);
 
-		[[nodiscard]] const std::uint32_t& Get_iSlot() const noexcept { return iSlot; }
-		void Set_iSlot(const std::uint32_t value) noexcept { iSlot = std::clamp(value, MinSlot, MaxSlot); }
+		[[nodiscard]] std::uint32_t Get_iSlot() const noexcept { return iSlot; }
+		void Set_iSlot(std::uint32_t value) noexcept { iSlot = std::clamp(value, MinSlot, MaxSlot); }
 
 		DECL_FN_GET_SET(bool, iDirF4SE);
 
@@ -246,7 +249,5 @@ namespace Settings {
 		std::uint32_t iKeyDeleteHeight{};
 		std::uint32_t iKeyIncrementHeight{};
 		std::uint32_t iKeyDecrementHeight{};
-
-		static Ini instance;
 	};
 }

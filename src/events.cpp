@@ -17,11 +17,11 @@ namespace Events {
 			return;
 		}
 
-		auto& settings = Settings::Ini::GetInstance();
+		auto& settings = Settings::Ini::GetSingleton();
 
 		if (keycode == settings.Get_iKeyStartStopPlayer()) {
 
-			hhs::Map::GetInstance().visit(true, PlayerID, [&](hhs::System& sys) {
+			hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, PlayerID, [&](hhs::System& sys) {
 
 				if (sys.IsStop()) {
 					return sys.Start();
@@ -35,7 +35,7 @@ namespace Events {
 
 			VisitCell([&](TESObjectREFR* refr) {
 
-				hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
+				hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, refr, [&](hhs::System& sys) {
 
 					if (sys.IsStop()) {
 						return sys.Start();
@@ -48,7 +48,7 @@ namespace Events {
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
 
-		auto& ingame = InGame::HeightEdit::GetInstance();
+		auto& ingame = InGame::HeightEdit::GetSingleton();
 
 		if (keycode == settings.Get_iKeyActivateEdit()) {
 			ingame.OnKeyPress(InGame::Key::Activate);
@@ -83,7 +83,7 @@ namespace Events {
 			return kEvent_Continue;
 		}
 
-		hhs::Map::GetInstance().visit(false, evn->actor, [&](hhs::System& sys) {
+		hhs::Map::GetSingleton().visit(hhs::VisitFlags::None, evn->actor, [&](hhs::System& sys) {
 
 			if (!sys.HasHeight()) {
 				return hhs::Error::Success;
@@ -96,7 +96,7 @@ namespace Events {
 				return sys.SetHeight();
 			}
 			
-			if (Settings::Ini::GetInstance().CheckFurnitureBehavior(evn->furniture)) {
+			if (Settings::Ini::GetSingleton().CheckFurnitureBehavior(evn->furniture)) {
 				return hhs::Error::Success;
 			}
 
@@ -116,7 +116,7 @@ namespace Events {
 			return kEvent_Continue;
 		}
 
-		hhs::Map::GetInstance().visit(false, evn->source, [&](hhs::System& sys) {
+		hhs::Map::GetSingleton().visit(hhs::VisitFlags::None, evn->source, [&](hhs::System& sys) {
 			return sys.ResetHeight();
 		});
 
@@ -131,13 +131,13 @@ namespace Events {
 
 		std::uint32_t slot{ Actors::GetSlotMaskByID(evn->ObjectID) };
 
-		if ((slot & Settings::Ini::GetInstance().Get_uSlotFlags()) == InvalidSlot) {
+		if ((slot & Settings::Ini::GetSingleton().Get_uSlotFlags()) == InvalidSlot) {
 			return kEvent_Continue;
 		}
 
 		bool isEquipped{ static_cast<bool>(evn->equipped) };
 
-		hhs::Map::GetInstance().visit(true, evn->source, [&](hhs::System& sys) {
+		hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, evn->source, [&](hhs::System& sys) {
 
 			auto actor = sys.GetActorPtr();
 
@@ -165,7 +165,7 @@ namespace Events {
 			return kEvent_Continue;
 		}
 
-		hhs::Map::GetInstance().visit(false, evn->source, [&](hhs::System& sys) {
+		hhs::Map::GetSingleton().visit(hhs::VisitFlags::None, evn->source, [&](hhs::System& sys) {
 
 			auto actor = sys.GetActorPtr();
 
@@ -212,7 +212,7 @@ namespace Events {
 			return kEvent_Continue;
 		}
 
-		hhs::Map::GetInstance().visit(false, evn->source, [&](hhs::System& sys) {
+		hhs::Map::GetSingleton().visit(hhs::VisitFlags::None, evn->source, [&](hhs::System& sys) {
 
 			auto actor = sys.GetActorPtr();
 
@@ -248,21 +248,21 @@ namespace Events {
 		return kEvent_Continue;
 	}
 
-	void Dispatcher::AnimObjFirstPerson(TESObjectREFR* refr, const bool& stop) noexcept
+	void Dispatcher::AnimObjFirstPerson(TESObjectREFR* refr, bool stop) noexcept
 	{
 		if (refr != *g_player) {
 			return;
 		}
 
-		if (!Settings::Ini::GetInstance().Get_bEnableFirstPersonAnim()) {
+		if (!Settings::Ini::GetSingleton().Get_bEnableFirstPersonAnim()) {
 			return;
 		}
 
-		if (Camera::Player::GetInstance().GetCameraState() != PlayerCamera::kCameraState_FirstPerson) {
+		if (Camera::Player::GetSingleton().GetCameraState() != PlayerCamera::kCameraState_FirstPerson) {
 			return;
 		}
 
-		hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
+		hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, refr, [&](hhs::System& sys) {
 
 			auto actor = sys.GetActorPtr();
 
@@ -289,11 +289,11 @@ namespace Events {
 
 	void Dispatcher::SwimEvent(TESObjectREFR* refr, bool soundPlay) noexcept
 	{
-		if (!Settings::Ini::GetInstance().Get_bEnableSwimming()) {
+		if (!Settings::Ini::GetSingleton().Get_bEnableSwimming()) {
 			return;
 		}
 
-		hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
+		hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, refr, [&](hhs::System& sys) {
 
 			auto actor = sys.GetActorPtr();
 
@@ -313,7 +313,7 @@ namespace Events {
 		});
 	}
 
-	void Dispatcher::ProcessEvent(void* cls, BSAnimationGraphEvent* graph)
+	void* Dispatcher::ProcessEvent(void* a_this, BSAnimationGraphEvent* graph, void* dispatcher)
 	{
 		if (graph && graph->refr && graph->eventName) {
 
@@ -352,7 +352,7 @@ namespace Events {
 			}
 		}
 
-		o_ActorMediator_ProcessEvent(cls, graph);
+		return o_ActorMediator_ProcessEvent(a_this, graph, dispatcher);
 	}
 
 	EventResult Dispatcher::ReceiveEvent(MenuOpenCloseEvent* evn, void* dispatcher)
@@ -367,11 +367,11 @@ namespace Events {
 
 		case "LooksMenu"_hash:
 
-			if (!Settings::Ini::GetInstance().Get_bLooksmenu()) {
+			if (!Settings::Ini::GetSingleton().Get_bLooksmenu()) {
 
 				VisitCell([&](TESObjectREFR* refr) {
 
-					hhs::Map::GetInstance().visit(true, refr, [&](hhs::System& sys) {
+					hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, refr, [&](hhs::System& sys) {
 
 						auto actor = sys.GetActorPtr();
 
@@ -389,9 +389,9 @@ namespace Events {
 
 		case "TerminalMenu"_hash:
 
-			if (Camera::Player::GetInstance().GetCameraState() == PlayerCamera::kCameraState_FirstPerson) {
+			if (Camera::Player::GetSingleton().GetCameraState() == PlayerCamera::kCameraState_FirstPerson) {
 
-				hhs::Map::GetInstance().visit(true, PlayerID, [&](hhs::System& sys) {
+				hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, PlayerID, [&](hhs::System& sys) {
 
 					auto actor = sys.GetActorPtr();
 
@@ -436,7 +436,7 @@ namespace Events {
 		auto ui = *g_ui;
 
 		if (ui) {
-			ui->menuOpenCloseEventSource.AddEventSink(&instance);
+			ui->menuOpenCloseEventSource.AddEventSink(this);
 		}
 
 		_DMESSAGE("Events registered successfully!");
@@ -463,7 +463,7 @@ namespace Events {
 		}
 
 		tArray<PlayerInputHandler*>* inputEvents = std::addressof(playerCtrl->inputEvents1);
-		PlayerInputHandler* inputHandler = std::addressof(instance);
+		PlayerInputHandler* inputHandler = this;
 
 		if (!inputEvents) {
 			return;
@@ -507,8 +507,9 @@ namespace Events {
 		E210A4	mov		rbp, rdx
 		E210A7	mov		rdi, rcx
 
-		rcx = class
-		rdx = struct BSAnimationGraphEvent
+		rcx = class ActorMediator
+		rdx = BSTEventSource<BSAnimationGraphEvent>
+		r8 = BSAnimationGraphEvent
 
 		*/
 
@@ -538,6 +539,4 @@ namespace Events {
 			registered = true;
 		}	
 	}
-
-	Dispatcher Dispatcher::instance;
 }

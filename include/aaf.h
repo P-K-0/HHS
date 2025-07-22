@@ -61,7 +61,10 @@ namespace Aaf {
 
 	public:
 
-		[[nodiscard]] static Scene& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Scene& GetSingleton() noexcept {	
+			static Scene instance;
+			return instance;
+		}
 
 		void ProcessEvent(const BSFixedString* name, VMValue* args) noexcept;
 
@@ -79,9 +82,7 @@ namespace Aaf {
 		void StartStop(const std::uint64_t Handle, const bool& bStop, const bool& bTag) noexcept;
 
 		void OnSceneInit(const VMValue* args) noexcept;
-		void OnSceneEnd(const VMValue* args, const bool& stop = false) noexcept;
-
-		static Scene instance;
+		void OnSceneEnd(const VMValue* args, bool stop = false) noexcept;
 
 		std::uint64_t uDoppelganger;
 	};
@@ -90,7 +91,10 @@ namespace Aaf {
 
 	public:
 
-		[[nodiscard]] static Event& GetInstance() noexcept { return instance; }
+		[[nodiscard]] static Event& GetSingleton() noexcept { 
+			static Event instance;
+			return instance;
+		}
 	
 		void Hook() noexcept;
 
@@ -109,8 +113,6 @@ namespace Aaf {
 
 		static void CustomEvent(VirtualMachine* vm, std::uint64_t unk1, VMIdentifier* sender, const BSFixedString* eventName, VMValue* args) noexcept;
 
-		static Event instance;
-		
 		bool hooked{};
 		bool hasPlugin{};
 		bool hasAAF{};
