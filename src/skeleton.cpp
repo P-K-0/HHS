@@ -7,10 +7,11 @@ namespace Skeleton {
 
 	NiStreamPtr::NiStreamPtr() noexcept
 	{
-		mem = new std::uint8_t[sizeof(NiStream)];
-		
-		if (niStream = (NiStream*)mem) {
+		mem = std::make_unique<std::uint8_t[]>(sizeof(NiStream));
 
+		niStream = reinterpret_cast<NiStream*>(mem.get());
+
+		if (niStream) {
 			CALL_MEMBER_FN(niStream, ctor)();
 		}
 	}
@@ -18,20 +19,15 @@ namespace Skeleton {
 	NiStreamPtr::~NiStreamPtr() noexcept
 	{
 		if (niStream) {
-
 			CALL_MEMBER_FN(niStream, dtor)();
-		
-			delete[] mem;
-			mem = nullptr;
-
-			niStream = nullptr;
 		}
 	}
 
 	bool Reader::Init(const std::string& Filename) noexcept
 	{
-		if (!niStream)
+		if (!niStream) {
 			return false;
+		}
 
 		auto file{ File::GetRelativeDir(Filename) };
 
@@ -165,8 +161,9 @@ namespace Skeleton {
 	{
 		return Visit([&](NiAVObject* obj) {
 
-			if (!obj->m_extraData)
+			if (!obj->m_extraData) {
 				return false;
+			}
 
 			SimpleLocker lock(&obj->m_extraData->lock);
 

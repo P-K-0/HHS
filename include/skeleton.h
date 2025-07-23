@@ -26,8 +26,7 @@ namespace Skeleton {
 	private:
 
 		NiStream* niStream{ nullptr };
-
-		std::uint8_t* mem{ nullptr };
+		std::unique_ptr<std::uint8_t[]> mem;
 	};
 
 	class Reader {
