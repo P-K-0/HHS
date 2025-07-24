@@ -45,21 +45,20 @@ namespace Node {
 
 	public:
 
+		Transform() noexcept {}
+		~Transform() noexcept {}
+
 		Transform(const Transform&) = delete;
 		Transform(Transform&&) = delete;
 
 		Transform& operator=(const Transform&) = delete;
 		Transform& operator=(Transform&&) = delete;
 
-		Transform() noexcept {}
-
 		Transform(Actor* actor) noexcept
 			: act{ actor } {}
 
 		Transform(Actor* actor,  const bool& first_person = false) noexcept
-			: firstPerson{ first_person }, act{ actor } {}
-
-		~Transform() noexcept {}
+			: act{ actor }, firstPerson{ first_person } {}
 
 		[[nodiscard]] float GetTransform(const std::string& sNode, Flags flags) noexcept;	
 		[[nodiscard]] std::int32_t SetTransform(const std::string& sNode, Flags flags, float value) noexcept;

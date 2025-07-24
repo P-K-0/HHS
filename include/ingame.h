@@ -24,7 +24,7 @@ namespace InGame {
 
 	public:
 
-		static [[nodiscard]] HeightEdit& GetSingleton() noexcept {
+		[[nodiscard]] static HeightEdit& GetSingleton() noexcept {
 			static HeightEdit instance;
 			return instance; 
 		}

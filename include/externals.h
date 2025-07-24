@@ -78,8 +78,8 @@ public:
 
 private:
 
-	Trampoline() = default;
-	virtual ~Trampoline() = default;
+	Trampoline() noexcept {}
+	virtual ~Trampoline() noexcept {}
 
 	Trampoline(const Trampoline&) = delete;
 	Trampoline(Trampoline&&) = delete;

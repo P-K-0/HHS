@@ -170,7 +170,7 @@ namespace Aaf {
 		vector.push_back(value.data.b);
 	}
 
-	void Scene::StartStop(const std::uint64_t Handle, const bool& bStop, const bool& bTag) noexcept
+	void Scene::StartStop(std::uint64_t Handle, bool bStop, bool bTag) noexcept
 	{
 		std::uint32_t id = static_cast<std::uint32_t>(Handle & MaskId);
 

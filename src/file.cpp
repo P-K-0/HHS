@@ -8,7 +8,7 @@ namespace File {
 	bool Reader::Read(std::string& dst) noexcept
 	{
 		if (filename.empty()) {
-			return 0;
+			return false;
 		}
 
 		auto& settings = Settings::Ini::GetSingleton();
@@ -22,7 +22,7 @@ namespace File {
 		return BSResourceNiBinaryStreamRead(dst, len) > 0;
 	}
 
-	std::uint32_t Reader::InputStreamRead(std::string& dst, const std::uint32_t len) noexcept
+	std::uint32_t Reader::InputStreamRead(std::string& dst, std::uint32_t len) noexcept
 	{
 		std::ifstream ifs{ DirData.data() + filename, std::ios_base::binary };
 
@@ -43,7 +43,7 @@ namespace File {
 		return count;
 	}
 
-	std::uint32_t Reader::BSResourceNiBinaryStreamRead(std::string& dst, const std::uint32_t len) noexcept
+	std::uint32_t Reader::BSResourceNiBinaryStreamRead(std::string& dst, std::uint32_t len) noexcept
 	{
 		BSResourceNiBinaryStream bsRead(filename.c_str());
 

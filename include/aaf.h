@@ -79,7 +79,7 @@ namespace Aaf {
 		Scene& operator=(const Scene&) = delete;
 		Scene& operator=(Scene&&) = delete;
 
-		void StartStop(const std::uint64_t Handle, const bool& bStop, const bool& bTag) noexcept;
+		void StartStop(std::uint64_t Handle, bool bStop, bool bTag) noexcept;
 
 		void OnSceneInit(const VMValue* args) noexcept;
 		void OnSceneEnd(const VMValue* args, bool stop = false) noexcept;

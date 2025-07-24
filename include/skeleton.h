@@ -11,14 +11,14 @@ namespace Skeleton {
 
 	public:
 
+		NiStreamPtr() noexcept;
+		~NiStreamPtr() noexcept;
+
 		NiStreamPtr(const NiStreamPtr&) = delete;
 		NiStreamPtr(NiStreamPtr&&) = delete;
 
 		NiStreamPtr& operator=(const NiStreamPtr&) = delete;
 		NiStreamPtr& operator=(NiStreamPtr&&) = delete;
-
-		NiStreamPtr() noexcept;
-		~NiStreamPtr() noexcept;
 
 		[[nodiscard]] NiStream* operator->() noexcept { return niStream; }
 		[[nodiscard]] operator bool() noexcept { return niStream != nullptr; }
@@ -33,18 +33,18 @@ namespace Skeleton {
 
 	public:
 		
+		Reader() noexcept {}
+		~Reader() noexcept {}
+
 		Reader(const Reader&) = delete;
 		Reader(Reader&&) = delete;
 
 		Reader& operator=(const Reader&) = delete;
 		Reader& operator=(Reader&&) = delete;
 
-		Reader() noexcept {}
 		Reader(const std::string& Filename) noexcept;
 		Reader(Actor* actor, bool isFemale) noexcept;
 		Reader(TESObjectREFR* refr, bool isFemale) noexcept;
-
-		~Reader() noexcept {}
 
 		[[nodiscard]] bool HasNode(const std::string& name) noexcept;
 

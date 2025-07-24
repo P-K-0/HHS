@@ -30,25 +30,25 @@ namespace Camera {
 			return instance;
 		}
 
-		[[nodiscard]] bool IsCameraNodeAnimations() noexcept;
 		void SetApplyCameraNodeAnimations(bool value) noexcept;
 
 		void Init() noexcept;
 		void SetCameraHeight(Actor* akActor, float height = ZeroValue) noexcept; 
 		void ResetCameraSettings() noexcept;
 
+		[[nodiscard]] bool IsCameraNodeAnimations() noexcept;
 		[[nodiscard]] std::int32_t GetCameraState() const noexcept;
 
 	private:
+
+		Player() noexcept {}
+		~Player() noexcept {}
 
 		Player(const Player&) = delete;
 		Player(Player&&) = delete;
 
 		Player& operator=(const Player&) = delete;
 		Player& operator=(Player&&) = delete;
-
-		Player() noexcept {}
-		~Player() noexcept {}
 
 		Node::Transform Camera1st;
 

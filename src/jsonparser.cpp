@@ -107,7 +107,7 @@ namespace JsonParser {
 	class BGSMod__Attachment__Mod;
 
 	template<typename Func = std::function<void(const std::string&)>>
-	void GetPathFromID(const std::uint32_t id, const std::uint32_t gender, Func func) noexcept
+	void GetPathFromID(std::uint32_t id, std::uint32_t gender, Func func) noexcept
 	{
 		TESForm* form{ nullptr };
 

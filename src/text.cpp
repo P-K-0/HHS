@@ -28,7 +28,7 @@ namespace Text {
 		return ZeroValue;
 	}
 
-	std::string GetTextFile(const std::string& Filename, const bool& dirF4SE) noexcept
+	std::string GetTextFile(const std::string& Filename, bool dirF4SE) noexcept
 	{
 		std::filesystem::path path{ Filename };
 

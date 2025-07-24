@@ -49,14 +49,14 @@ namespace Cache {
 
 	private:
 
+		Map() noexcept {}
+		~Map() noexcept {}
+
 		Map(const Map&) = delete;
 		Map(Map&&) = delete;
 
 		Map& operator=(const Map&) = delete;
 		Map& operator=(Map&&) = delete;
-
-		Map() noexcept {}
-		~Map() noexcept {}
 
 		[[nodiscard]] bool ReadHeader(std::ifstream& ifs) noexcept;
 		[[nodiscard]] bool WriteHeader(std::ofstream& ofs) noexcept;

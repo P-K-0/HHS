@@ -191,7 +191,12 @@ namespace Actors {
 			return ZeroValue;
 		}
 
-		if (isPlayer && equipped && actor->middleProcess && actor->middleProcess->unk08) {	
+		if (isPlayer && 
+			equipped && 
+			actor->middleProcess &&
+			actor->middleProcess->unk08 &&
+			!ActorIsInPowerArmor(actor)) {
+
 			CALL_MEMBER_FN(actor->middleProcess, UpdateEquipment)(actor, 0);
 		}
 
@@ -242,7 +247,7 @@ namespace Actors {
 		return 0;
 	}
 
-	bool Utility::GetEquipData(const std::uint32_t& slot, std::uint32_t& id, std::string& filename) noexcept
+	bool Utility::GetEquipData(std::uint32_t slot, std::uint32_t& id, std::string& filename) noexcept
 	{
 		ActorEquipData* actEquipData{ nullptr };
 
@@ -304,7 +309,7 @@ namespace Actors {
 		return refr;
 	}
 
-	std::uint32_t GetSlotMaskByID(const std::uint32_t& id) noexcept
+	std::uint32_t GetSlotMaskByID(std::uint32_t id) noexcept
 	{
 		if (id == 0) {
 			return InvalidSlot;

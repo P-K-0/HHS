@@ -34,14 +34,14 @@ namespace hhs {
 
 	public:
 
+		System() noexcept {}
+		~System() noexcept {}
+
 		System(const System& sys) = delete;
 		System(System&& sys) = delete;
 
 		System& operator=(const System&) = delete;
 		System& operator=(System&&) = delete;
-
-		System() noexcept {}
-		~System() noexcept {}
 
 		[[nodiscard]] Error SetHeight(float Height) noexcept;
 		[[nodiscard]] Error SetHeight(std::uint32_t slot = 0, std::uint32_t id = 0, bool equipped = false) noexcept;
