@@ -265,16 +265,13 @@ namespace Events {
 		hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, refr, [&](hhs::System& sys) {
 
 			auto actor = sys.GetActorPtr();
+			auto furniture = sys.GetActorUtil().GetFurnitureReference();
 
 			if (actor->IsDead() || actor->IsSitting() || !sys.HasHeight()) {
 				return hhs::Error::Success;
 			}
 
-			//if (!sys.GetActorUtil().IsPlayer()) {
-			//	return hhs::Error::Success;
-			//}
-
-			if (stop) {
+			if (stop && furniture) {
 
 				sys.Stop();
 		

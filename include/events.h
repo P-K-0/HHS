@@ -9,6 +9,7 @@
 namespace Events {
 
 	using _ActorMediator_ProcessEvent = void* (*)(void*, BSAnimationGraphEvent*, void*);
+
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
 #if CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
 	static RelocAddr<_ActorMediator_ProcessEvent> reloc_ActorMediator_ProcessEvent(0xE21090);
