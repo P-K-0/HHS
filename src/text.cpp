@@ -8,7 +8,7 @@ namespace Text {
 
 	float Parser(const std::string& str) noexcept
 	{
-		std::regex reg{ R"((\s*)(\w*)(\s*)=(\s*)(\d*.\d*))" };
+		std::regex reg{ R"(height\s*=\s*(-?(?:\d*\.\d+|\d+)))", std::regex::icase };
 		std::smatch matches;
 
 		if (!std::regex_search(str, matches, reg)) {
@@ -17,11 +17,7 @@ namespace Text {
 
 		try {
 
-			if (_strcmpi(matches[2].str().c_str(), "height") != 0) {
-				return ZeroValue;
-			}
-
-			return std::stof(matches[5].str());
+			return std::stof(matches[1].str());
 		}
 		catch (...) {}
 
@@ -62,7 +58,7 @@ namespace Text {
 			}
 		}
 
-		return std::clamp(height, MinValue, MaxValue);
+		return height;
 	}
 
 	bool CreateHeightFile(const std::string& Filename, float value) noexcept

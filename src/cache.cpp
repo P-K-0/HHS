@@ -22,7 +22,7 @@ namespace Cache {
 
 		if (value != ZeroValue) {
 
-			info.height = std::clamp(value, MinValue, MaxValue);
+			info.height = value;
 			info.isText = isText;
 
 			_DMESSAGE("File : %s Height : %.2f %s", filename.c_str(), value, info.height != ZeroValue ? "added to cache." : "not added to cache!");
@@ -68,9 +68,9 @@ namespace Cache {
 		}
 
 		//_DMESSAGE("%s : %s / %s (%f, %s, %i, %i)", __FUNCTION__, File::GetRelativeDir(filename).c_str(), filename.c_str(), info.height, info.path.c_str(), info.isText, info.isCached);
-		//_DMESSAGE("%f", std::clamp(info.height, MinValue, MaxValue));
+		//_DMESSAGE("%f", info.height);
 
-		return std::clamp(info.height, MinValue, MaxValue);
+		return info.height;
 	}
 
 	bool Map::IsText(const std::string& filename) noexcept

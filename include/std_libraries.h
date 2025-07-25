@@ -1,5 +1,7 @@
 #pragma once
 
+#include <shlobj.h>
+
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -12,8 +14,6 @@
 #include <set>
 #include <filesystem>
 #include <mutex>
-
-#include <shlobj.h>
 
 namespace std {
 

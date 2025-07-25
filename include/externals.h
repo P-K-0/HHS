@@ -10,8 +10,6 @@ constexpr auto DirF4SE = "f4se\\plugins\\hhs\\"_sv;
 
 constexpr std::uint32_t PlayerID = 0x14;
 
-constexpr float MinValue = -1000.0f;
-constexpr float MaxValue = 1000.0f;
 constexpr float ZeroValue = 0.0f;
 
 constexpr std::uint32_t InvalidSlot = 0;

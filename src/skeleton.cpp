@@ -239,6 +239,6 @@ namespace Skeleton {
 
 		reader.GetExtraData(ExtraDataHHS, height);
 
-		return std::clamp(height, MinValue, MaxValue);
+		return height;
 	}
 }

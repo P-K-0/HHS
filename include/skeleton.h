@@ -20,6 +20,12 @@ namespace Skeleton {
 		NiStreamPtr& operator=(const NiStreamPtr&) = delete;
 		NiStreamPtr& operator=(NiStreamPtr&&) = delete;
 
+		void* operator new(std::size_t) = delete;
+		void* operator new[](std::size_t) = delete;
+
+		void operator delete(void*) = delete;
+		void operator delete[](void*) = delete;
+
 		[[nodiscard]] NiStream* operator->() noexcept { return niStream; }
 		[[nodiscard]] operator bool() noexcept { return niStream != nullptr; }
 
