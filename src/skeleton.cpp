@@ -5,6 +5,27 @@
 
 namespace Skeleton {
 
+	inline bool operator==(const BSFixedString& bStr, const std::string& str) noexcept
+	{
+		auto cstr = bStr.c_str();
+		return cstr && str == cstr;
+	}
+
+	inline bool operator==(const std::string& str, const BSFixedString& bStr) noexcept
+	{
+		return bStr == str;
+	}
+
+	inline bool operator!=(const std::string& str, const BSFixedString& bStr) noexcept
+	{
+		return !(bStr == str);
+	}
+
+	inline bool operator!=(const BSFixedString& bStr, const std::string& str) noexcept
+	{
+		return str != bStr;
+	}
+
 	NiStreamPtr::NiStreamPtr() noexcept
 	{
 		mem = std::make_unique<std::uint8_t[]>(sizeof(NiStream));
@@ -149,7 +170,7 @@ namespace Skeleton {
 	{
 		return Visit([&](NiAVObject* obj) {
 
-			if (name == obj->m_name.c_str()) {
+			if (name == obj->m_name) {
 				return true;
 			}
 
@@ -179,7 +200,7 @@ namespace Skeleton {
 
 				auto data = DYNAMIC_CAST(extraData, NiExtraData, NiFloatExtraData);
 
-				if (!data || name != data->m_name.c_str()) {
+				if (!data || name != data->m_name) {
 					continue;
 				}
 
@@ -214,7 +235,7 @@ namespace Skeleton {
 
 				auto data = DYNAMIC_CAST(extraData, NiExtraData, NiIntegerExtraData);
 
-				if (!data || name != data->m_name.c_str()) {
+				if (!data || name != data->m_name) {
 					continue;
 				}
 
