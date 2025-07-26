@@ -24,6 +24,21 @@ namespace Events {
 
 	static _ActorMediator_ProcessEvent o_ActorMediator_ProcessEvent;
 
+	enum class AnimationGraphEvent : std::size_t {
+		AnimObjLoad = "animobjload"_hash,
+		IdleChairSittingNoPerspectiveSwitch = "idlechairsittingnoperspectiveswitch"_hash,
+		IdleStop = "idlestop"_hash,
+		SoundPlay = "soundplay"_hash,
+		InitiateStart = "initiatestart"_hash,
+		ReevaluateGraphState = "reevaluategraphstate"_hash
+	};
+
+	enum class MenuName : std::size_t {
+
+		LooksMenu = "looksmenu"_hash,
+		TerminalMenu = "terminalmenu"_hash
+	};
+
 	class Dispatcher :
 		public BSTEventSink<TESFurnitureEvent>,
 		public BSTEventSink<TESDeathEvent>,

@@ -23,17 +23,15 @@ namespace Actors {
 	public:
 
 		Utility() noexcept {}
-		Utility(Actor* act) noexcept;
-		Utility(TESObjectREFR* refr) noexcept;
-		Utility(TESForm* frm) noexcept;
-		Utility(std::uint32_t id) noexcept;
 		~Utility() noexcept {}
 
-		Utility(const Utility& util) noexcept { *this = util; }
-		Utility(Utility&& util) noexcept { *this = std::move(util); }
+		Utility(const Utility& util) = delete;
+		Utility(Utility&& util) = delete;
 
-		Utility& operator=(const Utility& util) noexcept;
-		Utility& operator=(Utility&& util) noexcept;
+		Utility& operator=(const Utility& util) = delete;
+		Utility& operator=(Utility&& util) = delete;
+
+		[[nodiscard]] bool Update(Actor* act) noexcept;
 
 		[[nodiscard]] bool IsFemale() const noexcept { return isFemale; }
 		[[nodiscard]] bool IsPlayer() const noexcept { return isPlayer; }
@@ -44,7 +42,6 @@ namespace Actors {
 		[[nodiscard]] std::uint32_t GetIDFromScriptKwrd() noexcept;
 		[[nodiscard]] float GetHeightFromMod(std::uint32_t slot) noexcept;
 		[[nodiscard]] float GetHeightFromWornItem(std::uint32_t slot = 0, std::uint32_t id = 0, bool equipped = false) noexcept;
-		[[nodiscard]] std::uint64_t GetHandle() noexcept;
 		[[nodiscard]] bool GetEquipData(std::uint32_t slot, std::uint32_t& id, std::string& filename) noexcept;
 		[[nodiscard]] TESObjectREFR* GetFurnitureReference() noexcept;
 
@@ -59,8 +56,17 @@ namespace Actors {
 		bool isPlayer{};
 		bool isRaceCompatible{};
 
-		void Init() noexcept;
+		std::uint32_t actorID{};
+		std::uint32_t raceID{};
+
+		[[nodiscard]] bool Init(Actor* actor) noexcept;
 	};
 
 	[[nodiscard]] extern std::uint32_t GetSlotMaskByID(std::uint32_t id) noexcept;
+
+	[[nodiscard]] extern std::uint64_t GetHandle(Actor* actor) noexcept;
+
+	[[nodiscard]] extern Actor* GetActor(TESObjectREFR* refr) noexcept;
+	[[nodiscard]] extern Actor* GetActor(std::uint32_t id) noexcept;
+	[[nodiscard]] extern Actor* GetActor(Actor* actor) noexcept;
 }

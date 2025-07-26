@@ -67,7 +67,8 @@ namespace JsonParser {
 
 						std::string parent_path = file.lexically_normal().string() + "\\";
 
-						if (_strcmpi(directory.c_str(), parent_path.c_str()) == 0 && _strcmpi(file.extension().string().c_str(), ".json") == 0) {
+						if (_strcmpi(directory.c_str(), parent_path.c_str()) == 0 && 
+							_strcmpi(file.extension().string().c_str(), ".json") == 0) {
 							files.insert(file.string());
 						}
 					}		

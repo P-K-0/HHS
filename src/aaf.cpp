@@ -227,27 +227,24 @@ namespace Aaf {
 
 	void Scene::ProcessEvent(const BSFixedString* eventName, VMValue* args) noexcept
 	{
-		auto key = hash(eventName->c_str());
+		auto key = hash<AAFEventName>(eventName->c_str());
 
 		switch (key) {
 
-		case "aaf:aaf_api_OnSceneInit"_hash:
+		case AAFEventName::OnSceneInit:
 
 			OnSceneInit(args);
-
 			break;
 
-		case "aaf:aaf_api_OnAnimationStart"_hash:
-		case "aaf:aaf_api_OnAnimationChange"_hash:
+		case AAFEventName::OnAnimationStart:
+		case AAFEventName::OnAnimationChange:
 
 			OnSceneEnd(args, true);
-
 			break;
 
-		case "aaf:aaf_api_OnSceneEnd"_hash:
+		case AAFEventName::OnSceneEnd:
 
 			OnSceneEnd(args);
-
 			break;
 		}
 	}

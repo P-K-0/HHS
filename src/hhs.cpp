@@ -3,13 +3,6 @@
 
 namespace hhs {
 
-	void System::SetActorUtil(Actors::Utility& utility) noexcept
-	{
-		util = utility;
-
-		SetActor(util.GetActorPtr());
-	}
-
 	Error System::SetHeight(float Height) noexcept
 	{
 		auto h{ Height };
@@ -169,7 +162,8 @@ namespace hhs {
 
 			auto keywrd = furn->keywordForm.keywords[idx];
 
-			if (keywrd) {
+			if (keywrd &&
+				keywrd->keyword.c_str()) {
 
 				bool noStop{};
 

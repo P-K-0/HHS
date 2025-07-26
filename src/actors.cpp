@@ -7,23 +7,23 @@
 
 namespace Actors {
 
-	void Utility::Init() noexcept
+	bool Utility::Init(Actor* act) noexcept
 	{
-		if (!actor || !actor->race) {
-			return;
-		}
-
 		TESNPC* npc{ nullptr };
 
-		if (!actor->baseForm || !(npc = DYNAMIC_CAST(actor->baseForm, TESForm, TESNPC))) {
-			return;
+		if (!act->baseForm || !(npc = DYNAMIC_CAST(act->baseForm, TESForm, TESNPC))) {
+			return false;
 		}
+
+		actor = act;
+		actorID = act->formID;
+		raceID = act->race->formID;	
 
 		isFemale = CALL_MEMBER_FN(npc, GetSex)();
 
 		auto& settings = Settings::Ini::GetSingleton();
 
-		isPlayer = actor == *g_player;
+		isPlayer = act == *g_player;
 		isEnabled = isPlayer ? settings.Get_bEnablePlayer() : settings.Get_bEnableNPCs();
 
 		auto gender = settings.Get_iGender();
@@ -39,66 +39,24 @@ namespace Actors {
 			}
 		}
 
-		isRaceCompatible = settings.CheckRace(actor->race);
+		isRaceCompatible = settings.CheckRace(act->race);
+
+		return true;
 	}
 
-	Utility::Utility(Actor* act) noexcept
-		: actor{ act }
+	bool Utility::Update(Actor* act) noexcept
 	{
-		Init();
-	}
-
-	Utility::Utility(TESObjectREFR* refr) noexcept
-	{
-		actor = DYNAMIC_CAST(refr, TESObjectREFR, Actor);
-
-		Init();
-	}
-
-	Utility::Utility(TESForm* frm) noexcept
-	{
-		actor = DYNAMIC_CAST(frm, TESForm, Actor);
-
-		Init();
-	}
-
-	Utility::Utility(std::uint32_t id) noexcept
-	{
-		auto refr = LookupFormByID(id);
-
-		if (!refr) {
-			return;
+		if (!act || !act->race) {
+			actor = nullptr;
+			return false;
 		}
 
-		actor = DYNAMIC_CAST(refr, TESObjectREFR, Actor);
+		if (act->formID == actorID && act->race->formID == raceID) {
+			actor = act;
+			return true;
+		}
 
-		Init();
-	}
-
-	Utility& Utility::operator=(const Utility& util) noexcept
-	{
-		actor = util.actor;
-
-		isFemale = util.isFemale;
-		isEnabled = util.isEnabled;
-		isPlayer = util.isPlayer;
-		isRaceCompatible = util.isRaceCompatible;
-
-		return *this;
-	}
-
-	Utility& Utility::operator=(Utility&& util) noexcept
-	{
-		actor = util.actor;
-
-		util.actor = nullptr;
-
-		isFemale = util.isFemale;
-		isEnabled = util.isEnabled;
-		isPlayer = util.isPlayer;
-		isRaceCompatible = util.isRaceCompatible;
-
-		return *this;
+		return Init(act);
 	}
 
 	std::uint32_t Utility::GetIDFromScriptKwrd() noexcept
@@ -121,7 +79,9 @@ namespace Actors {
 
 				BGSKeyword* kwrd = armor->keywordForm.keywords[key];
 
-				if (kwrd && _strcmpi(kwrd->keyword.c_str(), "HHS_Script") == 0) {
+				if (kwrd &&
+					kwrd->keyword.c_str() && 
+					_strcmpi(kwrd->keyword.c_str(), HHS_Script) == 0) {
 					return itemSwap->formID;
 				}
 			}
@@ -226,27 +186,6 @@ namespace Actors {
 		return ZeroValue;
 	}
 
-	std::uint64_t Utility::GetHandle() noexcept
-	{
-		if (!actor || !(*g_gameVM)) {
-			return 0;
-		}
-
-		auto registry = (*g_gameVM)->m_virtualMachine;
-
-		if (!registry) {
-			return 0;
-		}
-
-		auto policy = registry->GetHandlePolicy();
-
-		if (policy) {
-			return policy->Create(static_cast<UInt32>(actor->formType), (void*)actor);
-		}
-
-		return 0;
-	}
-
 	bool Utility::GetEquipData(std::uint32_t slot, std::uint32_t& id, std::string& filename) noexcept
 	{
 		ActorEquipData* actEquipData{ nullptr };
@@ -329,4 +268,47 @@ namespace Actors {
 
 		return armor->bipedObject.GetSlotMask();
 	}
+
+	std::uint64_t GetHandle(Actor* actor) noexcept
+	{
+		if (!actor || !(*g_gameVM)) {
+			return 0;
+		}
+
+		auto registry = (*g_gameVM)->m_virtualMachine;
+
+		if (!registry) {
+			return 0;
+		}
+
+		auto policy = registry->GetHandlePolicy();
+
+		if (policy) {
+			return policy->Create(static_cast<UInt32>(actor->formType), (void*)actor);
+		}
+
+		return 0;
+	}
+
+	Actor* GetActor(TESObjectREFR* refr) noexcept
+	{
+		return DYNAMIC_CAST(refr, TESObjectREFR, Actor);
+	}
+
+	Actor* GetActor(std::uint32_t id) noexcept
+	{
+		TESForm* refr = LookupFormByID(id);
+
+		if (!refr) {
+			return nullptr;
+		}
+
+		return DYNAMIC_CAST(refr, TESForm, Actor);
+	}
+
+	Actor* GetActor(Actor* actor) noexcept
+	{
+		return actor;
+	}
+
 }

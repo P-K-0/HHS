@@ -19,6 +19,14 @@ namespace Aaf {
 
 	constexpr std::uint32_t MaskId = 0xffffffff;
 
+	enum class AAFEventName : std::size_t {
+
+		OnSceneInit = "aaf:aaf_api_OnSceneInit"_hash,
+		OnAnimationStart = "aaf:aaf_api_OnAnimationStart"_hash,
+		OnAnimationChange = "aaf:aaf_api_OnAnimationChange"_hash,
+		OnSceneEnd = "aaf:aaf_api_OnSceneEnd"_hash
+	};
+
 	class VMArgs {
 
 	public:

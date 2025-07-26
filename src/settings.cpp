@@ -177,7 +177,7 @@ namespace Settings {
 
 			auto key = data->arrKYWD[iKey];
 
-			if (key) {
+			if (key && key->keyword.c_str()) {
 
 				for (const auto& s : vStr) {
 
@@ -217,7 +217,9 @@ namespace Settings {
 
 			auto keyRaceHHS = race->keywordForm.keywords[i];
 
-			if (keyRaceHHS && _strcmpi("ActorType_HHS", keyRaceHHS->keyword.c_str()) == 0) {
+			if (keyRaceHHS && 
+				keyRaceHHS->keyword.c_str() && 
+				_strcmpi(keyRaceHHS->keyword.c_str(), ActorType_HHS) == 0) {
 				return true;
 			}
 		}
@@ -354,7 +356,8 @@ namespace Settings {
 
 				auto key = furn->keywordForm.keywords[idx];
 
-				if (key && std::binary_search(vFurnitureKeyword, key->formID)) {
+				if (key && 
+					std::binary_search(vFurnitureKeyword, key->formID)) {
 					return true;
 				}
 			}

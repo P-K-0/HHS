@@ -314,39 +314,36 @@ namespace Events {
 	{
 		if (graph && graph->refr && graph->eventName && graph->eventName.c_str()) {
 
-			auto key = hash(graph->eventName.c_str());
-			
+			auto key = hash<AnimationGraphEvent>(graph->eventName.c_str());
+
 			//if (graph->refr->formID == PlayerID) {
 			//	_DMESSAGE("%.8X %s %I64X", graph->refr->formID, graph->eventName.c_str(), key);
 			//}
 
 			switch (key) {
 
-			case "AnimObjLoad"_hash: 
+			case AnimationGraphEvent::AnimObjLoad:
 
 				AnimObjFirstPerson(graph->refr, true);
-
 				break;
 
-			case "idleChairSittingNoPerspectiveSwitch"_hash:
-			case "IdleStop"_hash:
+			case AnimationGraphEvent::IdleChairSittingNoPerspectiveSwitch:
+			case AnimationGraphEvent::IdleStop:
 
 				AnimObjFirstPerson(graph->refr, false);
-
 				break;
 
-			case "SoundPlay"_hash: 
+			case AnimationGraphEvent::SoundPlay:
 
 				SwimEvent(graph->refr, true);
-
 				break;
 
-			//case "ReevaluateGraphState"_hash:
-			case "initiateStart"_hash:
+			//case AnimationGraphEvent::ReevaluateGraphState:
+			case AnimationGraphEvent::InitiateStart:
 
 				SwimEvent(graph->refr, false);
-
 				break;
+
 			}
 		}
 
@@ -359,11 +356,11 @@ namespace Events {
 			return kEvent_Continue;
 		}
 
-		auto key = hash(evn->menuName.c_str());
+		auto key = hash<MenuName>(evn->menuName.c_str());
 
 		switch (key) {
 
-		case "LooksMenu"_hash:
+		case MenuName::LooksMenu:
 
 			if (!Settings::Ini::GetSingleton().Get_bLooksmenu()) {
 
@@ -385,7 +382,7 @@ namespace Events {
 
 			break;
 
-		case "TerminalMenu"_hash:
+		case MenuName::TerminalMenu:
 
 			if (Camera::Player::GetSingleton().GetCameraState() == PlayerCamera::kCameraState_FirstPerson) {
 

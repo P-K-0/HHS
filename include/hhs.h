@@ -58,7 +58,6 @@ namespace hhs {
 		[[nodiscard]] bool IsSkip() const noexcept { return skip; }
 		[[nodiscard]] Actors::Utility& GetActorUtil() noexcept { return util; }
 
-		void SetActorUtil(Actors::Utility& utility) noexcept;
 		void SetOverride(bool value) noexcept { hasOverride = value; }
 		void Skip(bool skip) noexcept { this->skip = skip; }
 		void EnableFix(TESObjectREFR* furniture) noexcept;
@@ -93,7 +92,7 @@ namespace hhs {
 		}
 
 		template<typename T, typename Fn = std::function<Error(System&)>>
-		[[nodiscard]] Error visit(VisitFlags flags, T t, Fn fn) noexcept
+		[[nodiscard]] Error visit(VisitFlags flags, T value, Fn fn) noexcept
 		{
 			std::lock_guard<std::mutex> lock(mutex);
 
@@ -101,7 +100,21 @@ namespace hhs {
 				return Error::Runtime;
 			}
 
-			Actors::Utility util(t);
+			auto actor = Actors::GetActor(value);
+
+			auto handle = Actors::GetHandle(actor);
+
+			if (handle == 0) {
+				return Error::Unknown;
+			}
+
+			auto& m = map[handle];
+
+			auto& util = m.GetActorUtil();
+
+			if (!util.Update(actor)) {
+				return Error::Unknown;
+			}
 
 			if (!util) {
 				return Error::ActorDisabled;
@@ -111,28 +124,11 @@ namespace hhs {
 				return Error::Race;
 			}
 
-			auto handle = util.GetHandle();
+			m.SetActor(actor);
 
-			if (handle == 0) {
-				return Error::Unknown;
+			if (m.HasOverride() && flags == VisitFlags::None) {
+				return Error::Override;
 			}
-
-			auto& it = map.find(handle);
-
-			if (it != map.end()) {
-	
-				it->second.SetActorUtil(util);
-				
-				if (it->second.HasOverride() && flags == VisitFlags::None) {
-					return Error::Override;
-				}
-
-				return fn(it->second);
-			}
-
-			auto& m = map[handle];
-
-			m.SetActorUtil(util);
 
 			return fn(m);
 		}

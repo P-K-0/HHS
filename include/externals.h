@@ -3,6 +3,8 @@
 constexpr char* ComOverride = "COM_Override";
 constexpr char* ExtraDataSAF = "SAF_Version";
 constexpr char* ExtraDataHHS = "HHS";
+constexpr char* HHS_Script = "HHS_Script";
+constexpr char* ActorType_HHS = "ActorType_HHS";
 
 constexpr auto DirData = "data\\"_sv;
 constexpr auto DirMeshes = "meshes\\"_sv;
