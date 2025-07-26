@@ -312,12 +312,13 @@ namespace Events {
 
 	void* Dispatcher::ProcessEvent(void* a_this, BSAnimationGraphEvent* graph, void* dispatcher)
 	{
-		if (graph && graph->refr && graph->eventName) {
+		if (graph && graph->refr && graph->eventName && graph->eventName.c_str()) {
 
-			auto key = std::hash<std::string>{}(graph->eventName.c_str());
+			auto key = hash(graph->eventName.c_str());
 			
-			//if (graph->refr->formID == PlayerID)
+			//if (graph->refr->formID == PlayerID) {
 			//	_DMESSAGE("%.8X %s %I64X", graph->refr->formID, graph->eventName.c_str(), key);
+			//}
 
 			switch (key) {
 
@@ -354,11 +355,11 @@ namespace Events {
 
 	EventResult Dispatcher::ReceiveEvent(MenuOpenCloseEvent* evn, void* dispatcher)
 	{
-		if (!evn) {
+		if (!evn || !evn->menuName.c_str()) {
 			return kEvent_Continue;
 		}
 
-		auto key = std::hash<std::string>{}(evn->menuName.c_str());
+		auto key = hash(evn->menuName.c_str());
 
 		switch (key) {
 

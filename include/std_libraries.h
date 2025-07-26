@@ -47,7 +47,7 @@ namespace std_lib {
 	using set = std::set<std::string, less>;
 }
 
-constexpr std::size_t operator"" _hash(const char* str, const std::size_t size)
+constexpr std::size_t hash(const char* str, const std::size_t size)
 {
 	std::size_t val = std::_FNV_offset_basis;
 
@@ -57,6 +57,24 @@ constexpr std::size_t operator"" _hash(const char* str, const std::size_t size)
 	}
 
 	return val;
+}
+
+constexpr std::size_t hash(const char* str)
+{
+	std::size_t val = std::_FNV_offset_basis;
+
+	while (*str != '\0') {
+		val ^= static_cast<std::size_t>(*str);
+		val *= std::_FNV_prime;
+		str++;
+	}
+
+	return val;
+}
+
+constexpr std::size_t operator"" _hash(const char* str, const std::size_t size)
+{
+	return hash(str, size);
 }
 
 constexpr std::string_view operator"" _sv(const char* str, const std::size_t size)

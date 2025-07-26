@@ -5,9 +5,9 @@
 
 namespace Aaf {
 
-	VMArgs::VMArgs(const VMValue* args) noexcept
+	VMArgs::VMArgs(VMValue* args) noexcept
 	{
-		UnpackValue(&vmVar, (VMValue*)args);
+		UnpackValue(&vmVar, args);
 	}
 
 	template<typename T>
@@ -49,7 +49,7 @@ namespace Aaf {
 
 			if (value.GetTypeEnum() == VMValue::kType_Variable && value.data.var) {
 
-				Push(vValues, (*value.data.var));
+				Push(vValues, *value.data.var);
 			}
 			else {
 
@@ -66,9 +66,7 @@ namespace Aaf {
 
 		var.Get(&ret, index);
 
-		auto& v = ret.GetValue();
-
-		value = v.data.i;
+		value = ret.GetValue().data.i;
 	}
 
 	void VMArgs::Get(VMArray<VMVariable>& var, std::uint32_t index, float& value) noexcept
@@ -77,9 +75,7 @@ namespace Aaf {
 
 		var.Get(&ret, index);
 
-		auto& v = ret.GetValue();
-
-		value = v.data.f;
+		value = ret.GetValue().data.f;
 	}
 
 	void VMArgs::Get(VMArray<VMVariable>& var, std::uint32_t index, bool& value) noexcept
@@ -88,49 +84,37 @@ namespace Aaf {
 
 		var.Get(&ret, index);
 
-		auto& v = ret.GetValue();
-
-		value = v.data.b;
+		value = ret.GetValue().data.b;
 	}
 
 	void VMArgs::Get(VMArray<VMVariable>& var, std::uint32_t index, std::uint64_t& value) noexcept
 	{
+		value = 0;
+
 		VMVariable ret{};
 
 		var.Get(&ret, index);
 
-		auto& v = ret.GetValue();
+		auto id = ret.GetValue().data.id;
 
-		auto id = v.data.id;
-
-		if (!id) {
-
-			value = 0;
-
-			return;
+		if (id) {
+			value = id->GetHandle();
 		}
-
-		value = id->GetHandle();
 	}
 
 	void VMArgs::Get(VMArray<VMVariable>& var, std::uint32_t index, std::string& value) noexcept
 	{
+		value.clear();
+
 		VMVariable ret{};
 
 		var.Get(&ret, index);
 
-		auto& v = ret.GetValue();
+		auto str = ret.GetValue().data.GetStr();
 
-		auto str = v.data.GetStr();
-
-		if (!str) {
-
-			value.clear();
-
-			return;
+		if (str && str->c_str()) {
+			value = str->c_str();
 		}
-
-		value = str->c_str();
 	}
 
 	void VMArgs::Push(std::vector<int>& vector, VMValue& value) noexcept
@@ -147,22 +131,18 @@ namespace Aaf {
 	{
 		auto id = value.data.id;
 
-		if (!id) {
-			return;
+		if (id) {
+			vector.push_back(id->GetHandle());
 		}
-
-		vector.push_back(id->GetHandle());
 	}
 
 	void VMArgs::Push(std::vector<std::string>& vector, VMValue& value) noexcept
 	{
 		auto str = value.data.GetStr();
 
-		if (!str) {
-			return;
+		if (str && str->c_str()) {
+			vector.push_back(str->c_str());
 		}
-
-		vector.push_back(str->c_str());
 	}
 
 	void VMArgs::Push(std::vector<bool>& vector, VMValue& value) noexcept
@@ -185,7 +165,7 @@ namespace Aaf {
 		});
 	}
 
-	void Scene::OnSceneInit(const VMValue* args) noexcept
+	void Scene::OnSceneInit(VMValue* args) noexcept
 	{
 		VMArgs vmArgs{ args };
 
@@ -210,7 +190,7 @@ namespace Aaf {
 		}
 	}
 
-	void Scene::OnSceneEnd(const VMValue* args, bool stop) noexcept
+	void Scene::OnSceneEnd(VMValue* args, bool stop) noexcept
 	{
 		VMArgs vmArgs{ args };
 
@@ -247,7 +227,7 @@ namespace Aaf {
 
 	void Scene::ProcessEvent(const BSFixedString* eventName, VMValue* args) noexcept
 	{
-		auto key = std::hash<std::string>{}(eventName->c_str());
+		auto key = hash(eventName->c_str());
 
 		switch (key) {
 
@@ -276,7 +256,7 @@ namespace Aaf {
 	{
 		SendCustomEvent_Original(vm, unk1, sender, eventName, args);
 
-		if (Settings::Ini::GetSingleton().Get_bEnableAAF() && vm && sender && eventName && args) {
+		if (Settings::Ini::GetSingleton().Get_bEnableAAF() && vm && sender && eventName && eventName->c_str() && args) {
 			Scene::GetSingleton().ProcessEvent(eventName, args);
 		}
 	}

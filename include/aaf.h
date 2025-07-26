@@ -31,7 +31,7 @@ namespace Aaf {
 		VMArgs& operator=(const VMArgs&) = delete;
 		VMArgs& operator=(VMArgs&&) = delete;
 
-		explicit VMArgs(const VMValue* args) noexcept;
+		VMArgs(VMValue* args) noexcept;
 		~VMArgs() noexcept {}
 
 		template<typename T>
@@ -81,8 +81,8 @@ namespace Aaf {
 
 		void StartStop(std::uint64_t Handle, bool bStop, bool bTag) noexcept;
 
-		void OnSceneInit(const VMValue* args) noexcept;
-		void OnSceneEnd(const VMValue* args, bool stop = false) noexcept;
+		void OnSceneInit(VMValue* args) noexcept;
+		void OnSceneEnd(VMValue* args, bool stop = false) noexcept;
 
 		std::uint64_t uDoppelganger;
 	};
