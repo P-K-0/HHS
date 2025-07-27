@@ -4,27 +4,19 @@
 
 #include "settings.h"
 #include "externals.h"
+#include "util.h"
 
 namespace Skeleton {
 
-	class NiStreamPtr {
+	class NiStreamPtr :
+		public util::NoCopyable,
+		public util::NoMoveable,
+		public util::NoPointer {
 
 	public:
 
 		NiStreamPtr() noexcept;
 		~NiStreamPtr() noexcept;
-
-		NiStreamPtr(const NiStreamPtr&) = delete;
-		NiStreamPtr(NiStreamPtr&&) = delete;
-
-		NiStreamPtr& operator=(const NiStreamPtr&) = delete;
-		NiStreamPtr& operator=(NiStreamPtr&&) = delete;
-
-		void* operator new(std::size_t) = delete;
-		void* operator new[](std::size_t) = delete;
-
-		void operator delete(void*) = delete;
-		void operator delete[](void*) = delete;
 
 		[[nodiscard]] NiStream* operator->() noexcept { return niStream; }
 		[[nodiscard]] operator bool() noexcept { return niStream != nullptr; }
@@ -35,18 +27,15 @@ namespace Skeleton {
 		std::unique_ptr<std::uint8_t[]> mem;
 	};
 
-	class Reader {
+	class Reader :
+		public util::NoCopyable,
+		public util::NoMoveable,
+		public util::NoPointer {
 
 	public:
 		
-		Reader() noexcept {}
-		~Reader() noexcept {}
-
-		Reader(const Reader&) = delete;
-		Reader(Reader&&) = delete;
-
-		Reader& operator=(const Reader&) = delete;
-		Reader& operator=(Reader&&) = delete;
+		Reader() noexcept = default;
+		~Reader() noexcept = default;
 
 		Reader(const std::string& Filename) noexcept;
 		Reader(Actor* actor, bool isFemale) noexcept;

@@ -2,23 +2,21 @@
 
 #include "version.h"
 
-#include "boost/filesystem.hpp"
+#include "util.h"
 
 namespace File {
 
-	class Reader {
+	class Reader :
+		public util::NoCopyable,
+		public util::NoMoveable,
+		public util::NoPointer {
 
 	public:
 
 		Reader() = delete;
-		Reader(const std::string& Filename) noexcept : filename(Filename) {}
-		~Reader() noexcept {}
-
-		Reader(const Reader&) = delete;
-		Reader(Reader&&) = delete;
-
-		Reader& operator=(const Reader&) = delete;
-		Reader& operator=(Reader&&) = delete;
+		Reader(const std::string& Filename) noexcept
+			: filename(Filename) {}
+		~Reader() noexcept = default;
 
 		[[nodiscard]] bool Read(std::string& dst) noexcept;
 

@@ -5,6 +5,7 @@
 #include "settings.h"
 #include "hhs.h"
 #include "ingame.h"
+#include "util.h"
 
 namespace Events {
 
@@ -49,14 +50,11 @@ namespace Events {
 		public BSTEventSink<TESCellAttachEvent>,
 		public BSTEventSink<TESInitScriptEvent>,
 		public BSTEventSink<MenuOpenCloseEvent>,
-		public PlayerInputHandler { 
+		public PlayerInputHandler,
+		public util::Singleton<Dispatcher> { 
+		friend class util::Singleton<Dispatcher>; 
 
 	public:
-
-		[[nodiscard]] static Dispatcher& GetSingleton() noexcept {
-			static Dispatcher instance;
-			return instance;
-		}
 
 		virtual void OnButtonEvent(ButtonEvent* inputEvent);
 
@@ -78,14 +76,8 @@ namespace Events {
 
 	private:
 
-		Dispatcher() noexcept {}
-		~Dispatcher() noexcept {}
-
-		Dispatcher(const Dispatcher&) = delete;
-		Dispatcher(Dispatcher&&) = delete;
-
-		Dispatcher& operator=(const Dispatcher&) = delete;
-		Dispatcher& operator=(Dispatcher&&) = delete;
+		Dispatcher() noexcept = default;
+		~Dispatcher() noexcept = default;
 
 		void RegisterInput() noexcept;
 		void RegisterAnimationGraphEvent() noexcept;

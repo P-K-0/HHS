@@ -2,6 +2,7 @@
 
 #include "version.h"
 #include "externals.h"
+#include "util.h"
 
 namespace Cache {
 
@@ -28,14 +29,11 @@ namespace Cache {
 		bool isCached{};
 	};
 
-	class Map {
+	class Map : 
+		public util::Singleton<Map> {
+		friend class util::Singleton<Map>;
 
 	public:
-
-		[[nodiscard]] static Map& GetSingleton() noexcept { 
-			static Map instance;
-			return instance; 
-		}
 
 		void Insert(const std::string& filename, float value, bool isText = false, bool forceInsert = false) noexcept;
 		void Erase(const std::string& filename) noexcept;
@@ -49,14 +47,8 @@ namespace Cache {
 
 	private:
 
-		Map() noexcept {}
-		~Map() noexcept {}
-
-		Map(const Map&) = delete;
-		Map(Map&&) = delete;
-
-		Map& operator=(const Map&) = delete;
-		Map& operator=(Map&&) = delete;
+		Map() noexcept = default;
+		~Map() noexcept = default;
 
 		[[nodiscard]] bool ReadHeader(std::ifstream& ifs) noexcept;
 		[[nodiscard]] bool WriteHeader(std::ofstream& ofs) noexcept;

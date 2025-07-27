@@ -1,8 +1,7 @@
 #pragma once
 
-#include "version.h"
-
 #include "hhs.h"
+#include "util.h"
 
 namespace Translations {
 
@@ -29,28 +28,19 @@ namespace Translations {
 		CrossHairRefr
 	};
 
-	class Lang {
+	class Lang :
+		public util::Singleton<Lang> {
+		friend class util::Singleton<Lang>;
 
 	public:
-
-		[[nodiscard]] static Lang& GetSingleton() noexcept {
-			static Lang instance;
-			return instance; 
-		}
 
 		[[nodiscard]] bool Load() noexcept;
 		[[nodiscard]] const std::string& operator[](LangID id) const noexcept { return ids[static_cast<std::int32_t>(id)]; }
 
 	private:
 
-		Lang() noexcept {}
-		~Lang() noexcept {}
-
-		Lang(const Lang&) = delete;
-		Lang(Lang&&) = delete;
-
-		Lang& operator=(const Lang) = delete;
-		Lang& operator=(Lang&&) = delete;
+		Lang() noexcept = default;
+		~Lang() noexcept = default;
 
 		std::vector<std::string> ids = {
 			"$HHS_MSG_FILECREATED" , 

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "version.h"
-
 #include "hhs.h"
+#include "util.h"
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
 
@@ -20,14 +19,11 @@ namespace InGame {
 	};
 
 	class HeightEdit :
-		public BSTEventSink<ViewCasterUpdateEvent> {
+		public BSTEventSink<ViewCasterUpdateEvent>, 
+		public util::Singleton<HeightEdit> {
+		friend class util::Singleton<HeightEdit>;
 
 	public:
-
-		[[nodiscard]] static HeightEdit& GetSingleton() noexcept {
-			static HeightEdit instance;
-			return instance; 
-		}
 
 		[[nodiscard]] bool Test() noexcept;
 		[[nodiscard]] bool Create() noexcept;
@@ -41,14 +37,8 @@ namespace InGame {
 
 	private:
 
-		HeightEdit() noexcept {}
-		~HeightEdit() noexcept {}
-
-		HeightEdit(const HeightEdit&) = delete;
-		HeightEdit(HeightEdit&&) = delete;
-
-		HeightEdit& operator=(const HeightEdit&) = delete;
-		HeightEdit& operator=(HeightEdit&&) = delete;
+		HeightEdit() noexcept = default;
+		~HeightEdit() noexcept = default;
 
 		[[nodiscard]] std::uint32_t GetFormIDByHandle(UInt32 handle) noexcept;
 

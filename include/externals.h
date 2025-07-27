@@ -1,5 +1,7 @@
 #pragma once
 
+#include "util.h"
+
 constexpr char* ComOverride = "COM_Override";
 constexpr char* ExtraDataSAF = "SAF_Version";
 constexpr char* ExtraDataHHS = "HHS";
@@ -19,15 +21,11 @@ constexpr std::uint32_t ReservedSlots = 12;
 constexpr std::uint32_t MinSlot = 0;
 constexpr std::uint32_t MaxSlot = (ActorEquipData::kMaxSlots - ReservedSlots);
 
-class Trampoline {
+class Trampoline :
+	public util::Singleton<Trampoline> {
+	friend class util::Singleton<Trampoline>;
 
 public:
-
-	[[nodiscard]] static Trampoline& GetSingleton() noexcept
-	{
-		static Trampoline instance;
-		return instance;
-	}
 
 	void Create() noexcept
 	{
@@ -78,14 +76,8 @@ public:
 
 private:
 
-	Trampoline() noexcept {}
-	virtual ~Trampoline() noexcept {}
-
-	Trampoline(const Trampoline&) = delete;
-	Trampoline(Trampoline&&) = delete;
-
-	Trampoline& operator=(const Trampoline&) = delete;
-	Trampoline& operator=(Trampoline&&) = delete;
+	Trampoline() noexcept = default;
+	~Trampoline() noexcept = default;
 
 	void* g_moduleHandle{ nullptr };
 	std::size_t len{ 65536 };

@@ -5,6 +5,7 @@
 #include "externals.h"
 #include "settings.h"
 #include "hhs.h"
+#include "util.h"
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
 
@@ -27,20 +28,16 @@ namespace Aaf {
 		OnSceneEnd = "aaf:aaf_api_OnSceneEnd"_hash
 	};
 
-	class VMArgs {
+	class VMArgs : 
+		public util::NoCopyable,
+		public util::NoMoveable,
+		public util::NoPointer {
 
 	public:
 
 		VMArgs() = delete;
-
-		VMArgs(const VMArgs&) = delete;
-		VMArgs(VMArgs&&) = delete;
-
-		VMArgs& operator=(const VMArgs&) = delete;
-		VMArgs& operator=(VMArgs&&) = delete;
-
 		VMArgs(VMValue* args) noexcept;
-		~VMArgs() noexcept {}
+		~VMArgs() noexcept = default; 
 
 		template<typename T>
 		[[nodiscard]] T As(std::uint32_t index) noexcept;
@@ -65,27 +62,18 @@ namespace Aaf {
 		VMArray<VMVariable> vmVar;
 	};
 
-	class Scene {
+	class Scene :
+		public util::Singleton<Scene> {
+		friend class util::Singleton<Scene>;
 
 	public:
-
-		[[nodiscard]] static Scene& GetSingleton() noexcept {	
-			static Scene instance;
-			return instance;
-		}
 
 		void ProcessEvent(const BSFixedString* name, VMValue* args) noexcept;
 
 	private:
 
-		Scene() noexcept {}
-		~Scene() noexcept {}
-
-		Scene(const Scene&) = delete;
-		Scene(Scene&&) = delete;
-
-		Scene& operator=(const Scene&) = delete;
-		Scene& operator=(Scene&&) = delete;
+		Scene() = default;
+		~Scene() = default;
 
 		void StartStop(std::uint64_t Handle, bool bStop, bool bTag) noexcept;
 
@@ -95,27 +83,18 @@ namespace Aaf {
 		std::uint64_t uDoppelganger;
 	};
 
-	class Event {
+	class Event :
+		public util::Singleton<Event> {
+		friend class util::Singleton<Event>;
 
 	public:
-
-		[[nodiscard]] static Event& GetSingleton() noexcept { 
-			static Event instance;
-			return instance;
-		}
 	
 		void Hook() noexcept;
 
 	private:
 
-		Event() noexcept {}
-		~Event() noexcept {}
-
-		Event(const Event&) = delete;
-		Event(Event&&) = delete;
-
-		Event& operator=(const Event&) = delete;
-		Event& operator=(Event&&) = delete;
+		Event() noexcept = default;
+		~Event() noexcept = default;
 
 		[[nodiscard]] bool CheckPluginsInstalled() noexcept;
 

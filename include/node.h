@@ -2,6 +2,8 @@
 
 #include "version.h"
 
+#include "util.h"
+
 namespace Node {
 
 	enum class Angle : std::uint32_t {
@@ -41,18 +43,15 @@ namespace Node {
 		}
 	};
 
-	class Transform {
+	class Transform : 
+		public util::NoCopyable,
+		public util::NoMoveable,
+		public util::NoPointer {
 
 	public:
 
-		Transform() noexcept {}
-		~Transform() noexcept {}
-
-		Transform(const Transform&) = delete;
-		Transform(Transform&&) = delete;
-
-		Transform& operator=(const Transform&) = delete;
-		Transform& operator=(Transform&&) = delete;
+		Transform() noexcept = default;
+		~Transform() noexcept = default;
 
 		Transform(Actor* actor) noexcept
 			: act{ actor } {}

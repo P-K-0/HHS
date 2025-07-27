@@ -4,6 +4,7 @@
 #include "externals.h"
 #include "skeleton.h"
 #include "node.h"
+#include "util.h"
 
 #include "SimpleIni.h"
 
@@ -89,16 +90,13 @@ namespace Settings {
 		return std::clamp(static_cast<Reference>(value), Reference::Player, Reference::CrossHair);
 	}
 
-	class Ini {
+	class Ini : 
+		public util::Singleton<Ini> {
+		friend class util::Singleton<Ini>;
 
 	public:
 
 		using Slots = std::vector<bool>;
-
-		[[nodiscard]] static Ini& GetSingleton() noexcept {
-			static Ini instance;
-			return instance;
-		}
 
 		[[nodiscard]] const Slots& GetSlots() const { return bEnableSlot; }
 
@@ -178,13 +176,7 @@ namespace Settings {
 	private:
 
 		Ini() noexcept { bEnableSlot.assign(MaxSlot, true); }
-		~Ini() noexcept {}
-
-		Ini(const Ini&) = delete;
-		Ini(Ini&&) = delete;
-
-		Ini& operator=(const Ini&) = delete;
-		Ini& operator=(Ini&&) = delete;
+		~Ini() noexcept = default;
 
 		void ReadSettings(const std::string& Filename) noexcept;
 

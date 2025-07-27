@@ -2,6 +2,8 @@
 
 #include "version.h"
 
+#include "util.h"
+
 namespace Actors {
 
 	using _ActorIsInPowerArmor = bool(*)(Actor*);
@@ -18,18 +20,15 @@ namespace Actors {
 	static RelocAddr<_ActorIsInPowerArmor> ActorIsInPowerArmor(0x09BF5D0);
 #endif
 
-	class Utility {
+	class Utility :
+		public util::NoCopyable,
+		public util::NoMoveable,
+		public util::NoPointer {
 
 	public:
 
-		Utility() noexcept {}
-		~Utility() noexcept {}
-
-		Utility(const Utility& util) = delete;
-		Utility(Utility&& util) = delete;
-
-		Utility& operator=(const Utility& util) = delete;
-		Utility& operator=(Utility&& util) = delete;
+		Utility() noexcept = default;
+		~Utility() noexcept = default;
 
 		[[nodiscard]] bool Update(Actor* act) noexcept;
 

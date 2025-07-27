@@ -30,11 +30,11 @@ namespace BA2 {
 
 	public:
 
-		Base() noexcept {}
+		Base() noexcept = default;
 		Base(const std::uint64_t address) noexcept 
 			: next_addr{ address } {}
 
-		virtual ~Base() noexcept {}
+		virtual ~Base() noexcept = default;
 
 		[[nodiscard]] operator bool() const noexcept { return isValid; }
 
@@ -62,6 +62,8 @@ namespace BA2 {
 		static const std::uint32_t Version8 = 0x08;
 
 	public:
+
+		using Base::Base;
 
 		[[nodiscard]] Type GetType() const noexcept { return type; }
 		[[nodiscard]] std::uint32_t GetCountFiles() const noexcept { return CountFiles; }
@@ -131,7 +133,7 @@ namespace BA2 {
 		using Entries = std::vector<Entry>;
 		using StringsTable = std::vector<StringTable>;
 
-		Reader() {}
+		Reader() noexcept = default;
 		Reader(const std::string& Filename) noexcept { Open(Filename); }
 
 		void Open(const std::string& Filename) noexcept;

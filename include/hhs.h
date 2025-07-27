@@ -9,6 +9,7 @@
 #include "skeleton.h"
 #include "fixes.h"
 #include "externals.h"
+#include "util.h"
 
 namespace hhs {
 
@@ -34,8 +35,8 @@ namespace hhs {
 
 	public:
 
-		System() noexcept {}
-		~System() noexcept {}
+		System() noexcept = default;
+		~System() noexcept = default;
 
 		System(const System& sys) = delete;
 		System(System&& sys) = delete;
@@ -82,14 +83,11 @@ namespace hhs {
 		Override
 	};
 
-	class Map {
+	class Map : 
+		public util::Singleton<Map> {
+		friend class util::Singleton<Map>;
 
 	public:
-
-		[[nodiscard]] static Map& GetSingleton() noexcept {
-			static Map instance;
-			return instance;
-		}
 
 		template<typename T, typename Fn = std::function<Error(System&)>>
 		[[nodiscard]] Error visit(VisitFlags flags, T value, Fn fn) noexcept
@@ -145,14 +143,8 @@ namespace hhs {
 
 	private:
 
-		Map(const Map&) = delete;
-		Map(Map&&) = delete;
-
-		Map& operator=(const Map&) = delete;
-		Map& operator=(Map&&) = delete;
-
-		Map() noexcept {}
-		~Map() noexcept {}
+		Map() noexcept = default;
+		~Map() noexcept = default;
 
 		std::unordered_map<std::uint64_t, System> map;
 	

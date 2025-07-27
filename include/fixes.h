@@ -3,6 +3,7 @@
 #include "version.h"
 
 #include "node.h"
+#include "util.h"
 
 #include "json/json.h"
 
@@ -18,14 +19,11 @@ namespace Fixes {
 
 	constexpr char* FilePreset = "F4SE\\Plugins\\hhs_fixes.json";
 
-	class Preset {
+	class Preset :
+		public util::Singleton<Preset> {
+		friend class util::Singleton<Preset>;
 
 	public:
-
-		static [[nodiscard]] Preset& GetSingleton() noexcept {
-			static Preset instance;
-			return instance;
-		}
 
 		[[nodiscard]] bool Load() noexcept;
 
@@ -73,14 +71,8 @@ namespace Fixes {
 
 	private:
 
-		Preset() noexcept {}
-		~Preset() noexcept {}
-
-		Preset(const Preset&) = delete;
-		Preset(Preset&&) = delete;
-
-		Preset& operator=(const Preset&) = delete;
-		Preset& operator=(Preset&&) = delete;
+		Preset() noexcept = default;
+		~Preset() noexcept = default;
 
 		[[nodiscard]] Node::Flags GetFlags(const std::string& str) noexcept;
 

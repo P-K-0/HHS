@@ -2,17 +2,15 @@
 
 #include "version.h"
 
+#include "util.h"
+
 namespace f4se {
 
-	class Plugin {
+	class Plugin :
+		public util::Singleton<Plugin> {
+		friend class util::Singleton<Plugin>;
 
 	public:
-
-		[[nodiscard]] static Plugin& GetSingleton() noexcept
-		{
-			static Plugin instance;
-			return instance;
-		}
 
 		[[nodiscard]] bool Query(const F4SEInterface* a_f4se, PluginInfo* a_info) noexcept;
 		[[nodiscard]] bool Load(const F4SEInterface* a_f4se) noexcept;
@@ -25,14 +23,8 @@ namespace f4se {
 
 	private:
 
-		Plugin() noexcept {}
-		~Plugin() noexcept {}
-
-		Plugin(const Plugin&) = delete;
-		Plugin(Plugin&&) = delete;
-
-		Plugin& operator=(const Plugin&) = delete;
-		Plugin& operator=(Plugin&&) = delete;
+		Plugin() noexcept = default;
+		~Plugin() noexcept = default;
 
 		static void MsgCallback(F4SEMessagingInterface::Message* msg) noexcept;
 

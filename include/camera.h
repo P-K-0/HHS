@@ -4,6 +4,7 @@
 #include "externals.h"
 #include "settings.h"
 #include "node.h"
+#include "util.h"
 
 namespace Camera {
 
@@ -21,14 +22,11 @@ namespace Camera {
 
 	constexpr auto ApplyCameraNodeAnimations = "bApplyCameraNodeAnimations:Camera";
 
-	class Player {
+	class Player : 
+		public util::Singleton<Player> {
+		friend class util::Singleton<Player>;
 
 	public:
-
-		[[nodiscard]] static Player& GetSingleton() noexcept {
-			static Player instance;
-			return instance;
-		}
 
 		void SetApplyCameraNodeAnimations(bool value) noexcept;
 
@@ -41,14 +39,8 @@ namespace Camera {
 
 	private:
 
-		Player() noexcept {}
-		~Player() noexcept {}
-
-		Player(const Player&) = delete;
-		Player(Player&&) = delete;
-
-		Player& operator=(const Player&) = delete;
-		Player& operator=(Player&&) = delete;
+		Player() noexcept = default;
+		~Player() noexcept = default;
 
 		Node::Transform Camera1st;
 
