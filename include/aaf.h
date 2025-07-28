@@ -72,8 +72,8 @@ namespace Aaf {
 
 	private:
 
-		Scene() = default;
-		~Scene() = default;
+		Scene() noexcept = default;
+		~Scene() noexcept = default;
 
 		void StartStop(std::uint64_t Handle, bool bStop, bool bTag) noexcept;
 

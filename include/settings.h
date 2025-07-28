@@ -38,6 +38,16 @@ namespace Settings {
 		CrossHair
 	};
 
+	enum class Section : std::uint32_t {
+
+		Main,
+		Slot,
+		AnimEvent,
+		Race,
+		InGame,
+		Keys
+	};
+
 	constexpr char* Default_Settings = "Data\\MCM\\Config\\FO4HHS\\Settings.ini";
 	constexpr char* Custom_Settings = "Data\\MCM\\Settings\\FO4HHS.ini";
 
@@ -57,6 +67,7 @@ namespace Settings {
 	constexpr bool Default_EnableTagAAF = true;
 	constexpr bool Default_Looksmenu = true;
 	constexpr bool Default_EnableSwimming = true;
+	constexpr bool Default_EnableBleedOut = true;
 	constexpr bool Default_EnableFirstPersonAnim = true;
 	constexpr bool Default_EnableFixes = true;
 	constexpr bool Default_EnableReloadFixes = false;
@@ -90,84 +101,92 @@ namespace Settings {
 		return std::clamp(static_cast<Reference>(value), Reference::Player, Reference::CrossHair);
 	}
 
-	class Ini : 
+	class Ini :
 		public util::Singleton<Ini> {
 		friend class util::Singleton<Ini>;
 
 	public:
 
-		using Slots = std::vector<bool>;
+		[[nodiscard]] bool GetEnablePlayer() const noexcept { return bEnablePlayer; }
+		[[nodiscard]] bool GetEnableNPCs() const noexcept { return bEnableNPCs; }
+		[[nodiscard]] bool GetEnableScript() const noexcept { return bEnableScript; }
+		[[nodiscard]] bool GetEnableTextFile() const noexcept { return bEnableTextFile; }
+		[[nodiscard]] bool GetEnableJsonFile() const noexcept { return bEnableJsonFile; }
+		[[nodiscard]] bool GetEnableExtraData() const noexcept { return bEnableExtraData; }
+		[[nodiscard]] bool GetEnableDynamicCamera() const noexcept { return bEnableDynamicCamera; }
+		[[nodiscard]] bool GetEnable1stCamera() const noexcept { return bEnable1stCamera; }
+		[[nodiscard]] bool GetEnable3rdCamera() const noexcept { return bEnable3rdCamera; }
+		[[nodiscard]] bool GetEnableCustomCameraPatch() const noexcept { return bEnableCustomCameraPatch; }
+		[[nodiscard]] bool GetCache() const noexcept { return bCache; }
+		[[nodiscard]] bool GetAltRead() const noexcept { return bAltRead; }
+		[[nodiscard]] std::uint32_t GetReadBufferLen() const noexcept { return iReadBufferLen; }
+		[[nodiscard]] bool GetEnableAAF() const noexcept { return bEnableAAF; }
+		[[nodiscard]] bool GetEnableTagAAF() const noexcept { return bEnableTagAAF; }
+		[[nodiscard]] bool GetLooksmenu() const noexcept { return bLooksmenu; }
+		[[nodiscard]] Gender GetGender() const noexcept { return iGender; }
+		[[nodiscard]] Furniture GetBehaviorFurniture() const noexcept { return iBehaviorFurniture; }
+		[[nodiscard]] std::uint32_t GetSlotFlags() const noexcept { return uSlotFlags; }
+		[[nodiscard]] Race GetRace() const noexcept { return iRace; }
+		[[nodiscard]] bool GetEnableSwimming() const noexcept { return bEnableSwimming; }
+		[[nodiscard]] bool GetEnableBleedOut() const noexcept { return bEnableBleedOut; }
+		[[nodiscard]] bool GetEnableFirstPersonAnim() const noexcept { return bEnableFirstPersonAnim; }
+		[[nodiscard]] bool GetEnableFixes() const noexcept { return bEnableFixes; }
+		[[nodiscard]] bool GetEnableReloadFixes() const noexcept { return bEnableReloadFixes; }
+		[[nodiscard]] float GetHeight() const noexcept { return fHeight; }
+		[[nodiscard]] float GetStep() const noexcept { return fStep; }
+		[[nodiscard]] std::uint32_t GetSlot() const noexcept { return iSlot; }
+		[[nodiscard]] bool GetDirF4SE() const noexcept { return iDirF4SE; }
+		[[nodiscard]] Reference GetReference() const noexcept { return iReference; }
+		[[nodiscard]] std::uint32_t GetKeyStartStopPlayer() const noexcept { return iKeyStartStopPlayer; }
+		[[nodiscard]] std::uint32_t GetKeyStartStopAll() const noexcept { return iKeyStartStopAll; }
+		[[nodiscard]] std::uint32_t GetKeyActivateEdit() const noexcept { return iKeyActivateEdit; }
+		[[nodiscard]] std::uint32_t GetKeyChangeRefr() const noexcept { return iKeyChangeRefr; }
+		[[nodiscard]] std::uint32_t GetKeyCreateHeight() const noexcept { return iKeyCreateHeight; }
+		[[nodiscard]] std::uint32_t GetKeyDeleteHeight() const noexcept { return iKeyDeleteHeight; }
+		[[nodiscard]] std::uint32_t GetKeyIncrementHeight() const noexcept { return iKeyIncrementHeight; }
+		[[nodiscard]] std::uint32_t GetKeyDecrementHeight() const noexcept { return iKeyDecrementHeight; }
+		[[nodiscard]] bool GetEnableSlot(std::size_t index) const noexcept { return bEnableSlot[index]; }
 
-		[[nodiscard]] const Slots& GetSlots() const { return bEnableSlot; }
-
-#define DECL_FN_GET_SET(t, v) \
-		[[nodiscard]] t Get_ ## v () const noexcept { return v; } \
-		void Set_ ## v (t value) noexcept { v = value; } 
-		
-		DECL_FN_GET_SET(bool, bEnablePlayer);
-		DECL_FN_GET_SET(bool, bEnableNPCs);
-
-		DECL_FN_GET_SET(bool, bEnableScript);
-		DECL_FN_GET_SET(bool, bEnableTextFile);
-		DECL_FN_GET_SET(bool, bEnableJsonFile);
-		DECL_FN_GET_SET(bool, bEnableExtraData);
-
-		DECL_FN_GET_SET(bool, bEnableDynamicCamera);
-		DECL_FN_GET_SET(bool, bEnable1stCamera);
-		DECL_FN_GET_SET(bool, bEnable3rdCamera);
-		DECL_FN_GET_SET(bool, bEnableCustomCameraPatch);
-
-		DECL_FN_GET_SET(bool, bCache);
-
-		DECL_FN_GET_SET(bool, bAltRead);
-		DECL_FN_GET_SET(std::uint32_t, iReadBufferLen);
-
-		DECL_FN_GET_SET(bool, bEnableAAF);
-		DECL_FN_GET_SET(bool, bEnableTagAAF);
-
-		DECL_FN_GET_SET(bool, bLooksmenu);
-
-		DECL_FN_GET_SET(bool, bEnableSwimming);
-		DECL_FN_GET_SET(bool, bEnableFirstPersonAnim);
-
-		DECL_FN_GET_SET(bool, bEnableFixes);
-		DECL_FN_GET_SET(bool, bEnableReloadFixes);
-
-		DECL_FN_GET_SET(Gender, iGender);
-
-		DECL_FN_GET_SET(Furniture, iBehaviorFurniture);
-
-		void Set_bEnableSlot(std::uint32_t index, bool value) noexcept;
-		[[nodiscard]] Slots Get_bEnableSlot() const noexcept { return bEnableSlot; }
-		void SetSlotFlags() noexcept;
-
-		DECL_FN_GET_SET(std::uint32_t, uSlotFlags);
-
-		DECL_FN_GET_SET(std::uint32_t, iKeyStartStopPlayer);
-		DECL_FN_GET_SET(std::uint32_t, iKeyStartStopAll);
-
-		DECL_FN_GET_SET(std::uint32_t, iKeyActivateEdit);
-		DECL_FN_GET_SET(std::uint32_t, iKeyChangeRefr);
-		DECL_FN_GET_SET(std::uint32_t, iKeyCreateHeight);
-		DECL_FN_GET_SET(std::uint32_t, iKeyDeleteHeight);
-		DECL_FN_GET_SET(std::uint32_t, iKeyIncrementHeight);
-		DECL_FN_GET_SET(std::uint32_t, iKeyDecrementHeight);
-
-		DECL_FN_GET_SET(Race, iRace);
-
-		DECL_FN_GET_SET(float, fHeight);
-		DECL_FN_GET_SET(float, fStep);
-		DECL_FN_GET_SET(Reference, iReference);
-
-		[[nodiscard]] std::uint32_t Get_iSlot() const noexcept { return iSlot; }
-		void Set_iSlot(std::uint32_t value) noexcept { iSlot = std::clamp(value, MinSlot, MaxSlot); }
-
-		DECL_FN_GET_SET(bool, iDirF4SE);
+		void SetEnablePlayer(bool value) noexcept { bEnablePlayer = value; }
+		void SetEnableNPCs(bool value) noexcept { bEnableNPCs = value; }
+		void SetEnableScript(bool value) noexcept { bEnableScript = value; }
+		void SetEnableTextFile(bool value) noexcept { bEnableTextFile = value; }
+		void SetEnableJsonFile(bool value) noexcept { bEnableJsonFile = value; }
+		void SetEnableExtraData(bool value) noexcept { bEnableExtraData = value; }
+		void SetEnableDynamicCamera(bool value) noexcept { bEnableDynamicCamera = value; }
+		void SetEnable1stCamera(bool value) noexcept { bEnable1stCamera = value; }
+		void SetEnable3rdCamera(bool value) noexcept { bEnable3rdCamera = value; }
+		void SetEnableCustomCameraPatch(bool value) noexcept { bEnableCustomCameraPatch = value; }
+		void SetCache(bool value) noexcept { bCache = value; }
+		void SetAltRead(bool value) noexcept { bAltRead = value; }
+		void SetReadBufferLen(std::uint32_t value) noexcept { iReadBufferLen = value; }
+		void SetEnableAAF(bool value) noexcept { bEnableAAF = value; }
+		void SetEnableTagAAF(bool value) noexcept { bEnableTagAAF = value; }
+		void SetLooksmenu(bool value) noexcept { bLooksmenu = value; }
+		void SetGender(Gender value) noexcept { iGender = value; }
+		void SetBehaviorFurniture(Furniture value) noexcept { iBehaviorFurniture = value; }
+		void SetRace(Race value) noexcept { iRace = value; }
+		void SetEnableSwimming(bool value) noexcept { bEnableSwimming = value; }
+		void SetEnableBleedOut(bool value) noexcept { bEnableBleedOut = value; }
+		void SetEnableFirstPersonAnim(bool value) noexcept { bEnableFirstPersonAnim = value; }
+		void SetEnableFixes(bool value) noexcept { bEnableFixes = value; }
+		void SetEnableReloadFixes(bool value) noexcept { bEnableReloadFixes = value; }
+		void SetHeight(float value) noexcept { fHeight = value; }
+		void SetStep(float value) noexcept { fStep = value; }
+		void SetSlot(std::uint32_t value) noexcept { iSlot = std::clamp(value, MinSlot, MaxSlot); }
+		void SetDirF4SE(bool value) noexcept { iDirF4SE = value; }
+		void SetReference(Reference value) noexcept { iReference = value; }
+		void SetKeyStartStopPlayer(std::uint32_t value) noexcept { iKeyStartStopPlayer = value; }
+		void SetKeyStartStopAll(std::uint32_t value) noexcept { iKeyStartStopAll = value; }
+		void SetKeyActivateEdit(std::uint32_t value) noexcept { iKeyActivateEdit = value; }
+		void SetKeyChangeRefr(std::uint32_t value) noexcept { iKeyChangeRefr = value; }
+		void SetKeyCreateHeight(std::uint32_t value) noexcept { iKeyCreateHeight = value; }
+		void SetKeyDeleteHeight(std::uint32_t value) noexcept { iKeyDeleteHeight = value; }
+		void SetKeyIncrementHeight(std::uint32_t value) noexcept { iKeyIncrementHeight = value; }
+		void SetKeyDecrementHeight(std::uint32_t value) noexcept { iKeyDecrementHeight = value; }
+		void SetEnableSlot(std::uint32_t index, bool value) noexcept;
 
 		void ReadAllSettings() noexcept;
-
-		void InitFurnitureKeywords(CSimpleIni& ini) noexcept;
-		void InitRace(CSimpleIni& ini) noexcept;
 
 		[[nodiscard]] bool CheckFurnitureBehavior(TESObjectREFR* refr) noexcept;
 		[[nodiscard]] bool CheckRace(TESRace* race) noexcept;
@@ -175,7 +194,7 @@ namespace Settings {
 
 	private:
 
-		Ini() noexcept { bEnableSlot.assign(MaxSlot, true); }
+		Ini() noexcept = default;
 		~Ini() noexcept = default;
 
 		void ReadSettings(const std::string& Filename) noexcept;
@@ -183,51 +202,43 @@ namespace Settings {
 		// [Main]
 		bool bEnablePlayer{ Default_EnablePlayer };
 		bool bEnableNPCs{ Default_EnableNPC };
-
 		bool bEnableScript{ Default_EnableScript };
 		bool bEnableTextFile{ Default_EnableTextFile };
 		bool bEnableJsonFile{ Default_EnableJsonFile };
 		bool bEnableExtraData{ Default_EnableExtraData };
-
 		bool bEnableDynamicCamera{ Default_EnableDynamicCamera };
 		bool bEnable1stCamera{ Default_Enable1stCamera };
 		bool bEnable3rdCamera{ Default_Enable3rdCamera };
 		bool bEnableCustomCameraPatch{ Default_EnableCustomCameraPatch };
-
 		bool bCache{ Default_Cache };
-
 		bool bAltRead{ Default_AltRead };
 		std::uint32_t iReadBufferLen{ Default_ReadBufferLen };
-
 		bool bEnableAAF{ Default_EnableAAF };
 		bool bEnableTagAAF{ Default_EnableTagAAF };
 		std::vector<std::string> vTagAAF;
-
 		bool bLooksmenu{ Default_Looksmenu };
-
 		Gender iGender{ Default_Gender };
-
 		Furniture iBehaviorFurniture{ Default_BehaviorFurniture };
-
 		std::vector<std::uint32_t> vFurnitureKeyword;
 
-		// [AnimEvent]
-		bool bEnableSwimming{ Default_EnableSwimming };
-		bool bEnableFirstPersonAnim{ Default_EnableFirstPersonAnim };
-		bool bEnableFixes{ Default_EnableFixes };
-		bool bEnableReloadFixes{ Default_EnableReloadFixes };
-
 		// [Slot]
-		Slots bEnableSlot;
+		bool bEnableSlot[MaxSlot];
 		std::uint32_t uSlotFlags{ 0xffffffff };
 
 		// [Race]
 		Race iRace{ Default_Race };
 		std::vector<std::uint32_t> vRace;
+		
+		// [AnimEvent]
+		bool bEnableSwimming{ Default_EnableSwimming };
+		bool bEnableBleedOut{ Default_EnableBleedOut };
+		bool bEnableFirstPersonAnim{ Default_EnableFirstPersonAnim };
+		bool bEnableFixes{ Default_EnableFixes };
+		bool bEnableReloadFixes{ Default_EnableReloadFixes };
 
 		// [In-Game]
 		float fHeight{ Default_Height };
-		float fStep{ 0.1f };
+		float fStep{ Default_Step };
 		std::uint32_t iSlot{ Default_Slot };
 		bool iDirF4SE{ Default_DirF4SE };
 		Reference iReference{ Default_Reference };
@@ -241,5 +252,41 @@ namespace Settings {
 		std::uint32_t iKeyDeleteHeight{};
 		std::uint32_t iKeyIncrementHeight{};
 		std::uint32_t iKeyDecrementHeight{};
+
+		const std::vector<std::string> vSection{
+			"Main",
+			"Slot",
+			"AnimEvent",
+			"Race",
+			"In-Game",
+			"Keys"
+		};
+
+		void InitFurnitureKeywords(CSimpleIni& ini) noexcept;
+		void InitRace(CSimpleIni& ini) noexcept;
+
+		[[nodiscard]] bool HasRaceKeyword(TESRace* race) noexcept;
+
+		void ParseString(const std::string& str, std::vector<std::string>& vStr) noexcept;
+		[[nodiscard]] bool ParseString(CSimpleIni& ini, Section section, const char* key, std::vector<std::string>& vStr) noexcept;
+
+		void DbgMessage(const std::string& type, const std::string& name, std::uint32_t id, const std::string& other_msg = "") noexcept
+		{ _DMESSAGE("%s found : EditorID = %40s\t\t\tformID = 0x%.8X %s", type.c_str(), name.c_str(), id, other_msg); }
+
+		void DMsg(const char* msg, float value) noexcept { _DMESSAGE("%s = %f", msg, value); }
+		void DMsg(const char* msg, double value) noexcept { _DMESSAGE("%s = %f", msg, value); }
+		void DMsg(const char* msg, bool value) noexcept { _DMESSAGE("%s = %i", msg, value); }
+		void DMsg(const char* msg, int value) noexcept { _DMESSAGE("%s = %i", msg, value); }
+		void DMsg(const char* msg, std::uint32_t value) noexcept { _DMESSAGE("%s = %u", msg, value); }
+		void DMsg(const char* msg, Gender value) noexcept { _DMESSAGE("%s = %u", msg, value); }
+		void DMsg(const char* msg, Furniture value) noexcept { _DMESSAGE("%s = %u", msg, value); }
+		void DMsg(const char* msg, Race value) noexcept { _DMESSAGE("%s = %u", msg, value); }
+		void DMsg(const char* msg, Reference value) noexcept { _DMESSAGE("%s = %u", msg, value); }
+
+		void GetValue(CSimpleIni& ini, Section section, const char* key, bool& value) noexcept;
+		void GetValue(CSimpleIni& ini, Section section, const char* key, float& value) noexcept;
+
+		template<typename T>
+		void GetValue(CSimpleIni& ini, Section section, const char* key, T& value) noexcept;
 	};
 }

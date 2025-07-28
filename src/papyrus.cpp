@@ -351,7 +351,7 @@ namespace Papyrus {
 
 	bool Register(VirtualMachine* vm) noexcept
 	{
-		if (!Settings::Ini::GetSingleton().Get_bEnableScript()) {
+		if (!Settings::Ini::GetSingleton().GetEnableScript()) {
 			return false;
 		}
 

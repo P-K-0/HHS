@@ -40,7 +40,7 @@ namespace JsonParser {
 
 	void EnumFilesBA2(const std::string& directory, std_lib::set& files) noexcept
 	{
-		if (Settings::Ini::GetSingleton().Get_bAltRead()) {
+		if (Settings::Ini::GetSingleton().GetAltRead()) {
 			return;
 		}
 
@@ -213,7 +213,7 @@ namespace JsonParser {
 
 	void EnumFiles() noexcept
 	{
-		if (!Settings::Ini::GetSingleton().Get_bEnableJsonFile()) {
+		if (!Settings::Ini::GetSingleton().GetEnableJsonFile()) {
 			return;
 		}
 

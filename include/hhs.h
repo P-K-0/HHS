@@ -38,24 +38,20 @@ namespace hhs {
 		System() noexcept = default;
 		~System() noexcept = default;
 
-		System(const System& sys) = delete;
-		System(System&& sys) = delete;
-
-		System& operator=(const System&) = delete;
-		System& operator=(System&&) = delete;
-
 		[[nodiscard]] Error SetHeight(float Height) noexcept;
 		[[nodiscard]] Error SetHeight(std::uint32_t slot = 0, std::uint32_t id = 0, bool equipped = false) noexcept;
 		[[nodiscard]] Error ResetHeight() noexcept;
 		[[nodiscard]] Error Start() noexcept;
 		[[nodiscard]] Error Stop(bool stopAAF = false) noexcept;
 		[[nodiscard]] Error Swim(bool swim) noexcept;
+		[[nodiscard]] Error BleedOut(bool bleedOut) noexcept;
 		[[nodiscard]] float GetHeight() const noexcept { return height; }
 		[[nodiscard]] bool HasOverride() const noexcept { return hasOverride; }
 		[[nodiscard]] bool HasHeight() const noexcept { return height != ZeroValue; }
 		[[nodiscard]] bool IsAAF() const noexcept { return isAAF; }
 		[[nodiscard]] bool IsStop() const noexcept { return isStop; }
 		[[nodiscard]] bool IsSwimming() const noexcept { return isSwimming; }
+		[[nodiscard]] bool IsBleeding() const noexcept { return isBleeding; }
 		[[nodiscard]] bool IsSkip() const noexcept { return skip; }
 		[[nodiscard]] Actors::Utility& GetActorUtil() noexcept { return util; }
 
@@ -69,6 +65,7 @@ namespace hhs {
 		bool isStop{};
 		bool isAAF{};
 		bool isSwimming{};
+		bool isBleeding{};
 		bool hasOverride{};
 		bool skip{};
 		

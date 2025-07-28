@@ -49,6 +49,7 @@ namespace Events {
 		public BSTEventSink<TESLoadGameEvent>,
 		public BSTEventSink<TESCellAttachEvent>,
 		public BSTEventSink<TESInitScriptEvent>,
+		public BSTEventSink<TESEnterBleedoutEvent>,
 		public BSTEventSink<MenuOpenCloseEvent>,
 		public PlayerInputHandler,
 		public util::Singleton<Dispatcher> { 
@@ -66,6 +67,7 @@ namespace Events {
 		virtual EventResult ReceiveEvent(TESLoadGameEvent* evn, void* dispatcher);
 		virtual EventResult ReceiveEvent(TESCellAttachEvent* evn, void* dispatcher);
 		virtual EventResult ReceiveEvent(TESInitScriptEvent* evn, void* dispatcher);
+		virtual EventResult ReceiveEvent(TESEnterBleedoutEvent* evn, void* dispatcher);
 		virtual EventResult ReceiveEvent(MenuOpenCloseEvent* evn, void* dispatcher);
 
 		void Register() noexcept;
@@ -87,6 +89,7 @@ namespace Events {
 
 		static void AnimObjFirstPerson(TESObjectREFR* refr, bool stop) noexcept;
 		static void SwimEvent(TESObjectREFR* refr, bool soundPlay) noexcept;
+		static void BleedOutEvent(TESObjectREFR* refr, bool stop) noexcept;
 
 		static void* ProcessEvent(void*, BSAnimationGraphEvent*, void*);
 

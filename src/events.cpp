@@ -19,7 +19,7 @@ namespace Events {
 
 		auto& settings = Settings::Ini::GetSingleton();
 
-		if (keycode == settings.Get_iKeyStartStopPlayer()) {
+		if (keycode == settings.GetKeyStartStopPlayer()) {
 
 			hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, PlayerID, [&](hhs::System& sys) {
 
@@ -31,7 +31,7 @@ namespace Events {
 			});
 		}
 
-		if (keycode == settings.Get_iKeyStartStopAll()) {
+		if (keycode == settings.GetKeyStartStopAll()) {
 
 			VisitCell([&](TESObjectREFR* refr) {
 
@@ -50,27 +50,27 @@ namespace Events {
 
 		auto& ingame = InGame::HeightEdit::GetSingleton();
 
-		if (keycode == settings.Get_iKeyActivateEdit()) {
+		if (keycode == settings.GetKeyActivateEdit()) {
 			ingame.OnKeyPress(InGame::Key::Activate);
 		}
 
-		if (keycode == settings.Get_iKeyCreateHeight()) {
+		if (keycode == settings.GetKeyCreateHeight()) {
 			ingame.OnKeyPress(InGame::Key::Create);
 		}
 
-		if (keycode == settings.Get_iKeyDeleteHeight()) {
+		if (keycode == settings.GetKeyDeleteHeight()) {
 			ingame.OnKeyPress(InGame::Key::Delete);
 		}
 
-		if (keycode == settings.Get_iKeyIncrementHeight()) {
+		if (keycode == settings.GetKeyIncrementHeight()) {
 			ingame.OnKeyPress(InGame::Key::Increment);
 		}
 
-		if (keycode == settings.Get_iKeyDecrementHeight()) {
+		if (keycode == settings.GetKeyDecrementHeight()) {
 			ingame.OnKeyPress(InGame::Key::Decrement);
 		}
 
-		if (keycode == settings.Get_iKeyChangeRefr()) {
+		if (keycode == settings.GetKeyChangeRefr()) {
 			ingame.OnKeyPress(InGame::Key::ChangeReference);
 		}
 
@@ -131,7 +131,7 @@ namespace Events {
 
 		std::uint32_t slot{ Actors::GetSlotMaskByID(evn->ObjectID) };
 
-		if ((slot & Settings::Ini::GetSingleton().Get_uSlotFlags()) == InvalidSlot) {
+		if ((slot & Settings::Ini::GetSingleton().GetSlotFlags()) == InvalidSlot) {
 			return kEvent_Continue;
 		}
 
@@ -254,7 +254,7 @@ namespace Events {
 			return;
 		}
 
-		if (!Settings::Ini::GetSingleton().Get_bEnableFirstPersonAnim()) {
+		if (!Settings::Ini::GetSingleton().GetEnableFirstPersonAnim()) {
 			return;
 		}
 
@@ -286,7 +286,7 @@ namespace Events {
 
 	void Dispatcher::SwimEvent(TESObjectREFR* refr, bool soundPlay) noexcept
 	{
-		if (!Settings::Ini::GetSingleton().Get_bEnableSwimming()) {
+		if (!Settings::Ini::GetSingleton().GetEnableSwimming()) {
 			return;
 		}
 
@@ -310,13 +310,41 @@ namespace Events {
 		});
 	}
 
+	void Dispatcher::BleedOutEvent(TESObjectREFR* refr, bool stop) noexcept
+	{
+		if (!Settings::Ini::GetSingleton().GetEnableBleedOut()) {
+			return;
+		}
+
+		hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, refr, [&](hhs::System& sys) {
+
+			auto actor = sys.GetActorPtr();
+
+			if (actor->IsDead() || actor->IsSitting() || actor->IsSwimming() || !sys.HasHeight()) {
+				return hhs::Error::Success;
+			}
+
+			if (sys.IsBleeding()) {
+				sys.BleedOut(false);
+			}
+			else {
+
+				if (stop) {
+					sys.BleedOut(true);
+				}
+			}
+			
+			return hhs::Error::Success;
+		});
+	}
+
 	void* Dispatcher::ProcessEvent(void* a_this, BSAnimationGraphEvent* graph, void* dispatcher)
 	{
 		if (graph && graph->refr && graph->eventName && graph->eventName.c_str()) {
 
 			auto key = hash<AnimationGraphEvent>(graph->eventName.c_str());
 
-			//if (graph->refr->formID == PlayerID) {
+			//if (graph->refr->formID == 0x8D001734) { // PlayerID) {
 			//	_DMESSAGE("%.8X %s %I64X", graph->refr->formID, graph->eventName.c_str(), key);
 			//}
 
@@ -338,7 +366,11 @@ namespace Events {
 				SwimEvent(graph->refr, true);
 				break;
 
-			//case AnimationGraphEvent::ReevaluateGraphState:
+			case AnimationGraphEvent::ReevaluateGraphState:
+
+				BleedOutEvent(graph->refr, false);
+				break;
+
 			case AnimationGraphEvent::InitiateStart:
 
 				SwimEvent(graph->refr, false);
@@ -348,6 +380,17 @@ namespace Events {
 		}
 
 		return o_ActorMediator_ProcessEvent(a_this, graph, dispatcher);
+	}
+
+	EventResult Dispatcher::ReceiveEvent(TESEnterBleedoutEvent* evn, void* dispatcher)
+	{
+		if (!evn || !evn->reference) {
+			return kEvent_Continue;
+		}
+
+		BleedOutEvent(evn->reference, true);
+
+		return kEvent_Continue;
 	}
 
 	EventResult Dispatcher::ReceiveEvent(MenuOpenCloseEvent* evn, void* dispatcher)
@@ -362,7 +405,7 @@ namespace Events {
 
 		case MenuName::LooksMenu:
 
-			if (!Settings::Ini::GetSingleton().Get_bLooksmenu()) {
+			if (!Settings::Ini::GetSingleton().GetLooksmenu()) {
 
 				VisitCell([&](TESObjectREFR* refr) {
 
@@ -427,6 +470,7 @@ namespace Events {
 		AddEvent<TESLoadGameEvent>();
 		AddEvent<TESCellAttachEvent>();
 		AddEvent<TESInitScriptEvent>();
+		AddEvent<TESEnterBleedoutEvent>();
 
 		auto ui = *g_ui;
 

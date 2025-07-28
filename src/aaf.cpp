@@ -253,7 +253,7 @@ namespace Aaf {
 	{
 		SendCustomEvent_Original(vm, unk1, sender, eventName, args);
 
-		if (Settings::Ini::GetSingleton().Get_bEnableAAF() && vm && sender && eventName && eventName->c_str() && args) {
+		if (Settings::Ini::GetSingleton().GetEnableAAF() && vm && sender && eventName && eventName->c_str() && args) {
 			Scene::GetSingleton().ProcessEvent(eventName, args);
 		}
 	}

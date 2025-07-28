@@ -20,7 +20,7 @@ namespace hhs {
 		}
 
 		height = h;
-		skip = isStop = isAAF = isSwimming = false;
+		skip = isStop = isAAF = isSwimming = isBleeding = false;
 
 		return Error::Success;
 	}
@@ -50,7 +50,7 @@ namespace hhs {
 		}
 
 		height = h;
-		skip = isStop = isAAF = isSwimming = false;
+		skip = isStop = isAAF = isSwimming = isBleeding = false;
 
 		return Error::Success;
 	}
@@ -70,7 +70,7 @@ namespace hhs {
 		}
 
 		height = ZeroValue;
-		skip = hasOverride = isStop = isAAF = isSwimming = false;
+		skip = hasOverride = isStop = isAAF = isSwimming = isBleeding = false;
 
 		return Error::Success;
 	}
@@ -111,6 +111,18 @@ namespace hhs {
 		return Start();
 	}
 
+	Error System::BleedOut(bool bleedOut) noexcept
+	{
+		isBleeding = bleedOut;
+
+		if (bleedOut) {
+			return Stop();
+		}
+
+		return Start();
+	}
+
+
 	void System::DisableFix() noexcept
 	{
 		for (auto& m : map) {
@@ -122,7 +134,7 @@ namespace hhs {
 	{
 		auto& settings = Settings::Ini::GetSingleton();
 
-		if (!settings.Get_bEnableFixes()) {
+		if (!settings.GetEnableFixes()) {
 			return;
 		}
 
@@ -148,7 +160,7 @@ namespace hhs {
 
 		auto& fixes = Fixes::Preset::GetSingleton();
 
-		if (settings.Get_bEnableReloadFixes()) {
+		if (settings.GetEnableReloadFixes()) {
 			fixes.Load();
 		}
 

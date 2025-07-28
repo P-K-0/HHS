@@ -14,7 +14,7 @@ namespace Camera {
 	{
 		auto val{ value };
 
-		if (Settings::Ini::GetSingleton().Get_bEnableCustomCameraPatch() && name) {
+		if (Settings::Ini::GetSingleton().GetEnableCustomCameraPatch() && name) {
 
 			for (auto& stgCamera : Camera3rdSettings) {
 
@@ -141,9 +141,9 @@ namespace Camera {
 
 		auto& settings = Settings::Ini::GetSingleton();
 
-		float h{ settings.Get_bEnableDynamicCamera() ? height : ZeroValue };
-		float h1st{ settings.Get_bEnable1stCamera() ? h : ZeroValue };
-		float h3rd{ settings.Get_bEnable3rdCamera() ? h : ZeroValue };
+		float h{ settings.GetEnableDynamicCamera() ? height : ZeroValue };
+		float h1st{ settings.GetEnable1stCamera() ? h : ZeroValue };
+		float h3rd{ settings.GetEnable3rdCamera() ? h : ZeroValue };
 
 		if (height1st == h1st && height3rd == h3rd) {
 			return;

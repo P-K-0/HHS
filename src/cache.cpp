@@ -101,7 +101,7 @@ namespace Cache {
 
 	bool Map::Load() noexcept
 	{
-		if (!Settings::Ini::GetSingleton().Get_bCache()) {
+		if (!Settings::Ini::GetSingleton().GetCache()) {
 			return false;
 		}
 
@@ -202,7 +202,7 @@ namespace Cache {
 
 	bool Map::Save() noexcept
 	{
-		if (!Settings::Ini::GetSingleton().Get_bCache() || saved) {
+		if (!Settings::Ini::GetSingleton().GetCache() || saved) {
 			return false;
 		}
 

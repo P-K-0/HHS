@@ -72,13 +72,13 @@ namespace InGame {
 
 		std::uint32_t refID{ PlayerID };
 
-		if (handle != 0 && settings.Get_iReference() == Settings::Reference::CrossHair) {
+		if (handle != 0 && settings.GetReference() == Settings::Reference::CrossHair) {
 			refID = GetFormIDByHandle(handle);
 		}
 
 		hhs::Error err = hhs::Map::GetSingleton().visit(hhs::VisitFlags::None, refID, [&](hhs::System& sys) {
 
-			if (!sys.GetActorUtil().GetEquipData(settings.Get_iSlot(), id, filename)) {
+			if (!sys.GetActorUtil().GetEquipData(settings.GetSlot(), id, filename)) {
 				return hhs::Error::Unknown;
 			}
 
@@ -100,7 +100,7 @@ namespace InGame {
 				return err;
 			}
 
-			auto height = settings.Get_fHeight();
+			auto height = settings.GetHeight();
 
 			if ((err = sys.SetHeight(height)) == hhs::Error::Success) {
 
@@ -198,16 +198,16 @@ namespace InGame {
 			{
 				auto& settings = Settings::Ini::GetSingleton();
 
-				if (settings.Get_iReference() == Settings::Reference::Player) {
+				if (settings.GetReference() == Settings::Reference::Player) {
 
-					settings.Set_iReference(Settings::Reference::CrossHair);
+					settings.SetReference(Settings::Reference::CrossHair); 
 				}
 				else {
 
-					settings.Set_iReference(Settings::Reference::Player);
+					settings.SetReference(Settings::Reference::Player);
 				}
 
-				Papyrus::Notification(lang[settings.Get_iReference() == Settings::Reference::Player ? Translations::LangID::PlayerRefr : Translations::LangID::CrossHairRefr]);
+				Papyrus::Notification(lang[settings.GetReference() == Settings::Reference::Player ? Translations::LangID::PlayerRefr : Translations::LangID::CrossHairRefr]);
 			}
 
 			break;
@@ -218,7 +218,7 @@ namespace InGame {
 	{
 		auto& settings = Settings::Ini::GetSingleton();
 
-		settings.Set_fHeight(settings.Get_fHeight() + settings.Get_fStep());
+		settings.SetHeight(settings.GetHeight() + settings.GetStep());
 
 		Process(Key::Test);
 	}
@@ -227,7 +227,7 @@ namespace InGame {
 	{
 		auto& settings = Settings::Ini::GetSingleton();
 
-		settings.Set_fHeight(settings.Get_fHeight() - settings.Get_fStep());
+		settings.SetHeight(settings.GetHeight() - settings.GetStep());
 
 		Process(Key::Test);
 	}

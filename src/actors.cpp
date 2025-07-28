@@ -24,9 +24,9 @@ namespace Actors {
 		auto& settings = Settings::Ini::GetSingleton();
 
 		isPlayer = act == *g_player;
-		isEnabled = isPlayer ? settings.Get_bEnablePlayer() : settings.Get_bEnableNPCs();
+		isEnabled = isPlayer ? settings.GetEnablePlayer() : settings.GetEnableNPCs();
 
-		auto gender = settings.Get_iGender();
+		auto gender = settings.GetGender();
 
 		if (isEnabled && gender != Settings::Gender::BothGender) {
 
@@ -168,7 +168,7 @@ namespace Actors {
 
 			const auto materialSwap = equipdata->slots[indexSlot].modelMatSwap;
 
-			if (!Settings::Ini::GetSingleton().GetSlots()[indexSlot] || !materialSwap) {
+			if (!Settings::Ini::GetSingleton().GetEnableSlot(indexSlot) || !materialSwap) {
 				continue;
 			}
 

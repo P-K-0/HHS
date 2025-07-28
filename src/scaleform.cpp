@@ -45,7 +45,7 @@ namespace Scaleform {
 
 		if (enabled) {
 
-			settings.Set_bEnablePlayer(enabled);
+			settings.SetEnablePlayer(enabled);
 		}
 
 		auto err = hhs::Map::GetSingleton().visit(hhs::VisitFlags::None, PlayerID, [&](hhs::System& sys) {
@@ -57,7 +57,7 @@ namespace Scaleform {
 
 			auto ret = sys.ResetHeight();
 
-			settings.Set_bEnablePlayer(enabled);
+			settings.SetEnablePlayer(enabled);
 
 			return ret;	
 		});
@@ -71,7 +71,7 @@ namespace Scaleform {
 
 		if (enabled) {
 
-			settings.Set_bEnableNPCs(enabled);
+			settings.SetEnableNPCs(enabled);
 		}
 
 		VisitCell([&](TESObjectREFR* refr) {
@@ -88,7 +88,7 @@ namespace Scaleform {
 
 				auto ret = sys.ResetHeight();
 
-				settings.Set_bEnableNPCs(enabled);
+				settings.SetEnableNPCs(enabled);
 
 				return ret;
 			});
@@ -97,22 +97,22 @@ namespace Scaleform {
 
 	void EnableScript(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableScript(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableScript(GetValue<bool>(args, 1));
 	}
 
 	void EnableTextFile(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableTextFile(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableTextFile(GetValue<bool>(args, 1));
 	}
 
 	void EnableJsonFile(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableTextFile(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableTextFile(GetValue<bool>(args, 1));
 	}
 
 	void EnableExtraData(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableExtraData(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableExtraData(GetValue<bool>(args, 1));
 	}
 
 	void EnableCamera() noexcept
@@ -129,21 +129,21 @@ namespace Scaleform {
 
 	void EnableDynamicCamera(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableDynamicCamera(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableDynamicCamera(GetValue<bool>(args, 1));
 
 		EnableCamera();
 	}
 
 	void EnableFirstPersonCamera(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnable1stCamera(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnable1stCamera(GetValue<bool>(args, 1));
 
 		EnableCamera();
 	}
 
 	void EnableThirdPersonCamera(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnable3rdCamera(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnable3rdCamera(GetValue<bool>(args, 1));
 
 		EnableCamera();
 	}
@@ -152,7 +152,7 @@ namespace Scaleform {
 	{
 		auto value = GetValue<bool>(args, 1);
 
-		Settings::Ini::GetSingleton().Set_bEnableCustomCameraPatch(value);
+		Settings::Ini::GetSingleton().SetEnableCustomCameraPatch(value);
 
 		if (!value) {
 			Camera::Player::GetSingleton().ResetCameraSettings();
@@ -163,94 +163,99 @@ namespace Scaleform {
 
 	void EnableCache(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bCache(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetCache(GetValue<bool>(args, 1));
 
 		Cache::Map::GetSingleton().Load();
 	}
 
 	void EnableAltRead(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bAltRead(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetAltRead(GetValue<bool>(args, 1));
 	}
 
 	void EnableAAF(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableAAF(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableAAF(GetValue<bool>(args, 1));
 	}
 
 	void EnableTagAAF(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableTagAAF(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableTagAAF(GetValue<bool>(args, 1));
 	}
 
 	void EnableLooksMenu(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bLooksmenu(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetLooksmenu(GetValue<bool>(args, 1));
 	}
 
 	void SetGender(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_iGender(Settings::gender_cast(GetValue<std::int32_t>(args, 1)));
+		Settings::Ini::GetSingleton().SetGender(Settings::gender_cast(GetValue<std::int32_t>(args, 1)));
 	}
 
 	void SetBehaviorFurniture(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_iBehaviorFurniture(Settings::furniture_cast(GetValue<std::int32_t>(args, 1)));
+		Settings::Ini::GetSingleton().SetBehaviorFurniture(Settings::furniture_cast(GetValue<std::int32_t>(args, 1)));
 	}
 
 	void EnableSlot(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableSlot(GetValue<std::uint32_t>(args, 1), GetValue<bool>(args, 2));
+		Settings::Ini::GetSingleton().SetEnableSlot(GetValue<std::uint32_t>(args, 1), GetValue<bool>(args, 2));
 	}
 
 	void SetRace(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_iRace(Settings::race_cast(GetValue<std::int32_t>(args, 1)));
+		Settings::Ini::GetSingleton().SetRace(Settings::race_cast(GetValue<std::int32_t>(args, 1)));
 	}
 
 	void SetHeight(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_fHeight(GetValue<float>(args, 1));
+		Settings::Ini::GetSingleton().SetHeight(GetValue<float>(args, 1));
 	}
 
 	void SetStep(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_fStep(GetValue<float>(args, 1));
+		Settings::Ini::GetSingleton().SetStep(GetValue<float>(args, 1));
 	}
 
 	void SetSlot(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_iSlot(GetValue<std::uint32_t>(args, 1));
+		Settings::Ini::GetSingleton().SetSlot(GetValue<std::uint32_t>(args, 1));
 	}
 
 	void SetDirF4SE(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_iDirF4SE(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetDirF4SE(GetValue<bool>(args, 1));
 	}
 
 	void SetReference(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_iReference(Settings::reference_cast(GetValue<std::int32_t>(args, 1)));
+		Settings::Ini::GetSingleton().SetReference(Settings::reference_cast(GetValue<std::int32_t>(args, 1)));
 	}
 
 	void SetSwimming(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableSwimming(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableSwimming(GetValue<bool>(args, 1));
+	}
+
+	void SetBleedOut(GFxFunctionHandler::Args* args) noexcept
+	{
+		Settings::Ini::GetSingleton().SetEnableBleedOut(GetValue<bool>(args, 1));
 	}
 
 	void SetFirstPersonAnim(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableFirstPersonAnim(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableFirstPersonAnim(GetValue<bool>(args, 1));
 	}
 
 	void SetFixes(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableFixes(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableFixes(GetValue<bool>(args, 1));
 	}
 
 	void SetReloadFixes(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().Set_bEnableReloadFixes(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableReloadFixes(GetValue<bool>(args, 1));
 	}
 
 	using SettingFn = void (*)(GFxFunctionHandler::Args*);
@@ -281,6 +286,7 @@ namespace Scaleform {
 		{ "iDirF4SE", SetDirF4SE },
 		{ "iReference", SetReference },
 		{ "bEnableSwimming", SetSwimming },
+		{ "bEnableBleedOut", SetBleedOut },
 		{ "bEnableFirstPersonAnim", SetFirstPersonAnim },
 		{ "bEnableFixes", SetFixes },
 		{ "bEnableReloadFixes", SetReloadFixes }

@@ -39,7 +39,7 @@ namespace Text {
 
 	float GetHeightFromText(const std::string& filename) noexcept
 	{
-		if (!Settings::Ini::GetSingleton().Get_bEnableTextFile()) {
+		if (!Settings::Ini::GetSingleton().GetEnableTextFile()) {
 			return ZeroValue;
 		}
 
@@ -67,7 +67,7 @@ namespace Text {
 			return false;
 		}
 
-		std::string file{ GetTextFile(Filename, Settings::Ini::GetSingleton().Get_iDirF4SE()) };
+		std::string file{ GetTextFile(Filename, Settings::Ini::GetSingleton().GetDirF4SE()) };
 
 		std::filesystem::path path{ file };
 

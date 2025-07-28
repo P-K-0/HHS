@@ -250,7 +250,7 @@ namespace Skeleton {
 
 	float GetHeightFromSkeleton(const std::string& filename) noexcept
 	{
-		if (!Settings::Ini::GetSingleton().Get_bEnableExtraData()) {
+		if (!Settings::Ini::GetSingleton().GetEnableExtraData()) {
 			return ZeroValue;
 		}
 

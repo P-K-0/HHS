@@ -13,9 +13,9 @@ namespace File {
 
 		auto& settings = Settings::Ini::GetSingleton();
 
-		len = settings.Get_iReadBufferLen();
+		len = settings.GetReadBufferLen();
 
-		if (settings.Get_bAltRead()) {
+		if (settings.GetAltRead()) {
 			return InputStreamRead(dst, len) > 0;
 		}
 
