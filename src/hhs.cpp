@@ -122,7 +122,6 @@ namespace hhs {
 		return Start();
 	}
 
-
 	void System::DisableFix() noexcept
 	{
 		for (auto& m : map) {
@@ -180,7 +179,7 @@ namespace hhs {
 				bool noStop{};
 
 				ret = fixes.GetPresetValues(keywrd->keyword.c_str(), noStop, [&](const Fixes::Values& values) {
-					SetTransform(values.node, values.flags, values.value * (values.mulheight ? height : 1.0f));
+					SetTransform(values.node.c_str(), values.flags, values.value * (values.mulheight ? height : 1.0f));
 				});
 
 				if (noStop) {

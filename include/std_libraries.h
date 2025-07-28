@@ -54,6 +54,20 @@ inline T hash(const char* str)
 	return static_cast<T>(val);
 }
 
+template<typename T = std::size_t>
+inline T chash(const char* str)
+{
+	std::size_t val = std::_FNV_offset_basis;
+
+	while (*str != '\0') {
+		val ^= static_cast<std::size_t>(*str);
+		val *= std::_FNV_prime;
+		str++;
+	}
+
+	return static_cast<T>(val);
+}
+
 constexpr std::size_t operator"" _hash(const char* str, const std::size_t size)
 {
 	std::size_t val = std::_FNV_offset_basis;

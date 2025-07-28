@@ -3,115 +3,148 @@
 
 namespace Node {
 
-	void Transform::ResetTransform(const std::string& sNode) noexcept
+	void Pool::TryAddingToPool(const char* sNode) noexcept
 	{
-		for (std::uint32_t idx{}; idx < static_cast<std::uint32_t>(Flags::Count); idx++) {
-			ResetTransform(sNode, static_cast<Flags>(idx));
+		auto hash = chash<>(sNode);
+
+		auto it = pool.find(hash);
+
+		if (it != pool.end()) {
+			return;
+		}
+
+		pool[hash] = sNode;
+	}
+
+	const std::string& Pool::GetFromPool(std::size_t hash) noexcept
+	{
+		auto it = pool.find(hash);
+
+		if (it != pool.end()) {
+			return it->second;
+		}
+
+		return strEmpty;
+	}
+
+	void Transform::ResetTransform(std::size_t hash) noexcept
+	{
+		auto& sNode = Pool::GetSingleton().GetFromPool(hash);
+
+		if (!sNode.empty()) {
+			for (std::uint32_t idx{}; idx < static_cast<std::uint32_t>(Flags::Count); idx++) {
+				ResetTransform(sNode.c_str(), static_cast<Flags>(idx));
+			}
 		}
 	}
 
-	std::int32_t Transform::ResetTransform(const std::string& node, Flags flags) noexcept
+	void Transform::ResetTransform(const char* node) noexcept
 	{
-		auto& m = map[node];
+		for (std::uint32_t idx{}; idx < static_cast<std::uint32_t>(Flags::Count); idx++) {
+			ResetTransform(node, static_cast<Flags>(idx));
+		}
+	}
 
-		if (!m.second.second[flags]) {
+	std::int32_t Transform::ResetTransform(const char* node, Flags flags) noexcept
+	{
+		auto& m = map[chash<>(node)];
+		auto index = static_cast<std::uint32_t>(flags);
+
+		std::uint8_t bitmask = (1 << index);
+
+		if ((m.flags & bitmask) == 0) {
 			return -1;
 		}
 
 		return Visit(node, true, [&](NiAVObject* obj) {
 
-			m.second.second[flags] = false;
+			m.flags &= ~(bitmask);
 
-			bool res{};
-
-			for (auto& v : m.second.second) {
-				res |= v;
-			}
-
-			if (!res) {
-				m.first = false;
+			if (m.flags == 0) {
+				m.isSet = false;
 			}
 
 			switch (flags) {
 
 			case Flags::PosX:
 
-				obj->m_localTransform.pos.x = m.second.first.pos.x;
+				obj->m_localTransform.pos.x = m.transform.pos.x;
 
 				break;
 
 			case Flags::PosY:
 
-				obj->m_localTransform.pos.y = m.second.first.pos.y;
+				obj->m_localTransform.pos.y = m.transform.pos.y;
 
 				break;
 
 			case Flags::PosZ:
 
-				obj->m_localTransform.pos.z = m.second.first.pos.z;
+				obj->m_localTransform.pos.z = m.transform.pos.z;
 
 				break;
 
 			case Flags::Scale:
 
-				obj->m_localTransform.scale = m.second.first.scale;
+				obj->m_localTransform.scale = m.transform.scale;
 
 				break;
 
 			case Flags::RotX:
 
-				SetEulerAngle(m.second.first, obj->m_localTransform, Angle::Heading);
+				SetEulerAngle(m.transform, obj->m_localTransform, Angle::Heading);
 
 				break;
 
 			case Flags::RotY:
 
-				SetEulerAngle(m.second.first, obj->m_localTransform, Angle::Attitude);
+				SetEulerAngle(m.transform, obj->m_localTransform, Angle::Attitude);
 
 				break;
 
 			case Flags::RotZ:
 
-				SetEulerAngle(m.second.first, obj->m_localTransform, Angle::Bank);
+				SetEulerAngle(m.transform, obj->m_localTransform, Angle::Bank);
 
 				break;
 			}
 		});
 	}
 
-	std::int32_t Transform::SetTransform(const std::string& node, Flags flags, float value) noexcept
+	std::int32_t Transform::SetTransform(const char* node, Flags flags, float value) noexcept
 	{
-		auto& m = map[node];
+		auto& m = map[chash<>(node)];
+		auto index = static_cast<std::uint32_t>(flags);
 
 		return Visit(node, true, [&](NiAVObject* obj) {
 
-			if (!m.first) {
+			if (!m.isSet) {
 
-				m.first = true;
-				m.second.first = obj->m_localTransform;
+				m.isSet = true;
+				m.transform = obj->m_localTransform;
 			}
 
-			m.second.second[flags] = true;
+			m.flags |= (1 << index);
 
 			switch (flags) {
 
 			case Flags::PosX:
 
-				obj->m_localTransform.pos.x = m.second.first.pos.x;
+				obj->m_localTransform.pos.x = m.transform.pos.x;
 				obj->m_localTransform.pos.x += value;
 
 				break;
 
 			case Flags::PosY:
 
-				obj->m_localTransform.pos.y = m.second.first.pos.y;
+				obj->m_localTransform.pos.y = m.transform.pos.y;
 				obj->m_localTransform.pos.y += value;
 
 				break;
 
 			case Flags::PosZ:
 
-				obj->m_localTransform.pos.z = m.second.first.pos.z;
+				obj->m_localTransform.pos.z = m.transform.pos.z;
 				obj->m_localTransform.pos.z += value;
 
 				break;
@@ -124,26 +157,26 @@ namespace Node {
 
 			case Flags::RotX:
 
-				SetEulerAngle(m.second.first, obj->m_localTransform, Angle::Heading, value);
+				SetEulerAngle(m.transform, obj->m_localTransform, Angle::Heading, value);
 
 				break;
 
 			case Flags::RotY:
 
-				SetEulerAngle(m.second.first, obj->m_localTransform, Angle::Attitude, value);
+				SetEulerAngle(m.transform, obj->m_localTransform, Angle::Attitude, value);
 
 				break;
 
 			case Flags::RotZ:
 
-				SetEulerAngle(m.second.first, obj->m_localTransform, Angle::Bank, value);
+				SetEulerAngle(m.transform, obj->m_localTransform, Angle::Bank, value);
 
 				break;
 			}
 		});
 	}
 
-	float Transform::GetTransform(const std::string& node, Flags flags) noexcept
+	float Transform::GetTransform(const char* node, Flags flags) noexcept
 	{
 		float value{};
 
@@ -206,11 +239,14 @@ namespace Node {
 
 		switch (angle) {
 
-		case Angle::Heading: return h;
+		case Angle::Heading: 
+			return h;
 
-		case Angle::Attitude: return a;
+		case Angle::Attitude:
+			return a;
 
-		case Angle::Bank: return b;
+		case Angle::Bank: 
+			return b;
 
 		}
 
@@ -258,15 +294,17 @@ namespace Node {
 	}
 
 	template<typename Func>
-	std::int32_t Transform::Visit(const std::string& sNode, bool update, Func fn) noexcept
+	std::int32_t Transform::Visit(const char* node, bool update, Func fn) noexcept
 	{
+		Pool::GetSingleton().TryAddingToPool(node);
+
 		NiNode* root{ nullptr };
 
 		if (!act || !(root = act->GetActorRootNode(firstPerson))) {
 			return -1;
 		}
 
-		BSFixedString node_str{ sNode.c_str() };
+		BSFixedString node_str{ node };
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
 		auto object = root->GetObjectByName(&node_str);

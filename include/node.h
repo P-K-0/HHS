@@ -26,21 +26,33 @@ namespace Node {
 	};
 
 	template<typename T>
-	inline [[nodiscard]] Flags flags_cast(T value) noexcept {
+	constexpr Flags flags_cast(T value) noexcept {
 		return std::clamp(static_cast<Flags>(value), Flags::PosX, Flags::RotZ);
 	}
 
-	class vector_flags :
-		public std::vector<bool> {
+	class Pool :
+		public util::Singleton<Pool> {
+		friend class util::Singleton<Pool>;
 
 	public:
 
-		vector_flags() noexcept { assign(static_cast<std::size_t>(Flags::Count), false); }
+		void TryAddingToPool(const char* sNode) noexcept;
+		[[nodiscard]] const std::string& GetFromPool(std::size_t hash) noexcept;
 
-		std::vector<bool>::reference operator[](Flags flags) noexcept
-		{
-			return std::vector<bool>::operator[](static_cast<std::size_t>(flags));
-		}
+	private:
+
+		Pool() noexcept = default;
+		~Pool() noexcept = default;
+
+		std::unordered_map<std::size_t, std::string> pool;
+		std::string strEmpty{};
+	};
+
+	struct InfoNiTransform {
+
+		bool isSet{};
+		std::uint8_t flags{};
+		NiTransform transform{};
 	};
 
 	class Transform : 
@@ -56,12 +68,12 @@ namespace Node {
 		Transform(Actor* actor) noexcept
 			: act{ actor } {}
 
-		Transform(Actor* actor,  const bool& first_person = false) noexcept
+		Transform(Actor* actor, bool first_person = false) noexcept
 			: act{ actor }, firstPerson{ first_person } {}
 
-		[[nodiscard]] float GetTransform(const std::string& sNode, Flags flags) noexcept;	
-		[[nodiscard]] std::int32_t SetTransform(const std::string& sNode, Flags flags, float value) noexcept;
-		[[nodiscard]] std::int32_t ResetTransform(const std::string& sNode, Flags flags) noexcept;
+		[[nodiscard]] float GetTransform(const char* sNode, Flags flags) noexcept;	
+		[[nodiscard]] std::int32_t SetTransform(const char* sNode, Flags flags, float value) noexcept;
+		[[nodiscard]] std::int32_t ResetTransform(const char* sNode, Flags flags) noexcept;
 		[[nodiscard]] std::uint32_t GetID() noexcept { return act ? act->formID : 0; }
 		[[nodiscard]] Actor* GetActorPtr() noexcept { return act; }
 		[[nodiscard]] float GetEulerAngle(NiTransform& niTransform, Angle angle) noexcept;
@@ -69,7 +81,8 @@ namespace Node {
 		void SetActor(Actor* actor) noexcept { act = actor; }
 		void SetFirstPerson(bool first_person) noexcept { firstPerson = first_person; }
 		void SetEulerAngle(NiTransform& src, NiTransform& dst, Angle angle, float value = 0.0f) noexcept;
-		void ResetTransform(const std::string& sNode) noexcept;
+		void ResetTransform(std::size_t hash) noexcept;
+		void ResetTransform(const char* sNode) noexcept;
 
 	protected:
 
@@ -77,9 +90,9 @@ namespace Node {
 
 		bool firstPerson{};
 
-		std::unordered_map<std::string, std::pair<bool, std::pair<NiTransform, vector_flags>>> map;
+		std::unordered_map<std::size_t, InfoNiTransform> map;
 
 		template<typename Func = std::function<void(NiAVObject*)>>
-		[[nodiscard]] std::int32_t Visit(const std::string& sNode, bool update, Func fn) noexcept;
+		[[nodiscard]] std::int32_t Visit(const char* sNode, bool update, Func fn) noexcept;
 	};
 }
