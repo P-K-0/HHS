@@ -3,22 +3,27 @@
 
 namespace Node {
 
-	void Pool::TryAddingToPool(const char* sNode) noexcept
+	void Pool::TryAddingToPool(const char* node) noexcept
 	{
-		auto hash = chash<>(sNode);
+		auto key = chash(node);
 
-		auto it = pool.find(hash);
+		TryAddingToPool(node, key);
+	}
+
+	void Pool::TryAddingToPool(const char* node, std::size_t key) noexcept
+	{
+		auto it = pool.find(key);
 
 		if (it != pool.end()) {
 			return;
 		}
 
-		pool[hash] = sNode;
+		pool[key] = node;
 	}
 
-	const std::string& Pool::GetFromPool(std::size_t hash) noexcept
+	const std::string& Pool::GetFromPool(std::size_t key) noexcept
 	{
-		auto it = pool.find(hash);
+		auto it = pool.find(key);
 
 		if (it != pool.end()) {
 			return it->second;
@@ -27,27 +32,51 @@ namespace Node {
 		return strEmpty;
 	}
 
-	void Transform::ResetTransform(std::size_t hash) noexcept
+	void Transform::ResetTransform(std::size_t key) noexcept
 	{
-		auto& sNode = Pool::GetSingleton().GetFromPool(hash);
+		auto& node = Pool::GetSingleton().GetFromPool(key);
 
-		if (!sNode.empty()) {
-			for (std::uint32_t idx{}; idx < static_cast<std::uint32_t>(Flags::Count); idx++) {
-				ResetTransform(sNode.c_str(), static_cast<Flags>(idx));
-			}
+		if (node.empty()) {
+			return;
 		}
+
+		auto& m = map[key];
+
+		if (m.flags == 0) {
+			return;
+		}
+
+		Visit(node.c_str(), key, true, [&](NiAVObject* obj) {
+
+			obj->m_localTransform = m.transform;
+
+			m.flags = 0;
+			m.isSet = false;
+		});
 	}
 
-	void Transform::ResetTransform(const char* node) noexcept
+	void Transform::ResetTransform(const char* node) noexcept 
 	{
-		for (std::uint32_t idx{}; idx < static_cast<std::uint32_t>(Flags::Count); idx++) {
-			ResetTransform(node, static_cast<Flags>(idx));
+		auto key = chash(node);
+		auto& m = map[key];
+
+		if (m.flags == 0) {
+			return;
 		}
+
+		Visit(node, key, true, [&](NiAVObject* obj) {
+
+			obj->m_localTransform = m.transform;
+
+			m.flags = 0;
+			m.isSet = false;
+		});
 	}
 
 	std::int32_t Transform::ResetTransform(const char* node, Flags flags) noexcept
 	{
-		auto& m = map[chash<>(node)];
+		auto key = chash(node);
+		auto& m = map[key];
 		auto index = static_cast<std::uint32_t>(flags);
 
 		std::uint8_t bitmask = (1 << index);
@@ -56,7 +85,7 @@ namespace Node {
 			return -1;
 		}
 
-		return Visit(node, true, [&](NiAVObject* obj) {
+		return Visit(node, key, true, [&](NiAVObject* obj) {
 
 			m.flags &= ~(bitmask);
 
@@ -113,10 +142,11 @@ namespace Node {
 
 	std::int32_t Transform::SetTransform(const char* node, Flags flags, float value) noexcept
 	{
-		auto& m = map[chash<>(node)];
+		auto key = chash(node);
+		auto& m = map[key];
 		auto index = static_cast<std::uint32_t>(flags);
 
-		return Visit(node, true, [&](NiAVObject* obj) {
+		return Visit(node, key, true, [&](NiAVObject* obj) {
 
 			if (!m.isSet) {
 
@@ -180,7 +210,7 @@ namespace Node {
 	{
 		float value{};
 
-		bool ret = Visit(node, false, [&](NiAVObject* obj) {
+		auto ret = Visit(node, chash(node), false, [&](NiAVObject* obj) {
 
 			switch (flags) {
 
@@ -228,7 +258,7 @@ namespace Node {
 			}
 		});
 
-		return value;
+		return ret == 0 ? value : 0.0f;
 	}
 
 	float Transform::GetEulerAngle(NiTransform& niTransform, Angle angle) noexcept
@@ -293,14 +323,16 @@ namespace Node {
 		dst.rot.SetEulerAngles(h1, a1, b1);
 	}
 
-	template<typename Func>
-	std::int32_t Transform::Visit(const char* node, bool update, Func fn) noexcept
+	template<typename Fn>
+	std::int32_t Transform::Visit(const char* node, std::size_t key, bool update, Fn fn) noexcept
 	{
-		Pool::GetSingleton().TryAddingToPool(node);
+		static_assert(std::is_invocable_r_v<void, Fn, NiAVObject*>, "Error: Visit expects a callable like void(NiAVObject*)");
+
+		Pool::GetSingleton().TryAddingToPool(node, key);
 
 		NiNode* root{ nullptr };
 
-		if (!act || !(root = act->GetActorRootNode(firstPerson))) {
+		if (!act || !(root = act->GetActorRootNode(frstPerson))) {
 			return -1;
 		}
 

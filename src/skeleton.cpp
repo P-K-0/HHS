@@ -106,9 +106,11 @@ namespace Skeleton {
 		isValid = Init(race->models[female].GetModelName());
 	}
 
-	template<typename Func>
-	bool Reader::Visit(NiAVObject* obj, Func fn) noexcept
+	template<typename Fn>
+	bool Reader::Visit(NiAVObject* obj, Fn fn) noexcept
 	{
+		static_assert(std::is_invocable_r_v<bool, Fn, NiAVObject*>, "Error: Visit expects a callable like bool(NiAVObject*)");
+
 		if (!obj) {
 			return false;
 		}
@@ -134,9 +136,11 @@ namespace Skeleton {
 		return false;
 	}
 
-	template<typename Func>
-	bool Reader::Visit(Func fn) noexcept
+	template<typename Fn>
+	bool Reader::Visit(Fn fn) noexcept
 	{
+		static_assert(std::is_invocable_r_v<bool, Fn, NiAVObject*>, "Error: Visit expects a callable like bool(NiAVObject*)");
+
 		if (!isValid) {
 			return false;
 		}

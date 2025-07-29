@@ -29,18 +29,20 @@ namespace Fixes {
 
 		[[nodiscard]] std::int32_t GetSAFVersion() const noexcept { return saf_version; }
 
-		[[nodiscard]] bool FindKeyword(const std::string& sKeyword, Json::Value& value) noexcept;
+		[[nodiscard]] bool FindKeyword(const char* sKeyword, Json::Value& value) noexcept;
 
-		template<typename Fn = std::function<void(const Values&)>>
-		[[nodiscard]] bool GetPresetValues(const std::string& sKeyword, bool& noStop, Fn fn) noexcept
+		template<typename Fn> // Fn = void(const Values&)
+		[[nodiscard]] bool GetPresetValues(const char* sKeyword, bool& noStop, Fn fn) noexcept
 		{
+			static_assert(std::is_invocable_r_v<void, Fn, const Values&>, "Error: GetPresetValues expects a callable like void(const Values&)");
+
 			Json::Value objs;
 
 			if (!FindKeyword(sKeyword, objs)) {
 				return false;
 			}
 
-			for (auto& obj : objs.getMemberNames()) {
+			for (const auto& obj : objs.getMemberNames()) {
 
 				auto& ref_obj = objs[obj];
 
@@ -51,13 +53,13 @@ namespace Fixes {
 
 					if (ref_obj.isObject()) {
 
-						for (auto& flag : ref_obj.getMemberNames()) {
+						for (const auto& flag : ref_obj.getMemberNames()) {
 
 							auto& value = ref_obj[flag];
 
 							if (value.isObject()) {
 
-								Values values{ obj.c_str(), GetFlags(flag), value["value"].asFloat(), value["mulheight"].asBool() };
+								Values values{ obj.c_str(), GetFlags(flag.c_str()), value["value"].asFloat(), value["mulheight"].asBool() };
 
 								fn(values);
 							}
@@ -74,7 +76,7 @@ namespace Fixes {
 		Preset() noexcept = default;
 		~Preset() noexcept = default;
 
-		[[nodiscard]] Node::Flags GetFlags(const std::string& str) noexcept;
+		[[nodiscard]] Node::Flags GetFlags(const char* str) noexcept;
 
 		Json::Value root;
 

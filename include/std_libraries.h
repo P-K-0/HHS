@@ -14,6 +14,7 @@
 #include <set>
 #include <filesystem>
 #include <mutex>
+#include <array>
 
 namespace std {
 

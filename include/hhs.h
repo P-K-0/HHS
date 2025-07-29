@@ -86,9 +86,11 @@ namespace hhs {
 
 	public:
 
-		template<typename T, typename Fn = std::function<Error(System&)>>
+		template<typename T, typename Fn> // Fn = Error(System&)
 		[[nodiscard]] Error visit(VisitFlags flags, T value, Fn fn) noexcept
 		{
+			static_assert(std::is_invocable_r_v<Error, Fn, System&>, "Error: visit expects a callable like Error(System&)");
+
 			std::lock_guard<std::mutex> lock(mutex);
 
 			if (!f4se::Plugin::GetSingleton().IsRuntimeValid()) {
@@ -128,9 +130,11 @@ namespace hhs {
 			return fn(m);
 		}
 
-		template<typename Fn = std::function<void(System&)>>
+		template<typename Fn> // Fn = void(System&)
 		void visit_all(Fn fn) noexcept
 		{
+			static_assert(std::is_invocable_r_v<void, Fn, System&>, "Error: visit_all expects a callable like void(System&)");
+
 			std::lock_guard<std::mutex> lock(mutex);
 
 			for (auto& m : map) {

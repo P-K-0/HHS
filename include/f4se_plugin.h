@@ -15,9 +15,7 @@ namespace f4se {
 		[[nodiscard]] bool Query(const F4SEInterface* a_f4se, PluginInfo* a_info) noexcept;
 		[[nodiscard]] bool Load(const F4SEInterface* a_f4se) noexcept;
 
-		void AddTask(ITaskDelegate* task) noexcept;
-
-		[[nodiscard]] const F4SEPapyrusInterface& GetPapyrusInterface() noexcept { return *f4se_papyrus_interface; }
+		void AddTask(ITaskDelegate* tsk) noexcept;
 
 		[[nodiscard]] bool IsRuntimeValid() const noexcept { return isValid; }
 
@@ -28,17 +26,22 @@ namespace f4se {
 
 		static void MsgCallback(F4SEMessagingInterface::Message* msg) noexcept;
 
-		[[nodiscard]] static bool CheckPluginVersion(const F4SEInterface* f4se) noexcept;
-		[[nodiscard]] static std::string GetVersionString(std::uint32_t version) noexcept;
+		[[nodiscard]] bool LoadInterfaces(const F4SEInterface* f4se) noexcept;
+		[[nodiscard]] bool Register() noexcept;
 
-		F4SEMessagingInterface* f4se_msg_interface{ nullptr };
-		F4SETaskInterface* f4se_task_interface{ nullptr };
-		F4SEPapyrusInterface* f4se_papyrus_interface{ nullptr };
-		F4SEScaleformInterface* f4se_scaleform_interface{ nullptr };
+		[[nodiscard]] bool CheckPluginVersion(const F4SEInterface* f4se) noexcept;
+		[[nodiscard]] std::string GetVersionString(std::uint32_t version) noexcept;
+		void PrintInfoPlugin(const std::string& version) noexcept;
+		void ErrMessageBox(const F4SEInterface* f4se, const std::string& version) noexcept;
+
+		F4SEMessagingInterface* messaging{ nullptr };
+		F4SETaskInterface* task{ nullptr };
+		F4SEPapyrusInterface* papyrus{ nullptr };
+		F4SEScaleformInterface* scaleform{ nullptr };
 	
 		bool isValid{};
 
-		PluginHandle hPlug;
+		PluginHandle pluginHandle;
 		IDebugLog iLog;
 	};
 }

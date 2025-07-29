@@ -29,7 +29,7 @@ namespace InGame {
 		[[nodiscard]] bool Create() noexcept;
 		[[nodiscard]] bool Delete() noexcept;
 
-		void OnKeyPress(const Key& key) noexcept;
+		void OnKeyPress(Key key) noexcept;
 
 		virtual	EventResult	ReceiveEvent(ViewCasterUpdateEvent* evn, void* dispatcher);
 

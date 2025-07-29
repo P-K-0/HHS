@@ -35,14 +35,14 @@ namespace Translations {
 	public:
 
 		[[nodiscard]] bool Load() noexcept;
-		[[nodiscard]] const std::string& operator[](LangID id) const noexcept { return ids[static_cast<std::int32_t>(id)]; }
+		[[nodiscard]] const std::string_view& operator[](LangID id) const noexcept { return ids[static_cast<std::uint32_t>(id)]; }
 
 	private:
 
 		Lang() noexcept = default;
 		~Lang() noexcept = default;
 
-		std::vector<std::string> ids = {
+		std::array<std::string_view, 19> ids = {
 			"$HHS_MSG_FILECREATED" , 
 			"$HHS_MSG_FILEDELETED",
 			"$HHS_MSG_TESTHEIGHT",

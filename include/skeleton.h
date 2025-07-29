@@ -52,11 +52,11 @@ namespace Skeleton {
 
 		[[nodiscard]] bool Init(const std::string& Filename) noexcept;
 
-		template<typename Func = std::function<bool(NiAVObject*)>>
-		[[nodiscard]] bool Visit(NiAVObject* obj, Func fn) noexcept;
+		template<typename Fn> // Fn = bool(NiAVObject*)
+		[[nodiscard]] bool Visit(NiAVObject* obj, Fn fn) noexcept;
 
-		template<typename Func = std::function<bool(NiAVObject*)>>
-		[[nodiscard]] bool Visit(Func fn) noexcept;
+		template<typename Fn> // Fn = bool(NiAVObject*)
+		[[nodiscard]] bool Visit(Fn fn) noexcept;
 
 		NiStreamPtr niStream;
 

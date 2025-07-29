@@ -126,12 +126,12 @@ namespace InGame {
 
 		if (!Process(Key::Test)) {
 
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorTest]);
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorTest].data());
 
 			return false;
 		}
 
-		Papyrus::Message_Box(lang[Translations::LangID::TestHeight]);
+		Papyrus::Message_Box(lang[Translations::LangID::TestHeight].data());
 
 		return true;
 	}
@@ -142,12 +142,12 @@ namespace InGame {
 
 		if (!Process(Key::Create)) {
 
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorCreated]);
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorCreated].data());
 
 			return false;
 		}
 
-		Papyrus::Message_Box(lang[Translations::LangID::FileCreated]);
+		Papyrus::Message_Box(lang[Translations::LangID::FileCreated].data());
 
 		return true;
 	}
@@ -158,17 +158,17 @@ namespace InGame {
 
 		if (!Process(Key::Delete)) {
 
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorDeleted]);
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorDeleted].data());
 
 			return false;
 		}
 
-		Papyrus::Message_Box(lang[Translations::LangID::FileDeleted]);
+		Papyrus::Message_Box(lang[Translations::LangID::FileDeleted].data());
 
 		return true;
 	}
 
-	void HeightEdit::OnKeyPress(const Key& key) noexcept
+	void HeightEdit::OnKeyPress(Key key) noexcept
 	{
 		auto& lang = Translations::Lang::GetSingleton();
 
@@ -176,7 +176,7 @@ namespace InGame {
 
 			enabled = !enabled;
 		
-			Papyrus::Notification(lang[enabled ? Translations::LangID::Activated : Translations::LangID::Deactivated]);
+			Papyrus::Notification(lang[enabled ? Translations::LangID::Activated : Translations::LangID::Deactivated].data());
 		}
 
 		if (!enabled) {
@@ -207,7 +207,7 @@ namespace InGame {
 					settings.SetReference(Settings::Reference::Player);
 				}
 
-				Papyrus::Notification(lang[settings.GetReference() == Settings::Reference::Player ? Translations::LangID::PlayerRefr : Translations::LangID::CrossHairRefr]);
+				Papyrus::Notification(lang[settings.GetReference() == Settings::Reference::Player ? Translations::LangID::PlayerRefr : Translations::LangID::CrossHairRefr].data());
 			}
 
 			break;
@@ -243,39 +243,39 @@ namespace InGame {
 		switch (error) {
 
 		case hhs::Error::Unknown:
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorUnknown]); 
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorUnknown].data()); 
 			break;
 
 		case hhs::Error::ComOverride: 
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorComOverride]);
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorComOverride].data());
 			break;
 
 		case hhs::Error::Runtime:
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorRuntime]);
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorRuntime].data());
 			break;
 
 		case hhs::Error::ActorDisabled:
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorActorDisabled]);
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorActorDisabled].data());
 			break;
 
 		case hhs::Error::Override:
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorOverride]);
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorOverride].data());
 			break;
 
 		case hhs::Error::SetHeight:
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorSetHeight]);
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorSetHeight].data());
 			break;
 
 		case hhs::Error::Race: 
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorRace]);
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorRace].data());
 			break;
 
 		case hhs::Error::HeightTxt: 
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorHeightTxt]);
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorHeightTxt].data());
 			break;
 
 		case hhs::Error::Arguments: 
-			Papyrus::Message_Box(lang[Translations::LangID::ErrorArguments]); 
+			Papyrus::Message_Box(lang[Translations::LangID::ErrorArguments].data());
 			break;
 
 		}

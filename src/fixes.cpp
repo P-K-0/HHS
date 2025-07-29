@@ -42,7 +42,7 @@ namespace Fixes {
 		return true;
 	}
 
-	bool Preset::FindKeyword(const std::string& sKeyword, Json::Value& value) noexcept
+	bool Preset::FindKeyword(const char* sKeyword, Json::Value& value) noexcept
 	{
 		if (root.empty()) {
 			return false;
@@ -50,7 +50,7 @@ namespace Fixes {
 
 		auto members = root.getMemberNames();
 
-		for (auto& m : members) {
+		for (const auto& m : members) {
 
 			if (m == sKeyword) {
 
@@ -63,17 +63,34 @@ namespace Fixes {
 		return false;
 	}
 
-	Node::Flags Preset::GetFlags(const std::string& str) noexcept
+	Node::Flags Preset::GetFlags(const char* str) noexcept
 	{
-		static std::vector<std::string> v_flags{ "posx", "posy", "posz", "scale", "rotx", "roty", "rotz" };
+		switch (hash(str)) {
 
-		for (std::uint32_t index{}; index < v_flags.size(); index++) {
+		case "posx"_hash:
+			return Node::Flags::PosX;
 
-			if (str == v_flags[index]) {
-				return Node::flags_cast(index);
-			}
+		case "posy"_hash:
+			return Node::Flags::PosY;
+
+		case "posz"_hash:
+			return Node::Flags::PosZ;
+
+		case "scale"_hash:
+			return Node::Flags::Scale;
+
+		case "rotx"_hash:
+			return Node::Flags::RotX;
+
+		case "roty"_hash:
+			return Node::Flags::RotY;
+
+		case "rotz"_hash:
+			return Node::Flags::RotZ;
+
+		default:
+			return Node::Flags::None;
+			
 		}
-
-		return Node::Flags::PosX;
 	}
 }
