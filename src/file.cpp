@@ -65,9 +65,7 @@ namespace File {
 
 	std::string GetRelativeDir(const std::string& str) noexcept
 	{
-		std::string path = std::filesystem::path(str).lexically_normal().string();
-
-		std::transform(path.begin(), path.end(), path.begin(), [](unsigned char c) { return std::tolower(c); });
+		std::string& path = std::filesystem::path(str).lexically_normal().string();
 
 		if (_strcmpi(path.substr(0, DirMeshes.length()).c_str(), DirMeshes.data()) == 0) {
 			return path;

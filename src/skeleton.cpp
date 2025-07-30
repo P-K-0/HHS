@@ -5,23 +5,17 @@
 
 namespace Skeleton {
 
-	inline bool operator==(const BSFixedString& bStr, const std::string& str) noexcept
+	inline bool operator==(const char* str, const BSFixedString& bStr) noexcept
 	{
-		auto cstr = bStr.c_str();
-		return cstr && str == cstr;
+		return BSComp(bStr, str);
 	}
 
-	inline bool operator==(const std::string& str, const BSFixedString& bStr) noexcept
+	inline bool operator!=(const char* str, const BSFixedString& bStr) noexcept
 	{
-		return bStr == str;
+		return !BSComp(bStr, str);
 	}
 
-	inline bool operator!=(const std::string& str, const BSFixedString& bStr) noexcept
-	{
-		return !(bStr == str);
-	}
-
-	inline bool operator!=(const BSFixedString& bStr, const std::string& str) noexcept
+	inline bool operator!=(const BSFixedString& bStr, const char* str) noexcept
 	{
 		return str != bStr;
 	}
@@ -44,7 +38,7 @@ namespace Skeleton {
 		}
 	}
 
-	bool Reader::Init(const std::string& Filename) noexcept
+	bool Reader::Init(const char* Filename) noexcept
 	{
 		if (!niStream) {
 			return false;
@@ -65,7 +59,7 @@ namespace Skeleton {
 		return true;
 	}
 
-	Reader::Reader(const std::string& Filename) noexcept
+	Reader::Reader(const char* Filename) noexcept
 	{
 		isValid = Init(Filename);
 	}
@@ -170,7 +164,7 @@ namespace Skeleton {
 		return false;
 	}
 
-	bool Reader::HasNode(const std::string& name) noexcept
+	bool Reader::HasNode(const char* name) noexcept
 	{
 		return Visit([&](NiAVObject* obj) {
 
@@ -182,7 +176,7 @@ namespace Skeleton {
 		});
 	}
 
-	bool Reader::GetExtraData(const std::string& name, float& value) noexcept
+	bool Reader::GetExtraData(const char* name, float& value) noexcept
 	{
 		return Visit([&](NiAVObject* obj) {
 
@@ -217,7 +211,7 @@ namespace Skeleton {
 		});
 	}
 
-	bool Reader::GetExtraData(const std::string& name, std::uint32_t& value) noexcept
+	bool Reader::GetExtraData(const char* name, std::uint32_t& value) noexcept
 	{
 		return Visit([&](NiAVObject* obj) {
 
@@ -252,7 +246,7 @@ namespace Skeleton {
 		});
 	}
 
-	float GetHeightFromSkeleton(const std::string& filename) noexcept
+	float GetHeightFromSkeleton(const char* filename) noexcept
 	{
 		if (!Settings::Ini::GetSingleton().GetEnableExtraData()) {
 			return ZeroValue;

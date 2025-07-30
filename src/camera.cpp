@@ -4,25 +4,19 @@
 
 namespace Camera {
 
-	std::vector<std::pair<const std::string, double>> Player::Camera3rdSettings = {
-		{ "fOverShoulderPosZ:Camera", 0.0f },
-		{ "fOverShoulderMeleeCombatPosZ:Camera", 0.0f },
-		{ "fOverShoulderCombatPosZ:Camera", 0.0f }
-	};
-
 	void Player::SetIniFloat(VirtualMachine* vm, std::uint64_t unk0, void* unk1, BSFixedString* name, float value)
 	{
 		auto val{ value };
 
 		if (Settings::Ini::GetSingleton().GetEnableCustomCameraPatch() && name) {
 
-			for (auto& stgCamera : Camera3rdSettings) {
+			for (auto& camSetting : cam3rdSettings) {
 
-				if (_strcmpi(name->c_str(), stgCamera.first.c_str()) == 0) {
+				if (BSCompi(*name, camSetting.name.data())) {
 
 					hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, PlayerID, [&](hhs::System& sys) {
 
-						stgCamera.second = val;
+						camSetting.value = val;
 
 						val += sys.GetHeight();
 
@@ -83,8 +77,8 @@ namespace Camera {
 	
 	void Player::ResetCameraSettings() noexcept
 	{
-		for (auto& cam : Camera3rdSettings) {
-			cam.second = 0.0f;
+		for (auto& camSetting : cam3rdSettings) {
+			camSetting.value = ZeroValue;
 		}
 	}
 
@@ -116,12 +110,12 @@ namespace Camera {
 
 			double val{};
 
-			for (auto& stgCamera : Camera3rdSettings) {
+			for (auto& camSetting : cam3rdSettings) {
 
-				auto setting = GetINISetting(stgCamera.first.c_str());
+				auto setting = GetINISetting(camSetting.name.data());
 
 				if (setting && setting->GetDouble(&val)) {
-					stgCamera.second = val;					
+					camSetting.value = val;
 				}
 			}
 
@@ -161,12 +155,12 @@ namespace Camera {
 			Camera1st.ResetTransform(ComOverride, Node::Flags::PosZ);
 		}
 
-		for (const auto& cam : Camera3rdSettings) {
+		for (const auto& camSetting : cam3rdSettings) {
 
-			auto setting = GetINISetting(cam.first.c_str());
+			auto setting = GetINISetting(camSetting.name.data());
 
 			if (setting) {
-				setting->SetDouble(h3rd != ZeroValue ? cam.second + h3rd : cam.second);
+				setting->SetDouble(h3rd != ZeroValue ? camSetting.value + h3rd : camSetting.value);
 			}
 		}
 
@@ -185,7 +179,7 @@ namespace Camera {
 		return;
 	}
 
-	std::int32_t Player::GetCameraState() const noexcept
+	std::int32_t Player::GetCameraState() noexcept
 	{
 		auto playerCamera = (*g_playerCamera);
 

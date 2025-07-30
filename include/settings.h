@@ -253,7 +253,7 @@ namespace Settings {
 		std::uint32_t iKeyIncrementHeight{};
 		std::uint32_t iKeyDecrementHeight{};
 
-		const std::vector<std::string> vSection{
+		const std::array<std::string_view, 6> vSection{
 			"Main",
 			"Slot",
 			"AnimEvent",
@@ -270,8 +270,8 @@ namespace Settings {
 		void ParseString(const std::string& str, std::vector<std::string>& vStr) noexcept;
 		[[nodiscard]] bool ParseString(CSimpleIni& ini, Section section, const char* key, std::vector<std::string>& vStr) noexcept;
 
-		void DbgMessage(const std::string& type, const std::string& name, std::uint32_t id, const std::string& other_msg = "") noexcept
-		{ _DMESSAGE("%s found : EditorID = %40s\t\t\tformID = 0x%.8X %s", type.c_str(), name.c_str(), id, other_msg); }
+		void DbgMessage(const char* type, const char* name, std::uint32_t id, const char* other_msg = "") noexcept
+		{ _DMESSAGE("%s found : EditorID = %40s\t\t\tformID = 0x%.8X %s", type, name, id, other_msg); }
 
 		void DMsg(const char* msg, float value) noexcept { _DMESSAGE("%s = %f", msg, value); }
 		void DMsg(const char* msg, double value) noexcept { _DMESSAGE("%s = %f", msg, value); }

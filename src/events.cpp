@@ -141,7 +141,12 @@ namespace Events {
 
 			auto actor = sys.GetActorPtr();
 
-			if (actor->IsDead() || actor->IsSitting() || actor->IsSwimming() || sys.IsAAF()) {
+			if (actor->IsDead() || 
+				actor->IsSitting() ||
+				actor->IsSwimming() || 
+				actor->IsBleeding() || 
+				sys.IsAAF()) {
+
 				return hhs::Error::Success;
 			}
 
@@ -171,7 +176,8 @@ namespace Events {
 
 			if (!actor->IsDead() &&
 				!actor->IsSitting() &&
-				!actor->IsSwimming()) {
+				!actor->IsSwimming() &&
+				!actor->IsBleeding()) {
 
 				return sys.SetHeight();
 			}
@@ -219,6 +225,7 @@ namespace Events {
 			if (!actor->IsDead() && 
 				!actor->IsSitting() &&
 				!actor->IsSwimming() &&
+				!actor->IsBleeding() &&
 				!sys.HasHeight() &&
 				!sys.IsStop() &&
 				!sys.IsAAF() &&
@@ -294,7 +301,11 @@ namespace Events {
 
 			auto actor = sys.GetActorPtr();
 
-			if (actor->IsDead() || actor->IsSitting() || !sys.HasHeight()) {
+			if (actor->IsDead() ||
+				actor->IsSitting() ||
+				actor->IsBleeding() ||
+				!sys.HasHeight()) {
+
 				return hhs::Error::Success;
 			}
 
@@ -320,18 +331,20 @@ namespace Events {
 
 			auto actor = sys.GetActorPtr();
 
-			if (actor->IsDead() || actor->IsSitting() || actor->IsSwimming() || !sys.HasHeight()) {
+			if (actor->IsDead() || 
+				actor->IsSitting() || 
+				actor->IsSwimming() || 
+				!sys.HasHeight()) {
+
 				return hhs::Error::Success;
 			}
 
-			if (sys.IsBleeding()) {
-				sys.BleedOut(false);
+			if (actor->IsBleeding() && !sys.IsBleeding() && stop) {
+				return sys.BleedOut(true);
 			}
-			else {
-
-				if (stop) {
-					sys.BleedOut(true);
-				}
+			
+			if (sys.IsBleeding() && !stop) {
+				return sys.BleedOut(false);
 			}
 			
 			return hhs::Error::Success;

@@ -1,10 +1,9 @@
 
 #include "f4se_plugin.h"
-
 #include "externals.h"
-#include "events.h"
 #include "papyrus.h"
 #include "scaleform.h"
+#include "events.h"
 #include "settings.h"
 #include "translations.h"
 #include "cache.h"

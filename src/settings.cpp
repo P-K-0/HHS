@@ -40,7 +40,7 @@ namespace Settings {
 
 	bool Ini::ParseString(CSimpleIni& ini, Section section, const char* key, std::vector<std::string>& vStr) noexcept
 	{
-		std::string str = ini.GetValue(vSection[static_cast<std::uint32_t>(section)].c_str(), key, "");
+		std::string str = ini.GetValue(vSection[static_cast<std::uint32_t>(section)].data(), key, "");
 
 		if (str.empty()) {
 			return false;
@@ -57,9 +57,7 @@ namespace Settings {
 
 			auto keyRaceHHS = race->keywordForm.keywords[i];
 
-			if (keyRaceHHS && 
-				keyRaceHHS->keyword.c_str() && 
-				_strcmpi(keyRaceHHS->keyword.c_str(), ActorType_HHS) == 0) {
+			if (keyRaceHHS && BSCompi(keyRaceHHS->keyword, ActorType_HHS)) {
 				return true;
 			}
 		}
@@ -91,11 +89,11 @@ namespace Settings {
 
 			auto key = data->arrKYWD[iKey];
 
-			if (key && key->keyword.c_str()) {
+			if (key) {
 
 				for (const auto& s : vStr) {
 
-					if (_strcmpi(s.c_str(), key->keyword.c_str()) == 0) {
+					if (BSCompi(key->keyword, s.c_str())) {
 
 						vFurnitureKeyword.push_back(key->formID);
 					
@@ -144,7 +142,9 @@ namespace Settings {
 
 			auto race = data->arrRACE[idx];
 
-			if (race) {
+			if (race && race->editorId.c_str()) {
+
+				auto edid = race->editorId.c_str();
 
 				if (iRace & Race::FromSkeleton) {
 
@@ -158,7 +158,7 @@ namespace Settings {
 
 							cnt++;
 
-							DbgMessage("Race", race->editorId.c_str(), race->formID, "from Skeleton");
+							DbgMessage("Race", edid, race->formID, "from Skeleton");
 
 							break;
 						}
@@ -171,13 +171,18 @@ namespace Settings {
 
 						bool hasKeyword{ HasRaceKeyword(race) };
 
-						if (_strcmpi(s.c_str(), race->editorId.c_str()) == 0 || hasKeyword) {
+						if (_strcmpi(s.c_str(), edid) == 0 || hasKeyword) {
 
 							vRace.push_back(race->formID);
 
 							cnt++;
 
-							DbgMessage("Race", race->editorId.c_str(), race->formID, "from " + std::string(hasKeyword ? "Keyword" : "Settings"));
+							if (hasKeyword) {
+								DbgMessage("Race", edid, race->formID, "from Keyword");
+							}
+							else {
+								DbgMessage("Race", edid, race->formID, "from Settings");
+							}
 
 							break;
 						}
@@ -280,14 +285,14 @@ namespace Settings {
 
 	void Ini::GetValue(CSimpleIni& ini, Section section, const char* key, bool& value) noexcept
 	{
-		auto ret = ini.GetBoolValue(vSection[static_cast<std::uint32_t>(section)].c_str(), key, value);
+		auto ret = ini.GetBoolValue(vSection[static_cast<std::uint32_t>(section)].data(), key, value);
 		DMsg(key, ret);
 		value = ret;
 	}
 
 	void Ini::GetValue(CSimpleIni& ini, Section section, const char* key, float& value) noexcept
 	{
-		auto ret = ini.GetDoubleValue(vSection[static_cast<std::uint32_t>(section)].c_str(), key, static_cast<double>(value));
+		auto ret = ini.GetDoubleValue(vSection[static_cast<std::uint32_t>(section)].data(), key, static_cast<double>(value));
 		DMsg(key, ret);
 		value = static_cast<float>(ret);
 	}
@@ -295,7 +300,7 @@ namespace Settings {
 	template<typename T>
 	void Ini::GetValue(CSimpleIni& ini, Section section, const char* key, T& value) noexcept
 	{
-		auto ret = ini.GetLongValue(vSection[static_cast<std::uint32_t>(section)].c_str(), key, static_cast<std::uint32_t>(value));
+		auto ret = ini.GetLongValue(vSection[static_cast<std::uint32_t>(section)].data(), key, static_cast<std::uint32_t>(value));
 		DMsg(key, ret);
 
 		if constexpr (std::is_same_v<T, Gender>) {

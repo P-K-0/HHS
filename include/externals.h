@@ -92,6 +92,18 @@ template<typename T>
 	return static_cast<char*>(addr);
 }
 
+inline [[nodiscard]] bool BSComp(const BSFixedString& bStr, const char* str) noexcept
+{
+	auto cstr = bStr.c_str();
+	return cstr && std::strcmp(cstr, str) == 0;
+}
+
+inline [[nodiscard]] bool BSCompi(const BSFixedString& bStr, const char* str) noexcept
+{
+	auto cstr = bStr.c_str();
+	return cstr && _strcmpi(cstr, str) == 0;
+}
+
 template<typename Func = std::function<void(TESObjectREFR*)>>
 void VisitCell(Func func)
 {

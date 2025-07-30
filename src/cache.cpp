@@ -14,7 +14,9 @@ namespace Cache {
 			return;
 		}
 
-		auto& info = cacheMap[File::GetRelativeDir(filename)];
+		auto key = hash(File::GetRelativeDir(filename).c_str());
+
+		auto& info = cacheMap[key];
 
 		if (info.isCached && !forceInsert) {
 			return;
@@ -40,7 +42,9 @@ namespace Cache {
 			return;
 		}
 
-		cacheMap.erase(File::GetRelativeDir(filename));
+		auto key = hash(File::GetRelativeDir(filename).c_str());
+
+		cacheMap.erase(key);
 
 		saved = false;
 	}
@@ -51,11 +55,13 @@ namespace Cache {
 			return ZeroValue;
 		}
 
-		auto& info = cacheMap[File::GetRelativeDir(filename)];
+		auto key = hash(File::GetRelativeDir(filename).c_str());
+
+		auto& info = cacheMap[key];
 
 		if (!info.isCached) {
 
-			if ((info.height = Skeleton::GetHeightFromSkeleton(filename)) == ZeroValue) {
+			if ((info.height = Skeleton::GetHeightFromSkeleton(filename.c_str())) == ZeroValue) {
 
 				info.height = Text::GetHeightFromText(filename);
 				info.isText = true; // info.height != ZeroValue;
@@ -67,7 +73,7 @@ namespace Cache {
 			info.isCached = true;
 		}
 
-		//_DMESSAGE("%s : %s / %s (%f, %s, %i, %i)", __FUNCTION__, File::GetRelativeDir(filename).c_str(), filename.c_str(), info.height, info.path.c_str(), info.isText, info.isCached);
+		//_DMESSAGE("%s : %s / %s (%f, %s, %i)", __FUNCTION__, File::GetRelativeDir(filename).c_str(), filename.c_str(), info.height, info.path.c_str(), info.isText);
 		//_DMESSAGE("%f", info.height);
 
 		return info.height;
@@ -79,7 +85,9 @@ namespace Cache {
 			return false;
 		}
 
-		auto& it = cacheMap.find(File::GetRelativeDir(filename));
+		auto key = hash(File::GetRelativeDir(filename).c_str());
+
+		auto& it = cacheMap.find(key);
 
 		if (it != cacheMap.end()) {
 			return it->second.isText;

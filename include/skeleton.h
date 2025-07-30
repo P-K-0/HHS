@@ -37,20 +37,20 @@ namespace Skeleton {
 		Reader() noexcept = default;
 		~Reader() noexcept = default;
 
-		Reader(const std::string& Filename) noexcept;
+		Reader(const char* Filename) noexcept;
 		Reader(Actor* actor, bool isFemale) noexcept;
 		Reader(TESObjectREFR* refr, bool isFemale) noexcept;
 
-		[[nodiscard]] bool HasNode(const std::string& name) noexcept;
+		[[nodiscard]] bool HasNode(const char* name) noexcept;
 
-		[[nodiscard]] bool GetExtraData(const std::string& name, float& value) noexcept;
-		[[nodiscard]] bool GetExtraData(const std::string& name, std::uint32_t& value) noexcept;
+		[[nodiscard]] bool GetExtraData(const char* name, float& value) noexcept;
+		[[nodiscard]] bool GetExtraData(const char* name, std::uint32_t& value) noexcept;
 
 		[[nodiscard]] operator bool() const noexcept { return isValid; }
 
 	private:
 
-		[[nodiscard]] bool Init(const std::string& Filename) noexcept;
+		[[nodiscard]] bool Init(const char* Filename) noexcept;
 
 		template<typename Fn> // Fn = bool(NiAVObject*)
 		[[nodiscard]] bool Visit(NiAVObject* obj, Fn fn) noexcept;
@@ -63,5 +63,5 @@ namespace Skeleton {
 		bool isValid{};
 	};
 
-	extern [[nodiscard]] float GetHeightFromSkeleton(const std::string& filename) noexcept;
+	extern [[nodiscard]] float GetHeightFromSkeleton(const char* filename) noexcept;
 }

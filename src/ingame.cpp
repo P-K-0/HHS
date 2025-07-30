@@ -14,11 +14,19 @@ namespace InGame {
 
 	std::uint32_t HeightEdit::GetFormIDByHandle(UInt32 handle) noexcept
 	{
+#if CURRENT_RELEASE_RUNTIME <= RUNTIME_VERSION_1_10_163
 		TESObjectREFR* refr{ nullptr };
 
 		if (!LookupREFRByHandle(&handle, &refr) || !refr) {
 			return 0;
 		}
+#else
+		NiPointer<TESObjectREFR> refr;
+
+		if (!LookupREFRByHandle(handle, refr) || !refr) {
+			return 0;
+		}
+#endif
 
 		return refr->formID;
 	}

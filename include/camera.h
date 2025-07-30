@@ -1,5 +1,6 @@
 #pragma once
 
+#include "std_libraries.h"
 #include "version.h"
 #include "externals.h"
 #include "settings.h"
@@ -22,20 +23,25 @@ namespace Camera {
 
 	constexpr auto ApplyCameraNodeAnimations = "bApplyCameraNodeAnimations:Camera";
 
+	struct Camera3rdSettings {
+
+		std::string_view name;
+		double value{};
+	};
+
 	class Player : 
 		public util::Singleton<Player> {
 		friend class util::Singleton<Player>;
 
 	public:
 
-		void SetApplyCameraNodeAnimations(bool value) noexcept;
-
 		void Init() noexcept;
 		void SetCameraHeight(Actor* akActor, float height = ZeroValue) noexcept; 
 		void ResetCameraSettings() noexcept;
 
 		[[nodiscard]] bool IsCameraNodeAnimations() noexcept;
-		[[nodiscard]] std::int32_t GetCameraState() const noexcept;
+		void SetApplyCameraNodeAnimations(bool value) noexcept;
+		[[nodiscard]] std::int32_t GetCameraState() noexcept;
 
 	private:
 
@@ -49,9 +55,13 @@ namespace Camera {
 		float height1st{ ZeroValue };
 		float height3rd{ ZeroValue };
 
-		void Hook() noexcept;
+		static inline Camera3rdSettings cam3rdSettings[] = {
+			{ "fOverShoulderPosZ:Camera", ZeroValue },
+			{ "fOverShoulderMeleeCombatPosZ:Camera", ZeroValue },
+			{ "fOverShoulderCombatPosZ:Camera", ZeroValue }
+		};
 
-		static std::vector<std::pair<const std::string, double>> Camera3rdSettings;
+		void Hook() noexcept;
 
 		static void SetIniFloat(VirtualMachine*, std::uint64_t, void*, BSFixedString*, float);
 

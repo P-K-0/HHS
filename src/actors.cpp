@@ -79,9 +79,7 @@ namespace Actors {
 
 				BGSKeyword* kwrd = armor->keywordForm.keywords[key];
 
-				if (kwrd &&
-					kwrd->keyword.c_str() && 
-					_strcmpi(kwrd->keyword.c_str(), HHS_Script) == 0) {
+				if (kwrd && BSCompi(kwrd->keyword, HHS_Script)) {
 					return itemSwap->formID;
 				}
 			}

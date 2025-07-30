@@ -53,7 +53,7 @@ namespace Cache {
 		[[nodiscard]] bool ReadHeader(std::ifstream& ifs) noexcept;
 		[[nodiscard]] bool WriteHeader(std::ofstream& ofs) noexcept;
 
-		std::unordered_map<std::string, InfoCache> cacheMap;
+		std::unordered_map<std::size_t, InfoCache> cacheMap;
 
 		bool saved{};
 	};
