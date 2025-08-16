@@ -51,7 +51,7 @@ namespace Text {
 
 		for (std::size_t i{}; i < files.size() && height == ZeroValue; ++i) {
 
-			File::Reader reader{ files[i] };
+			File::Reader reader{ files[i].c_str() };
 
 			if (reader.Read(str)) {
 				height = Parser(str);

@@ -100,7 +100,6 @@ namespace Aaf {
 
 		static void CustomEvent(VirtualMachine* vm, std::uint64_t unk1, VMIdentifier* sender, const BSFixedString* eventName, VMValue* args) noexcept;
 
-		bool hooked{};
 		bool hasPlugin{};
 		bool hasAAF{};
 	};

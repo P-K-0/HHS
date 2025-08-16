@@ -80,6 +80,12 @@ namespace hhs {
 		Override
 	};
 
+	enum class UpdateFlags : std::uint32_t {
+
+		Update = 0,
+		Init
+	};
+
 	class Map : 
 		public util::Singleton<Map> {
 		friend class util::Singleton<Map>;
@@ -87,7 +93,7 @@ namespace hhs {
 	public:
 
 		template<typename T, typename Fn> // Fn = Error(System&)
-		[[nodiscard]] Error visit(VisitFlags flags, T value, Fn fn) noexcept
+		[[nodiscard]] Error visit(VisitFlags visitFlags, T value, Fn fn, UpdateFlags updateFlags = UpdateFlags::Update) noexcept
 		{
 			static_assert(std::is_invocable_r_v<Error, Fn, System&>, "Error: visit expects a callable like Error(System&)");
 
@@ -109,8 +115,17 @@ namespace hhs {
 
 			auto& util = m.GetActorUtil();
 
-			if (!util.Update(actor)) {
-				return Error::Unknown;
+			if (updateFlags == UpdateFlags::Update) {
+
+				if (!util.Update(actor)) {
+					return Error::Unknown;
+				}
+			}
+			else {
+
+				if (!util.Init(actor)) {
+					return Error::Unknown;
+				}
 			}
 
 			if (!util) {
@@ -123,7 +138,7 @@ namespace hhs {
 
 			m.SetActor(actor);
 
-			if (m.HasOverride() && flags == VisitFlags::None) {
+			if (m.HasOverride() && visitFlags == VisitFlags::None) {
 				return Error::Override;
 			}
 

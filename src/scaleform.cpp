@@ -60,7 +60,7 @@ namespace Scaleform {
 			settings.SetEnablePlayer(enabled);
 
 			return ret;	
-		});
+		}, hhs::UpdateFlags::Init);
 	}
 
 	void EnableNPCs(GFxFunctionHandler::Args* args) noexcept
@@ -91,7 +91,7 @@ namespace Scaleform {
 				settings.SetEnableNPCs(enabled);
 
 				return ret;
-			});
+			}, hhs::UpdateFlags::Init);
 		});
 	}
 
@@ -188,6 +188,11 @@ namespace Scaleform {
 		Settings::Ini::GetSingleton().SetLooksmenu(GetValue<bool>(args, 1));
 	}
 
+	void EnableTerminalMenu(GFxFunctionHandler::Args* args) noexcept
+	{
+		Settings::Ini::GetSingleton().SetTerminal(GetValue<bool>(args, 1));
+	}
+
 	void SetGender(GFxFunctionHandler::Args* args) noexcept
 	{
 		Settings::Ini::GetSingleton().SetGender(Settings::gender_cast(GetValue<std::int32_t>(args, 1)));
@@ -276,6 +281,7 @@ namespace Scaleform {
 		{ "bEnableAAF", EnableAAF },
 		{ "bEnableTagAAF", EnableTagAAF },
 		{ "bLooksmenu", EnableLooksMenu },
+		{ "bTerminal", EnableTerminalMenu },
 		{ "iGender", SetGender },
 		{ "iBehaviorFurniture", SetBehaviorFurniture },
 		{ "bEnableSlot", EnableSlot },

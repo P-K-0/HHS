@@ -149,27 +149,15 @@ namespace hhs {
 			return;
 		}
 
-		Skeleton::Reader skeleton{ util.GetActorPtr(), util.IsFemale() };
-
-		std::uint32_t version{};
-
-		if (!skeleton || !skeleton.GetExtraData(ExtraDataSAF, version)) {
-			return;
-		}
-
 		auto& fixes = Fixes::Preset::GetSingleton();
 
 		if (settings.GetEnableReloadFixes()) {
-			fixes.Load();
-		}
-
-		if (fixes.GetSAFVersion() < version) {
-			return;
+			fixes.EnumFiles();
 		}
 
 		bool ret{};
 
-		for (std::uint32_t idx{}; idx < furn->keywordForm.numKeywords && !ret; idx++) {
+		for (std::uint32_t idx{}; idx < furn->keywordForm.numKeywords && !ret; ++idx) {
 
 			auto keywrd = furn->keywordForm.keywords[idx];
 
@@ -178,8 +166,8 @@ namespace hhs {
 
 				bool noStop{};
 
-				ret = fixes.GetPresetValues(keywrd->keyword.c_str(), noStop, [&](const Fixes::Values& values) {
-					SetTransform(values.node.c_str(), values.flags, values.value * (values.mulheight ? height : 1.0f));
+				ret = fixes.GetPresetValues(keywrd->keyword.c_str(), noStop, [&](Node::NodeValues& values) {
+					SetTransform(values.nodeName.c_str(), values, height);
 				});
 
 				if (noStop) {

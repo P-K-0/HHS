@@ -140,6 +140,43 @@ namespace Node {
 		});
 	}
 
+	std::int32_t Transform::SetTransform(const char* node, NodeValues& values, float height) noexcept
+	{
+		auto key = chash(node);
+		auto& m = map[key];
+		
+		return Visit(node, key, true, [&](NiAVObject* obj) {
+
+			if (!m.isSet) {
+
+				m.isSet = true;
+				m.transform = obj->m_localTransform;
+			}
+
+			m.flags |= GetAllBitFlags();
+
+			obj->m_localTransform = m.transform;
+
+			obj->m_localTransform.pos.x += values.x.GetMulValue(height);
+			obj->m_localTransform.pos.y += values.y.GetMulValue(height);
+			obj->m_localTransform.pos.z += values.z.GetMulValue(height);
+
+			if (values.scale.value >= 0.0f) {
+				obj->m_localTransform.scale = values.scale.GetMulValue(height);
+			}
+
+			float h, a, b;
+
+			obj->m_localTransform.rot.GetEulerAngles(&h, &a, &b);
+
+			h += values.heading.GetMulValue(height);
+			a += values.attitude.GetMulValue(height);
+			b += values.bank.GetMulValue(height);
+
+			obj->m_localTransform.rot.SetEulerAngles(h, a, b);
+		});
+	}
+
 	std::int32_t Transform::SetTransform(const char* node, Flags flags, float value) noexcept
 	{
 		auto key = chash(node);

@@ -182,7 +182,7 @@ namespace f4se {
 
 			Translations::Lang::GetSingleton().Load();
 
-			Fixes::Preset::GetSingleton().Load();
+			Fixes::Preset::GetSingleton().EnumFiles();
 
 			JsonParser::EnumFiles();
 

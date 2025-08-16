@@ -39,6 +39,8 @@ namespace Camera {
 			return;
 		}
 
+		_DMESSAGE("Setting up camera hook...");
+
 		struct SetINIFloat_Code : Xbyak::CodeGenerator {
 
 			SetINIFloat_Code(void* buf)
@@ -59,12 +61,19 @@ namespace Camera {
 
 		if (g_branchTrampoline.Write5Branch(SetINIFloat_Internal.GetUIntPtr(), (std::uintptr_t)SetIniFloat)) {
 
+			_DMESSAGE("Camera hook set successfully.");
+
 			hooked = true;
+		}
+		else {
+			_DMESSAGE("Error setting up camera hook!");
 		}
 	}
 
 	void Player::Init() noexcept
 	{
+		_DMESSAGE("Initializing player camera...");
+
 		Camera1st.SetActor(*g_player);
 		Camera1st.SetFirstPerson(true);
 
@@ -179,20 +188,10 @@ namespace Camera {
 		return;
 	}
 
-	std::int32_t Player::GetCameraState() noexcept
+	bool Player::IsInFirstCamera() noexcept
 	{
 		auto playerCamera = (*g_playerCamera);
 
-		if (playerCamera) {
-
-			for (int i = 0; i < PlayerCamera::kNumCameraStates; i++) {
-
-				if (playerCamera->cameraState == playerCamera->cameraStates[i]) {
-					return i;
-				}
-			}
-		}
-
-		return -1;
+		return (playerCamera && playerCamera->cameraState == playerCamera->cameraStates[PlayerCamera::kCameraState_FirstPerson]);
 	}
 }

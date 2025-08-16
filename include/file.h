@@ -14,7 +14,7 @@ namespace File {
 	public:
 
 		Reader() = delete;
-		Reader(const std::string& Filename) noexcept
+		Reader(const char* Filename) noexcept
 			: filename(Filename) {}
 		~Reader() noexcept = default;
 

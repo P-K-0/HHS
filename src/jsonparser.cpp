@@ -12,13 +12,14 @@ namespace JsonParser {
 
 	void EnumFiles(const std::string& directory, std_lib::set& files) noexcept
 	{
-		std::filesystem::path path{ DirData.data() + directory };
-
-		if (!std::filesystem::exists(path)) {
-			return;
-		}
-
 		try {
+
+			std::filesystem::path path{ DirData };
+			path /= directory;
+
+			if (!std::filesystem::exists(path)) {
+				return;
+			}
 
 			for (auto& it : std::filesystem::directory_iterator{ path }) {
 
@@ -34,7 +35,7 @@ namespace JsonParser {
 		}
 		catch (...) {
 
-			_DMESSAGE("%s unknown error!", __FUNCTION__);
+			_DMESSAGE("%s: unknown error!", __FUNCTION__);
 		}
 	}
 
@@ -44,36 +45,49 @@ namespace JsonParser {
 			return;
 		}
 
-		std::filesystem::path path{ DirData.data() };
+		try {
 
-		if (!std::filesystem::exists(path)) {
-			return;
-		}
+			std::filesystem::path path{ DirData };
 
-		for (auto& dir : std::filesystem::directory_iterator{ path }) {
+			if (!std::filesystem::exists(path)) {
+				return;
+			}
 
-			if (std::filesystem::is_regular_file(dir) &&
-				_strcmpi(dir.path().extension().string().c_str(), ".ba2") == 0) {
+			for (auto& dir : std::filesystem::directory_iterator{ path }) {
 
-				BA2::Reader reader{ dir.path().string() };
+				if (std::filesystem::is_regular_file(dir) &&
+					_strcmpi(dir.path().extension().string().c_str(), ".ba2") == 0) {
 
-				if (reader &&
-					reader.GetError() == BA2::Error::Success &&
-					reader.GetHeader().GetType() == BA2::Type::GNRL) {
+					//_DMESSAGE("%s", dir.path().string().c_str());
 
-					for (auto& tbl : reader.GetStringsTable()) {
+					BA2::Reader reader{ dir.path().string() };
 
-						std::filesystem::path file{ tbl.GetFilename() };
+					if (reader &&
+						reader.GetError() == BA2::Error::Success &&
+						reader.GetHeader().GetType() == BA2::Type::GNRL) {
 
-						std::string parent_path = file.lexically_normal().string() + "\\";
+						for (auto& tbl : reader.GetStringsTable()) {
 
-						if (_strcmpi(directory.c_str(), parent_path.c_str()) == 0 && 
-							_strcmpi(file.extension().string().c_str(), ".json") == 0) {
-							files.insert(file.string());
-						}
-					}		
+							std::filesystem::path file{ tbl.GetFilename() };
+
+							std::string parent_path = file.lexically_normal().string() + "\\";
+
+							if (_strcmpi(directory.c_str(), parent_path.c_str()) == 0 && 
+								_strcmpi(file.extension().string().c_str(), ".json") == 0) {
+								files.insert(file.string());
+							}
+						}		
+					}
 				}
 			}
+		}
+		catch (std::filesystem::filesystem_error& err) {
+
+			_DMESSAGE("%s", err.what());
+		}
+		catch (...) {
+
+			_DMESSAGE("%s: unknown error!", __FUNCTION__);
 		}
 	}
 
@@ -107,9 +121,11 @@ namespace JsonParser {
 
 	class BGSMod__Attachment__Mod;
 
-	template<typename Func = std::function<void(const std::string&)>>
-	void GetPathFromID(std::uint32_t id, std::uint32_t gender, Func func) noexcept
+	template<typename Fn> //Fn = void(const std::string&)
+	void GetPathFromID(std::uint32_t id, std::uint32_t gender, Fn func) noexcept
 	{
+		static_assert(std::is_invocable_r_v<void, Fn, const std::string&>, "Error: GetPathFromID expects a callable like void(const std::string&)");
+
 		TESForm* form{ nullptr };
 
 		if (id == 0 || !(form = LookupFormByID(id))) {
@@ -152,15 +168,14 @@ namespace JsonParser {
 
 		default:
 
-			_DMESSAGE("Invalid gender : %i", gender);
-
+			_DMESSAGE("Invalid gender: %i", gender);
 			break;
 		}
 	}
 
 	[[nodiscard]] bool HeightFile(const std::string& Filename) noexcept
 	{
-		File::Reader reader{ Filename };
+		File::Reader reader{ Filename.c_str() };
 
 		std::string buffer;
 
@@ -172,6 +187,7 @@ namespace JsonParser {
 		Json::Reader jReader;
 
 		if (!jReader.parse(buffer, root)) {
+			_DMESSAGE("Failed to parse JSON file: %s", Filename.c_str());
 			return false;
 		}
 
@@ -217,6 +233,8 @@ namespace JsonParser {
 			return;
 		}
 
+		_DMESSAGE("Enumerating JSON files:");
+
 		std_lib::set files;
 
 		EnumFiles(DirF4SE.data(), files);
@@ -224,11 +242,12 @@ namespace JsonParser {
 		EnumFilesBA2(DirF4SE.data(), files);
 
 		if (files.empty()) {
+			_DMESSAGE("No JSON files found.");
 			return;
 		}
 
 		for (auto& f : files) {
-			_DMESSAGE("Loading Json : %s %s", f.c_str(), HeightFile(f) ? "parsed successfully." : "found errors!");
+			_DMESSAGE("Loading JSON: %s %s", f.c_str(), HeightFile(f) ? "parsed successfully" : "found errors");
 		}
 	}
 }

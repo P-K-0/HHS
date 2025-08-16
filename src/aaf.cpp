@@ -275,7 +275,7 @@ namespace Aaf {
 			return hasAAF && hasPlugin;
 		});
 
-		_DMESSAGE("%s %sfound!", PluginAAF, hasAAF ? "" : "not ");
+		_DMESSAGE("%s: %sfound!", PluginAAF, hasAAF ? "" : "not ");
 
 		if (!hasAAF) {
 			return false;
@@ -283,25 +283,28 @@ namespace Aaf {
 
 		if (hasPlugin) {
 
-			_DMESSAGE("%s found... skip injection code!", PluginFO4HHS);
-
+			_DMESSAGE("%s found, skipping injection code!", PluginFO4HHS);
 			return false;
 		}
 		
-		_DMESSAGE("%s not found... init injection code!", PluginFO4HHS);
+		_DMESSAGE("%s not found; initializing injection code.", PluginFO4HHS);
 
 		return true;
 	}
 
 	void Event::Hook() noexcept
 	{
-		if (hasPlugin || hooked) {
+		static bool loaded{};
+
+		if (hasPlugin || loaded) {
 			return;
 		}
 
 		if (!CheckPluginsInstalled()) {
 			return;
 		}
+
+		_DMESSAGE("Starting code injection...");
 
 		struct SendCustomEvent_Code : Xbyak::CodeGenerator {
 
@@ -340,10 +343,14 @@ namespace Aaf {
 		Trampoline::GetSingleton().Alloc<SendCustomEvent_Code>(SendCustomEvent_Original);
 
 		if (g_branchTrampoline.Write5Branch(SendCustomEvent_Internal.GetUIntPtr(), (uintptr_t)CustomEvent)) {
-			_DMESSAGE("Code injected successfully!");
-		}
 
-		return;
+			_DMESSAGE("Code injected successfully!");
+
+			loaded = true;
+		}
+		else {
+			_DMESSAGE("Error injecting code!");
+		}
 	}
 }
 #endif

@@ -113,6 +113,8 @@ namespace Cache {
 			return false;
 		}
 
+		_DMESSAGE("Starting to read cache...");
+
 		std::ifstream ifs{ CacheFilename, std::ios_base::binary };
 
 		Error err{ Error::Success };
@@ -189,11 +191,11 @@ namespace Cache {
 		}
 		else {
 
-			_DMESSAGE("Cache read with errors! (error code %i)", static_cast<std::int32_t>(err));
+			_DMESSAGE("Cache read with errors (error code %i)", static_cast<std::int32_t>(err));
 		}
 
-		_DMESSAGE("Records found in the cache : %i", cacheMap.size());
-		_DMESSAGE("Custom heights found : %i", found);
+		_DMESSAGE("Records found in cache: %i", cacheMap.size());
+		_DMESSAGE("Custom heights found: %i", found);
 
 		return err == Error::Success;
 	}
@@ -213,6 +215,8 @@ namespace Cache {
 		if (!Settings::Ini::GetSingleton().GetCache() || saved) {
 			return false;
 		}
+
+		_DMESSAGE("Starting to save cache...");
 
 		std::ofstream ofs(CacheFilename, std::ios_base::binary);
 
@@ -261,7 +265,7 @@ namespace Cache {
 		}
 		else {
 
-			_DMESSAGE("Cache saved with errors! (error code %i)", static_cast<std::int32_t>(err));
+			_DMESSAGE("Cache saved with errors (error code %i)", static_cast<std::int32_t>(err));
 		}
 
 		return err == Error::Success;

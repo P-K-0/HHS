@@ -66,6 +66,7 @@ namespace Settings {
 	constexpr bool Default_EnableAAF = false;
 	constexpr bool Default_EnableTagAAF = true;
 	constexpr bool Default_Looksmenu = true;
+	constexpr bool Default_Terminal = true;
 	constexpr bool Default_EnableSwimming = true;
 	constexpr bool Default_EnableBleedOut = true;
 	constexpr bool Default_EnableFirstPersonAnim = true;
@@ -123,9 +124,10 @@ namespace Settings {
 		[[nodiscard]] bool GetEnableAAF() const noexcept { return bEnableAAF; }
 		[[nodiscard]] bool GetEnableTagAAF() const noexcept { return bEnableTagAAF; }
 		[[nodiscard]] bool GetLooksmenu() const noexcept { return bLooksmenu; }
+		[[nodiscard]] bool GetTerminal() const noexcept { return bTerminal; }
 		[[nodiscard]] Gender GetGender() const noexcept { return iGender; }
 		[[nodiscard]] Furniture GetBehaviorFurniture() const noexcept { return iBehaviorFurniture; }
-		[[nodiscard]] std::uint32_t GetSlotFlags() const noexcept { return uSlotFlags; }
+		[[nodiscard]] std::uint32_t GetSlotFlags() const noexcept { return iSlotFlags; }
 		[[nodiscard]] Race GetRace() const noexcept { return iRace; }
 		[[nodiscard]] bool GetEnableSwimming() const noexcept { return bEnableSwimming; }
 		[[nodiscard]] bool GetEnableBleedOut() const noexcept { return bEnableBleedOut; }
@@ -145,7 +147,8 @@ namespace Settings {
 		[[nodiscard]] std::uint32_t GetKeyDeleteHeight() const noexcept { return iKeyDeleteHeight; }
 		[[nodiscard]] std::uint32_t GetKeyIncrementHeight() const noexcept { return iKeyIncrementHeight; }
 		[[nodiscard]] std::uint32_t GetKeyDecrementHeight() const noexcept { return iKeyDecrementHeight; }
-		[[nodiscard]] bool GetEnableSlot(std::size_t index) const noexcept { return bEnableSlot[index]; }
+		[[nodiscard]] std::uint32_t GetSlotAt(std::size_t index) const noexcept { return aSlot[index]; }
+		[[nodiscard]] std::uint32_t GetCountSlot() const noexcept { return iCountSlot; }
 
 		void SetEnablePlayer(bool value) noexcept { bEnablePlayer = value; }
 		void SetEnableNPCs(bool value) noexcept { bEnableNPCs = value; }
@@ -163,6 +166,7 @@ namespace Settings {
 		void SetEnableAAF(bool value) noexcept { bEnableAAF = value; }
 		void SetEnableTagAAF(bool value) noexcept { bEnableTagAAF = value; }
 		void SetLooksmenu(bool value) noexcept { bLooksmenu = value; }
+		void SetTerminal(bool value) noexcept { bTerminal = value; }
 		void SetGender(Gender value) noexcept { iGender = value; }
 		void SetBehaviorFurniture(Furniture value) noexcept { iBehaviorFurniture = value; }
 		void SetRace(Race value) noexcept { iRace = value; }
@@ -217,13 +221,16 @@ namespace Settings {
 		bool bEnableTagAAF{ Default_EnableTagAAF };
 		std::vector<std::string> vTagAAF;
 		bool bLooksmenu{ Default_Looksmenu };
+		bool bTerminal{ Default_Terminal };
 		Gender iGender{ Default_Gender };
 		Furniture iBehaviorFurniture{ Default_BehaviorFurniture };
 		std::vector<std::uint32_t> vFurnitureKeyword;
 
 		// [Slot]
 		bool bEnableSlot[MaxSlot];
-		std::uint32_t uSlotFlags{ 0xffffffff };
+		std::uint32_t aSlot[MaxSlot];
+		std::uint32_t iCountSlot{};
+		std::uint32_t iSlotFlags{ 0xffffffff };
 
 		// [Race]
 		Race iRace{ Default_Race };

@@ -30,6 +30,7 @@ namespace Actors {
 		Utility() noexcept = default;
 		~Utility() noexcept = default;
 
+		[[nodiscard]] bool Init(Actor* actor) noexcept;
 		[[nodiscard]] bool Update(Actor* act) noexcept;
 
 		[[nodiscard]] bool IsFemale() const noexcept { return isFemale; }
@@ -58,7 +59,7 @@ namespace Actors {
 		std::uint32_t actorID{};
 		std::uint32_t raceID{};
 
-		[[nodiscard]] bool Init(Actor* actor) noexcept;
+		static inline std::unordered_map<std::uint32_t, bool> mapSwapID;
 	};
 
 	[[nodiscard]] extern std::uint32_t GetSlotMaskByID(std::uint32_t id) noexcept;

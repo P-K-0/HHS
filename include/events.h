@@ -85,7 +85,19 @@ namespace Events {
 		void RegisterAnimationGraphEvent() noexcept;
 
 		template<typename Tevent>
-		void AddEvent() noexcept { GetEventDispatcher<Tevent>()->AddEventSink(this); }
+		void AddEvent(const char* message) noexcept { 
+			
+			auto eventDispatcher = GetEventDispatcher<Tevent>();
+
+			if (!eventDispatcher) {
+				_DMESSAGE("Failed to get EventDispatcher for event '%s'", message);
+				return;
+			}
+
+			eventDispatcher->AddEventSink(this);
+
+			_DMESSAGE("Event dispatcher for '%s' hooked successfully.", message);	
+		}
 
 		static void AnimObjFirstPerson(TESObjectREFR* refr, bool stop) noexcept;
 		static void SwimEvent(TESObjectREFR* refr, bool soundPlay) noexcept;

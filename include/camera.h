@@ -41,7 +41,7 @@ namespace Camera {
 
 		[[nodiscard]] bool IsCameraNodeAnimations() noexcept;
 		void SetApplyCameraNodeAnimations(bool value) noexcept;
-		[[nodiscard]] std::int32_t GetCameraState() noexcept;
+		[[nodiscard]] bool IsInFirstCamera() noexcept;
 
 	private:
 

@@ -20,6 +20,7 @@ constexpr std::uint32_t InvalidSlot = 0;
 constexpr std::uint32_t ReservedSlots = 12;
 constexpr std::uint32_t MinSlot = 0;
 constexpr std::uint32_t MaxSlot = (ActorEquipData::kMaxSlots - ReservedSlots);
+constexpr std::uint32_t BodySlot = 3;
 
 class Trampoline :
 	public util::Singleton<Trampoline> {
@@ -30,24 +31,23 @@ public:
 	void Create() noexcept
 	{
 		if (created) {
+			_DMESSAGE("Trampoline already created");
 			return;
 		}
 
-		_DMESSAGE("Trampoline Space allocated : %i bytes", len);
+		_DMESSAGE("Starting trampoline creation");
 
 		if (!g_branchTrampoline.Create(len)) {
-
-			_ERROR("Branch Trampoline init error!");
-
+			_ERROR("Failed to initialize branch trampoline!");
 			return;
 		}
 
 		if (!g_localTrampoline.Create(len, g_moduleHandle)) {
-
-			_ERROR("Codegen buffer init error!");
-
+			_ERROR("Failed to initialize codegen buffer!");
 			return;
 		}
+
+		_DMESSAGE("Trampoline space allocated : %i bytes", len);
 
 		created = true;
 	}
@@ -56,7 +56,7 @@ public:
 
 	void PrintSpaceLeft() noexcept
 	{
-		_DMESSAGE("Trampoline space left : %i/%i bytes (%.2f %%)",
+		_DMESSAGE("Trampoline space left: %i/%i bytes (%.2f %%)",
 			g_localTrampoline.Remain(),
 			len,
 			(100.0 * static_cast<double>(g_localTrampoline.Remain()) / static_cast<double>(len)));
@@ -104,9 +104,11 @@ inline [[nodiscard]] bool BSCompi(const BSFixedString& bStr, const char* str) no
 	return cstr && _strcmpi(cstr, str) == 0;
 }
 
-template<typename Func = std::function<void(TESObjectREFR*)>>
-void VisitCell(Func func)
+template<typename Fn> // Fn = void(TESObjectREFR*)
+void VisitCell(Fn func)
 {
+	static_assert(std::is_invocable_r_v<void, Fn, TESObjectREFR*>, "Error: VisitCell expects a callable like void(TESObjectREFR*)");
+
 	auto frm = LookupFormByID(PlayerID);
 
 	if (!frm) {
@@ -128,9 +130,11 @@ void VisitCell(Func func)
 	}
 }
 
-template<typename Func = std::function<bool(ModInfo*)>>
-void VisitMods(Func func)
+template<typename Fn> // Fn = bool(ModInfo*)
+void VisitMods(Fn func)
 {
+	static_assert(std::is_invocable_r_v<bool, Fn, ModInfo*>, "Error: VisitMods expects a callable like bool(ModInfo*)");
+
 	auto data = (*g_dataHandler);
 
 	if (!data) {

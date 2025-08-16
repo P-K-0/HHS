@@ -53,9 +53,9 @@ namespace Settings {
 
 	bool Ini::HasRaceKeyword(TESRace* race) noexcept
 	{
-		for (std::uint32_t i{}; i < race->keywordForm.numKeywords; i++) {
+		for (std::uint32_t idx{}; idx < race->keywordForm.numKeywords; ++idx) {
 
-			auto keyRaceHHS = race->keywordForm.keywords[i];
+			auto keyRaceHHS = race->keywordForm.keywords[idx];
 
 			if (keyRaceHHS && BSCompi(keyRaceHHS->keyword, ActorType_HHS)) {
 				return true;
@@ -83,7 +83,7 @@ namespace Settings {
 
 		vFurnitureKeyword.clear();
 
-		_DMESSAGE("Loading keywords :");
+		_DMESSAGE("Loading keywords:");
 
 		for (std::uint32_t iKey{}; iKey < data->arrKYWD.count; iKey++) {
 
@@ -109,8 +109,7 @@ namespace Settings {
 
 		if (cnt == 0) {
 
-			_DMESSAGE("Error init furniture Keywords!");
-			
+			_DMESSAGE("Error during furniture keywords init!");
 			return;
 		}
 
@@ -136,7 +135,7 @@ namespace Settings {
 
 		vRace.clear();
 
-		_DMESSAGE("Loading races :");
+		_DMESSAGE("Loading races:");
 
 		for (std::uint32_t idx{}; idx < data->arrRACE.count; idx++) {
 
@@ -193,8 +192,7 @@ namespace Settings {
 
 		if (cnt == 0) {
 
-			_DMESSAGE("Error init Races!");
-
+			_DMESSAGE("Error during races init!");
 			return;
 		}
 
@@ -211,10 +209,20 @@ namespace Settings {
 		bEnableSlot[index] = value;
 
 		if (value) {
-			uSlotFlags |= (1 << index);
+			iSlotFlags |= (1 << index);
 		}
 		else {
-			uSlotFlags &= ~(1 << index);
+			iSlotFlags &= ~(1 << index);
+		}
+
+		iCountSlot = 0;
+
+		for (std::uint32_t index{}; index < MaxSlot; ++index) {
+
+			if (bEnableSlot[index]) {
+				aSlot[iCountSlot] = index;
+				iCountSlot++;
+			}
 		}
 	}
 
@@ -238,7 +246,7 @@ namespace Settings {
 				return false;
 			}
 
-			for (std::uint32_t idx{}; idx < furn->keywordForm.numKeywords; idx++) {
+			for (std::uint32_t idx{}; idx < furn->keywordForm.numKeywords; ++idx) {
 
 				auto key = furn->keywordForm.keywords[idx];
 
@@ -327,7 +335,7 @@ namespace Settings {
 		ini.SetUnicode();
 		auto error = ini.LoadFile(Filename.c_str());
 
-		_DMESSAGE("File %s %sloaded!", Filename.c_str(), error != 0 ? "not ": "");
+		_DMESSAGE("File %s: %sloaded", Filename.c_str(), error != 0 ? "not " : "");
 
 		if (error != 0) {
 			return;
@@ -353,6 +361,7 @@ namespace Settings {
 		ParseString(ini, Section::Main, "sTagAAF", vTagAAF);
 
 		GetValue(ini, Section::Main, "bLooksmenu", bLooksmenu);
+		GetValue(ini, Section::Main, "bTerminal", bTerminal);
 		GetValue(ini, Section::Main, "iGender", iGender);
 		GetValue(ini, Section::Main, "iBehaviorFurniture", iBehaviorFurniture);
 

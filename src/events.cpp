@@ -85,9 +85,9 @@ namespace Events {
 
 		hhs::Map::GetSingleton().visit(hhs::VisitFlags::None, evn->actor, [&](hhs::System& sys) {
 
-			if (!sys.HasHeight()) {
-				return hhs::Error::Success;
-			}
+			//if (!sys.HasHeight()) {
+			//	return hhs::Error::Success;
+			//}
 
 			if (evn->isGettingUp) {
 
@@ -102,7 +102,9 @@ namespace Events {
 
 			auto ret = sys.Stop();
 
-			sys.EnableFix(evn->furniture);
+			if (ret == hhs::Error::Success) {
+				sys.EnableFix(evn->furniture);
+			}
 
 			return ret;
 		});
@@ -129,9 +131,9 @@ namespace Events {
 			return kEvent_Continue;
 		}
 
-		std::uint32_t slot{ Actors::GetSlotMaskByID(evn->ObjectID) };
+		std::uint32_t slotMask{ Actors::GetSlotMaskByID(evn->ObjectID) };
 
-		if ((slot & Settings::Ini::GetSingleton().GetSlotFlags()) == InvalidSlot) {
+		if ((slotMask & Settings::Ini::GetSingleton().GetSlotFlags()) == InvalidSlot) {
 			return kEvent_Continue;
 		}
 
@@ -151,15 +153,15 @@ namespace Events {
 			}
 
 			if (!sys.HasOverride()) {
-				return sys.SetHeight(slot, evn->ObjectID, isEquipped);
+				return sys.SetHeight(slotMask, evn->ObjectID, isEquipped);
 			}
 
 			if (sys.HasOverride() && !isEquipped && evn->ObjectID == sys.GetActorUtil().GetIDFromScriptKwrd()) {
-				return sys.SetHeight(slot, evn->ObjectID, isEquipped);
+				return sys.SetHeight(slotMask, evn->ObjectID, false);
 			}
-
+			
 			return hhs::Error::Success;
-		});
+		}, hhs::UpdateFlags::Init);
 
 		return kEvent_Continue;
 	}
@@ -265,7 +267,7 @@ namespace Events {
 			return;
 		}
 
-		if (Camera::Player::GetSingleton().GetCameraState() != PlayerCamera::kCameraState_FirstPerson) {
+		if (!Camera::Player::GetSingleton().IsInFirstCamera()) {
 			return;
 		}
 
@@ -413,12 +415,13 @@ namespace Events {
 		}
 
 		auto key = hash<MenuName>(evn->menuName.c_str());
+		auto& settings = Settings::Ini::GetSingleton();
 
 		switch (key) {
 
 		case MenuName::LooksMenu:
 
-			if (!Settings::Ini::GetSingleton().GetLooksmenu()) {
+			if (settings.GetLooksmenu()) {
 
 				VisitCell([&](TESObjectREFR* refr) {
 
@@ -440,7 +443,7 @@ namespace Events {
 
 		case MenuName::TerminalMenu:
 
-			if (Camera::Player::GetSingleton().GetCameraState() == PlayerCamera::kCameraState_FirstPerson) {
+			if (settings.GetTerminal() && Camera::Player::GetSingleton().IsInFirstCamera()) {
 
 				hhs::Map::GetSingleton().visit(hhs::VisitFlags::Override, PlayerID, [&](hhs::System& sys) {
 
@@ -475,38 +478,38 @@ namespace Events {
 			return;
 		}
 
-		AddEvent<TESFurnitureEvent>();
-		AddEvent<TESDeathEvent>();
-		AddEvent<TESEquipEvent>();
-		AddEvent<TESRaceSwitchEvent>();
-		AddEvent<TESObjectLoadedEvent>();
-		AddEvent<TESLoadGameEvent>();
-		AddEvent<TESCellAttachEvent>();
-		AddEvent<TESInitScriptEvent>();
-		AddEvent<TESEnterBleedoutEvent>();
+		AddEvent<TESFurnitureEvent>("Furniture");
+		AddEvent<TESDeathEvent>("Death");
+		AddEvent<TESEquipEvent>("Equip");
+		AddEvent<TESRaceSwitchEvent>("RaceSwitch");
+		AddEvent<TESObjectLoadedEvent>("Object Loaded");
+		AddEvent<TESLoadGameEvent>("LoadGame");
+		AddEvent<TESCellAttachEvent>("Cell Attach/Detach");
+		AddEvent<TESInitScriptEvent>("Init Script");
+		AddEvent<TESEnterBleedoutEvent>("Enter Bleedout");
 
 		auto ui = *g_ui;
 
 		if (ui) {
 			ui->menuOpenCloseEventSource.AddEventSink(this);
+			_DMESSAGE("Event dispatcher for 'Menu Open/Close' hooked successfully.");
 		}
-
-		_DMESSAGE("Events registered successfully!");
+		else {
+			_DMESSAGE("Failed to get EventDispatcher for 'Menu Open/Close' event");
+		}
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
 		RegisterInput();
 #endif
 
 		RegisterAnimationGraphEvent();
+
+		registered = true;
 	}
 
 	void Dispatcher::RegisterInput() noexcept
 	{
-		static bool registered{};
-
-		if (registered) {
-			return;
-		}
+		_DMESSAGE("Registering input events...");
 		
 		auto playerCtrl = (*g_playerControls);
 
@@ -527,21 +530,17 @@ namespace Events {
 
 			inputEvents->Push(inputHandler);
 
-			registered = true;
-
 			_DMESSAGE("Input events registered successfully!");
 		}
+		else {
 
-		return;
+			_DMESSAGE("Error registering input events!");
+		}
 	}
 
 	void Dispatcher::RegisterAnimationGraphEvent() noexcept
 	{
-		static bool registered{};
-
-		if (registered) {
-			return;
-		}
+		_DMESSAGE("Registering Animation Graph Event...");
 
 		/*
 
@@ -587,8 +586,10 @@ namespace Events {
 		if (g_branchTrampoline.Write5Branch(reloc_ActorMediator_ProcessEvent.GetUIntPtr(), (uintptr_t)ProcessEvent)) {
 
 			_DMESSAGE("Animation Graph Event registered successfully!");
-
-			registered = true;
 		}	
+		else {
+
+			_DMESSAGE("Error registering Animation Graph Event!");
+		}
 	}
 }

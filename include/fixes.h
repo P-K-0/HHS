@@ -1,7 +1,7 @@
 #pragma once
 
 #include "version.h"
-
+#include "externals.h"
 #include "node.h"
 #include "util.h"
 
@@ -9,15 +9,8 @@
 
 namespace Fixes {
 
-	struct Values {
-
-		std::string node;
-		Node::Flags flags{};
-		float value{};
-		bool mulheight{};
-	};
-
-	constexpr char* FilePreset = "F4SE\\Plugins\\hhs_fixes.json";
+	constexpr auto FilePreset = "f4se\\plugins\\hhs_fixes.json"_sv;
+	constexpr auto DirFurniture = "f4se\\plugins\\hhs\\furniture\\"_sv;
 
 	class Preset :
 		public util::Singleton<Preset> {
@@ -25,47 +18,30 @@ namespace Fixes {
 
 	public:
 
-		[[nodiscard]] bool Load() noexcept;
+		using Keyword = std::size_t;
+		using NoStop = bool;
+		using VectorNodeValues = std::vector<Node::NodeValues>;
+		using PairNodes = std::pair<NoStop, VectorNodeValues>;
 
-		[[nodiscard]] std::int32_t GetSAFVersion() const noexcept { return saf_version; }
+		struct Furniture {
 
-		[[nodiscard]] bool FindKeyword(const char* sKeyword, Json::Value& value) noexcept;
+			std::string filename;
+			PairNodes pairNodes;
+		};
 
-		template<typename Fn> // Fn = void(const Values&)
+		void EnumFiles() noexcept;
+
+		template<typename Fn> // Fn = void(NodeValues&)
 		[[nodiscard]] bool GetPresetValues(const char* sKeyword, bool& noStop, Fn fn) noexcept
 		{
-			static_assert(std::is_invocable_r_v<void, Fn, const Values&>, "Error: GetPresetValues expects a callable like void(const Values&)");
+			static_assert(std::is_invocable_r_v<void, Fn, Node::NodeValues&>, "Error: GetPresetValues expects a callable like void(NodeValues&)");
 
-			Json::Value objs;
+			auto& pairValues = FindKeyword(sKeyword);
 
-			if (!FindKeyword(sKeyword, objs)) {
-				return false;
-			}
+			noStop = pairValues.first;
 
-			for (const auto& obj : objs.getMemberNames()) {
-
-				auto& ref_obj = objs[obj];
-
-				if (obj == "nostop" && ref_obj.isBool()) {
-					noStop = ref_obj.asBool();
-				}
-				else {
-
-					if (ref_obj.isObject()) {
-
-						for (const auto& flag : ref_obj.getMemberNames()) {
-
-							auto& value = ref_obj[flag];
-
-							if (value.isObject()) {
-
-								Values values{ obj.c_str(), GetFlags(flag.c_str()), value["value"].asFloat(), value["mulheight"].asBool() };
-
-								fn(values);
-							}
-						}
-					}
-				}
+			for (auto& value : pairValues.second) {
+				fn(value);
 			}
 
 			return true;
@@ -76,10 +52,12 @@ namespace Fixes {
 		Preset() noexcept = default;
 		~Preset() noexcept = default;
 
+		void SetPairValue(Node::PairValue& pairValue, const Json::Value& jValue) noexcept;
+		[[nodiscard]] PairNodes& FindKeyword(const char* sKeyword) noexcept;
 		[[nodiscard]] Node::Flags GetFlags(const char* str) noexcept;
+		[[nodiscard]] bool Load(const char* lpFilename) noexcept;
 
-		Json::Value root;
-
-		std::int32_t saf_version{};
+		std::unordered_map<Keyword, Furniture> map;
+		PairNodes fallBack;
 	};
 }

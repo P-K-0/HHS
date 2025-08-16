@@ -1,7 +1,6 @@
 #pragma once
 
 #include "version.h"
-
 #include "util.h"
 
 namespace Node {
@@ -25,6 +24,10 @@ namespace Node {
 		RotZ,
 		Count
 	};
+
+	[[nodiscard]] constexpr std::uint8_t GetAllBitFlags() noexcept {
+		return ~(1 << static_cast<std::uint8_t>(Flags::Count));
+	}
 
 	template<typename T>
 	[[nodiscard]] constexpr Flags flags_cast(T value) noexcept {
@@ -57,6 +60,31 @@ namespace Node {
 		NiTransform transform{};
 	};
 
+	struct PairValue {
+
+		float value{};
+		bool mul{};
+
+		[[nodiscard]] float GetMulValue(float height) noexcept {
+			return value * (mul ? height : 1.0f);
+		}
+	};
+
+	struct NodeValues {
+
+		NodeValues(const char* node) noexcept
+			: nodeName(node) {}
+
+		std::string nodeName;
+		PairValue x;
+		PairValue y;
+		PairValue z;
+		PairValue heading;
+		PairValue attitude;
+		PairValue bank;
+		PairValue scale;
+	};
+
 	class Transform : 
 		public util::NoCopyable,
 		public util::NoMoveable,
@@ -74,6 +102,7 @@ namespace Node {
 			: act{ actor }, frstPerson{ firstPerson } {}
 
 		[[nodiscard]] float GetTransform(const char* node, Flags flags) noexcept;	
+		[[nodiscard]] std::int32_t SetTransform(const char* node, NodeValues& values, float height) noexcept;
 		[[nodiscard]] std::int32_t SetTransform(const char* node, Flags flags, float value) noexcept;
 		[[nodiscard]] std::int32_t ResetTransform(const char* node, Flags flags) noexcept;
 		[[nodiscard]] std::uint32_t GetID() noexcept { return act ? act->formID : 0; }

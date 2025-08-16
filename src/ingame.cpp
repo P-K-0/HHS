@@ -58,11 +58,20 @@ namespace InGame {
 	{
 		static bool registered{};
 
-		if (registered) {
+		if (registered || !g_viewCasterUpdateDispatcher || !(*g_viewCasterUpdateDispatcher)) {
 			return;
 		}
 
-		(*g_viewCasterUpdateDispatcher)->eventDispatcher.AddEventSink(this);
+		_DMESSAGE("Initializing height adjustment interface...");
+
+		if ((*g_viewCasterUpdateDispatcher)->eventDispatcher.AddEventSink(this)) {
+
+			_DMESSAGE("Height adjustment interface initialized successfully.");
+		}
+		else {
+
+			_DMESSAGE("Error initializing height adjustment interface!");
+		}
 
 		registered = true;
 	}

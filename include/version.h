@@ -10,7 +10,7 @@ namespace Version {
 	
 	constexpr std::uint32_t Major = 1;
 	constexpr std::uint32_t Minor = 9;
-	constexpr std::uint32_t Build = 0;
+	constexpr std::uint32_t Build = 1;
 
 	constexpr const float GetVersion() { return static_cast<float>(Major) + static_cast<float>(Minor) / 10.0f; }
 }

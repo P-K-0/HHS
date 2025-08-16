@@ -9,6 +9,10 @@ namespace Actors {
 
 	bool Utility::Init(Actor* act) noexcept
 	{
+		if (!act || !act->race) {
+			return false;
+		}
+
 		TESNPC* npc{ nullptr };
 
 		if (!act->baseForm || !(npc = DYNAMIC_CAST(act->baseForm, TESForm, TESNPC))) {
@@ -21,10 +25,14 @@ namespace Actors {
 
 		isFemale = CALL_MEMBER_FN(npc, GetSex)();
 
+		//_DMESSAGE("%016I64X", npc->actorData.flags);
+
 		auto& settings = Settings::Ini::GetSingleton();
 
 		isPlayer = act == *g_player;
 		isEnabled = isPlayer ? settings.GetEnablePlayer() : settings.GetEnableNPCs();
+
+		//_DMESSAGE("isEnabled: %i isPlayer: %i isFemale: %i Config(%i/%i) FormID: %.8X", isEnabled, isPlayer, isFemale, settings.GetEnablePlayer(), settings.GetEnableNPCs(), actor->formID);
 
 		auto gender = settings.GetGender();
 
@@ -40,6 +48,8 @@ namespace Actors {
 		}
 
 		isRaceCompatible = settings.CheckRace(act->race);
+
+		//_DMESSAGE("isRaceCompatible: %i isEnabled: %i isPlayer: %i Config(%i/%i) FormID: %.8X", isRaceCompatible, isEnabled, isPlayer, settings.GetEnablePlayer(), settings.GetEnableNPCs(), actor->formID);
 
 		return true;
 	}
@@ -69,26 +79,50 @@ namespace Actors {
 
 		for (std::uint32_t slot = MinSlot; slot < MaxSlot; slot++) {
 
-			const auto itemSwap = actor->equipData->slots[slot].item;
-
-			if (!itemSwap || !(armor = DYNAMIC_CAST(itemSwap, TESForm, TESObjectARMO))) {
+			if (slot == BodySlot) {
 				continue;
 			}
-			
-			for (std::uint32_t key = 0; key < armor->keywordForm.numKeywords; ++key) {
 
-				BGSKeyword* kwrd = armor->keywordForm.keywords[key];
+			const auto itemSwap = actor->equipData->slots[slot].item;
 
-				if (kwrd && BSCompi(kwrd->keyword, HHS_Script)) {
-					return itemSwap->formID;
+			if (itemSwap) {
+
+				auto itemSwapID = itemSwap->formID;
+
+				auto it = mapSwapID.find(itemSwapID);
+
+				if (it != mapSwapID.end()) {
+
+					if (it->second) {
+						return itemSwapID;
+					}
+				}
+				else {
+
+					if ((armor = DYNAMIC_CAST(itemSwap, TESForm, TESObjectARMO))) {
+
+						for (std::uint32_t key = 0; key < armor->keywordForm.numKeywords; ++key) {
+
+							BGSKeyword* kwrd = armor->keywordForm.keywords[key];
+
+							if (kwrd && BSCompi(kwrd->keyword, HHS_Script)) {
+
+								mapSwapID[itemSwapID] = true;
+
+								return itemSwapID;
+							}
+						}
+					}
+
+					mapSwapID[itemSwapID] = false;
 				}
 			}
 		}
 
-		const auto itemSwap = actor->equipData->slots[3].item;
+		const auto itemSwap = actor->equipData->slots[BodySlot].item;
 
 		if (itemSwap) {
-			return itemSwap->formID;	
+			return itemSwap->formID;
 		}
 
 		return 0;
@@ -158,22 +192,27 @@ namespace Actors {
 			CALL_MEMBER_FN(actor->middleProcess, UpdateEquipment)(actor, 0);
 		}
 
-		for (std::uint32_t indexSlot = MinSlot; indexSlot < MaxSlot; indexSlot++) {
+		auto& settings = Settings::Ini::GetSingleton();
 
-			if (!equipped && (slot & (1 << indexSlot)) && id) {
+		for (std::uint32_t indexSlot{ MinSlot }; indexSlot < settings.GetCountSlot(); ++indexSlot) {
+
+			std::uint32_t slotIndex = settings.GetSlotAt(indexSlot);
+			std::uint32_t slotMask = 1 << slotIndex;
+
+			if (!equipped && (slot & slotMask) && id) {
 				continue;
 			}
 
-			const auto materialSwap = equipdata->slots[indexSlot].modelMatSwap;
+			const auto materialSwap = equipdata->slots[slotIndex].modelMatSwap;
 
-			if (!Settings::Ini::GetSingleton().GetEnableSlot(indexSlot) || !materialSwap) {
+			if (!materialSwap) {
 				continue;
 			}
 
 			height = Cache::Map::GetSingleton().Find(materialSwap->GetModelName());
 			
 			if (height == ZeroValue) {
-				height = GetHeightFromMod(indexSlot);
+				height = GetHeightFromMod(slotIndex);
 			}
 
 			if (height != ZeroValue) {
