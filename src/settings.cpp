@@ -157,7 +157,16 @@ namespace Settings {
 
 							cnt++;
 
-							DbgMessage("Race", edid, race->formID, "from Skeleton");
+							std::uint32_t safVersion{};
+
+							if (skeleton.GetExtraData(ExtraDataSAF, safVersion)) {
+								std::string message{ "from Skeleton with SAM support v" };
+								message += std::to_string(safVersion);
+								DbgMessage("Race", edid, race->formID, message.c_str());
+							}
+							else {
+								DbgMessage("Race", edid, race->formID, "from Skeleton");
+							}
 
 							break;
 						}

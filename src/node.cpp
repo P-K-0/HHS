@@ -373,12 +373,12 @@ namespace Node {
 			return -1;
 		}
 
-		BSFixedString node_str{ node };
+		BSFixedString bsNode{ node };
 
 #if RUNTIME_VR_VERSION_1_2_72 != CURRENT_RELEASE_RUNTIME
-		auto object = root->GetObjectByName(&node_str);
+		auto object = root->GetObjectByName(&bsNode);
 #else
-		auto object = CALL_MEMBER_FN(root, GetAVObjectByName)(&node_str, 0, 0);
+		auto object = CALL_MEMBER_FN(root, GetAVObjectByName)(&bsNode, 0, 0);
 #endif
 
 		if (!object) {
