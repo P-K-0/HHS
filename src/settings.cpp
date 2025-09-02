@@ -209,7 +209,7 @@ namespace Settings {
 		vRace.erase(std::unique(vRace), vRace.end());
 	}
 
-	void Ini::SetEnableSlot(std::uint32_t index, bool value) noexcept
+	void Ini::SetBipedSlot(std::uint32_t index, bool value) noexcept
 	{
 		if (index < MinSlot || index >= MaxSlot) {
 			return;
@@ -380,7 +380,7 @@ namespace Settings {
 		for (std::uint32_t index{ MinSlot }; index < MaxSlot; index++) {
 			bool value{ true };
 			GetValue(ini, Section::Slot, ("bEnableSlot" + std::to_string(index + 30)).c_str(), value);
-			SetEnableSlot(index, value);
+			SetBipedSlot(index, value);
 		}
 
 		// [Race]

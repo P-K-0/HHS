@@ -12,26 +12,38 @@ namespace Scaleform {
 	template<typename RetT>
 	[[nodiscard]] RetT GetValue(GFxFunctionHandler::Args* args, std::uint32_t index) noexcept
 	{
-		if (!args) {
-			return RetT{};
-		}
+		static_assert(std::is_same_v<RetT, bool> ||
+			std::is_same_v<RetT, std::uint32_t> ||
+			std::is_same_v<RetT, std::int32_t> ||
+			std::is_same_v<RetT, float> ||
+			std::is_same_v<RetT, std::string_view>, 
+			"Unsupported return type for GetValue");
 
-		if (index >= args->numArgs) {
+		if (!args || index >= args->numArgs) {
 			return RetT{};
 		}
 
 		auto& arg = args->args[index];
 
-		switch (arg.GetType()) {
-
-		case GFxValue::kType_Bool:
-			return arg.GetBool();
-
-		case GFxValue::kType_Int: 
-			return arg.GetInt();
-
-		case GFxValue::kType_Number: 
-			return arg.GetNumber();
+		if constexpr (std::is_same_v<RetT, bool>) {
+			if (arg.GetType() == GFxValue::kType_Bool) {
+				return arg.GetBool();
+			}
+		}
+		else if constexpr (std::is_same_v<RetT, std::uint32_t> || std::is_same_v<RetT, std::int32_t>) {
+			if (arg.GetType() == GFxValue::kType_Int) {
+				return static_cast<RetT>(arg.GetInt());
+			}
+		}
+		else if constexpr (std::is_same_v<RetT, float>) {
+			if (arg.GetType() == GFxValue::kType_Number) {
+				return arg.GetNumber();
+			}
+		}
+		else if constexpr (std::is_same_v<RetT, std::string_view>) {
+			if (arg.GetType() == GFxValue::kType_String) {
+				return arg.GetString();
+			}
 		}
 
 		return RetT{};
@@ -107,7 +119,7 @@ namespace Scaleform {
 
 	void EnableJsonFile(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().SetEnableTextFile(GetValue<bool>(args, 1));
+		Settings::Ini::GetSingleton().SetEnableJsonFile(GetValue<bool>(args, 1));
 	}
 
 	void EnableExtraData(GFxFunctionHandler::Args* args) noexcept
@@ -205,7 +217,7 @@ namespace Scaleform {
 
 	void EnableSlot(GFxFunctionHandler::Args* args) noexcept
 	{
-		Settings::Ini::GetSingleton().SetEnableSlot(GetValue<std::uint32_t>(args, 1), GetValue<bool>(args, 2));
+		Settings::Ini::GetSingleton().SetBipedSlot(GetValue<std::uint32_t>(args, 1), GetValue<bool>(args, 2));
 	}
 
 	void SetRace(GFxFunctionHandler::Args* args) noexcept
@@ -238,82 +250,81 @@ namespace Scaleform {
 		Settings::Ini::GetSingleton().SetReference(Settings::reference_cast(GetValue<std::int32_t>(args, 1)));
 	}
 
-	void SetSwimming(GFxFunctionHandler::Args* args) noexcept
+	void EnableSwimming(GFxFunctionHandler::Args* args) noexcept
 	{
 		Settings::Ini::GetSingleton().SetEnableSwimming(GetValue<bool>(args, 1));
 	}
 
-	void SetBleedOut(GFxFunctionHandler::Args* args) noexcept
+	void EnableBleedOut(GFxFunctionHandler::Args* args) noexcept
 	{
 		Settings::Ini::GetSingleton().SetEnableBleedOut(GetValue<bool>(args, 1));
 	}
 
-	void SetFirstPersonAnim(GFxFunctionHandler::Args* args) noexcept
+	void EnableFirstPersonAnim(GFxFunctionHandler::Args* args) noexcept
 	{
 		Settings::Ini::GetSingleton().SetEnableFirstPersonAnim(GetValue<bool>(args, 1));
 	}
 
-	void SetFixes(GFxFunctionHandler::Args* args) noexcept
+	void EnableFixes(GFxFunctionHandler::Args* args) noexcept
 	{
 		Settings::Ini::GetSingleton().SetEnableFixes(GetValue<bool>(args, 1));
 	}
 
-	void SetReloadFixes(GFxFunctionHandler::Args* args) noexcept
+	void EnableReloadFixes(GFxFunctionHandler::Args* args) noexcept
 	{
 		Settings::Ini::GetSingleton().SetEnableReloadFixes(GetValue<bool>(args, 1));
 	}
 
 	using SettingFn = void (*)(GFxFunctionHandler::Args*);
+	using PairSettingFn = std::pair<std::string_view, SettingFn>;
 
-	const std::vector<std::pair<std::string, SettingFn>> vFuncs{
-		{ "bEnablePlayer", EnablePlayer },
-		{ "bEnableNPCs", EnableNPCs },
-		{ "bEnableScript", EnableScript },
-		{ "bEnableTextFile", EnableTextFile },
-		{ "bEnableJsonFile", EnableJsonFile },
-		{ "bEnableExtraData", EnableExtraData },
-		{ "bEnableDynamicCamera", EnableDynamicCamera },
-		{ "bEnable1stCamera", EnableFirstPersonCamera },
-		{ "bEnable3rdCamera", EnableThirdPersonCamera },
-		{ "bEnableCustomCameraPatch", EnableCustomCameraPatch },
-		{ "bCache", EnableCache },
-		{ "bAltRead", EnableAltRead },
-		{ "bEnableAAF", EnableAAF },
-		{ "bEnableTagAAF", EnableTagAAF },
-		{ "bLooksmenu", EnableLooksMenu },
-		{ "bTerminal", EnableTerminalMenu },
-		{ "iGender", SetGender },
-		{ "iBehaviorFurniture", SetBehaviorFurniture },
-		{ "bEnableSlot", EnableSlot },
-		{ "iRace", SetRace },
-		{ "fHeight", SetHeight },
-		{ "fstep", SetStep },
-		{ "iSlot", SetSlot },
-		{ "iDirF4SE", SetDirF4SE },
-		{ "iReference", SetReference },
-		{ "bEnableSwimming", SetSwimming },
-		{ "bEnableBleedOut", SetBleedOut },
-		{ "bEnableFirstPersonAnim", SetFirstPersonAnim },
-		{ "bEnableFixes", SetFixes },
-		{ "bEnableReloadFixes", SetReloadFixes }
+	std::array<PairSettingFn, 30> vFuncs{
+		PairSettingFn{ "bAltRead", EnableAltRead },
+		PairSettingFn{ "bCache", EnableCache },
+		PairSettingFn{ "bEnable1stCamera", EnableFirstPersonCamera },
+		PairSettingFn{ "bEnable3rdCamera", EnableThirdPersonCamera },
+		PairSettingFn{ "bEnableAAF", EnableAAF },
+		PairSettingFn{ "bEnableBleedOut", EnableBleedOut },
+		PairSettingFn{ "bEnableCustomCameraPatch", EnableCustomCameraPatch },
+		PairSettingFn{ "bEnableDynamicCamera", EnableDynamicCamera },
+		PairSettingFn{ "bEnableExtraData", EnableExtraData },
+		PairSettingFn{ "bEnableFirstPersonAnim", EnableFirstPersonAnim },
+		PairSettingFn{ "bEnableFixes", EnableFixes },
+		PairSettingFn{ "bEnableJsonFile", EnableJsonFile },
+		PairSettingFn{ "bEnableNPCs", EnableNPCs },
+		PairSettingFn{ "bEnablePlayer", EnablePlayer },
+		PairSettingFn{ "bEnableReloadFixes", EnableReloadFixes },
+		PairSettingFn{ "bEnableScript", EnableScript },
+		PairSettingFn{ "bEnableSlot", EnableSlot },
+		PairSettingFn{ "bEnableSwimming", EnableSwimming },
+		PairSettingFn{ "bEnableTagAAF", EnableTagAAF },
+		PairSettingFn{ "bEnableTextFile", EnableTextFile },
+		PairSettingFn{ "bLooksmenu", EnableLooksMenu },
+		PairSettingFn{ "bTerminal", EnableTerminalMenu },
+		PairSettingFn{ "fHeight", SetHeight },
+		PairSettingFn{ "fstep", SetStep },
+		PairSettingFn{ "iBehaviorFurniture", SetBehaviorFurniture },
+		PairSettingFn{ "iDirF4SE", SetDirF4SE },
+		PairSettingFn{ "iGender", SetGender },
+		PairSettingFn{ "iRace", SetRace },
+		PairSettingFn{ "iReference", SetReference },
+		PairSettingFn{ "iSlot", SetSlot }
 	};
 
-	void CallFnSettings(const std::string& name, GFxFunctionHandler::Args* args) noexcept
+	void CallFnSettings(std::string_view name, GFxFunctionHandler::Args* args) noexcept
 	{
-		for (auto& fn : vFuncs) {
+		auto it = std::lower_bound(vFuncs.begin(), vFuncs.end(), name, [](const PairSettingFn& pair, std::string_view value) {
+			return _strcmpi(pair.first.data(), value.data()) < 0;
+		});
 
-			if (name == fn.first) {
-
-				fn.second(args);
-
-				break;
-			}
+		if (it != vFuncs.end() && _strcmpi(it->first.data(), name.data()) == 0) {
+			it->second(args);
 		}
 	}
 
 	void SetSetting_HHS::Invoke(Args* args)
 	{
-		CallFnSettings(args->args[0].GetString(), args);
+		CallFnSettings(GetValue<std::string_view>(args, 0), args);
 	}
 
 	void TestHeightInGame_HHS::Invoke(Args* args)
@@ -337,11 +348,28 @@ namespace Scaleform {
 #endif
 	}
 
+	void SortSettings() noexcept
+	{
+		static bool sorted{};
+
+		if (sorted) {
+			return;
+		}
+
+		std::sort(vFuncs.begin(), vFuncs.end(), [](const PairSettingFn& left, const PairSettingFn& right) {
+			return _strcmpi(left.first.data(), right.first.data()) < 0;
+		});
+
+		sorted = true;
+	}
+
 	bool Register(GFxMovieView* view, GFxValue* value) noexcept
 	{
 		if (!view || !value) {
 			return false;
 		}
+
+		SortSettings();
 
 #define REG_FUNC(cls) RegisterFunction<cls>(value, view->movieRoot, # cls);
 

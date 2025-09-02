@@ -188,7 +188,7 @@ namespace Settings {
 		void SetKeyDeleteHeight(std::uint32_t value) noexcept { iKeyDeleteHeight = value; }
 		void SetKeyIncrementHeight(std::uint32_t value) noexcept { iKeyIncrementHeight = value; }
 		void SetKeyDecrementHeight(std::uint32_t value) noexcept { iKeyDecrementHeight = value; }
-		void SetEnableSlot(std::uint32_t index, bool value) noexcept;
+		void SetBipedSlot(std::uint32_t index, bool value) noexcept;
 
 		void ReadAllSettings() noexcept;
 
